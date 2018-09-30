@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jboss-web>
+  <!-- Tomcat adds a Cache-Control:no-cache header for secured requests to prevent caching of secured resources.
+       This can be used to disable the Cache-Control header -->
+    <security-domain>eea-security-domain</security-domain>
+    <disable-audit>true</disable-audit> 
+    <context-root>/eea-authenticator</context-root>
+       <valve>
+        <class-name>com.ee.cne.gui.authentication.SMToolkitAuthenticator</class-name>
+        <param>
+            <param-name>disableProxyCaching</param-name>
+            <param-value>false</param-value>
+        </param>
+        <param>
+            <param-name>securePagesWithPragma</param-name>
+            <param-value>false</param-value>
+        </param>
+        <param>
+			<param-name>httpHeaderForSSOAuth</param-name>
+			<param-value>HTTP_SM_UID</param-value>
+		</param>
+		<param>
+			<param-name>sessionCookieForSSOAuth</param-name>
+			<param-value>SMSESSION</param-value>
+		</param>
+		<param>
+			<param-name>httpHeaderForUserRole</param-name>
+			<param-value>HTTP_SM_ROLES</param-value>
+		</param>
+		<param>
+			<param-name>contextKeyParamName</param-name>
+			<param-value>context</param-value>
+		</param>
+		<param>
+			<param-name> httpHeaderToolkitUserId</param-name>
+			<param-value>HTTP_TK_UID</param-value>
+		</param>
+		<param>
+			<param-name>httpHeaderToolkitUserRole</param-name>
+			<param-value>HTTP_TK_ROLES</param-value>
+		</param>
+		<param>
+			<param-name>httpHeaderToolkitMSISDN</param-name>
+			<param-value>HTTP_TK_MSISDN</param-value>
+		</param>
+    </valve>
+    <valve>
+        <class-name>org.apache.catalina.authenticator.SingleSignOn</class-name>
+        <param>
+            <param-name>requireReauthentication</param-name>
+            <param-value>false</param-value>
+        </param>
+    </valve>
+</jboss-web>
+

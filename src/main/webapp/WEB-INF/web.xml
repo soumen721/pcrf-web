@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns="http://java.sun.com/xml/ns/javaee"
+	xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
+	id="WebApp_ID" version="3.0">
+	<display-name>EEA Webclient</display-name>
+
+	<servlet>
+		<servlet-name>ToolkitLoginServlet</servlet-name>
+		<servlet-class>com.ee.cne.gui.servlet.ToolkitLoginServlet</servlet-class>
+		<init-param>
+			<param-name>httpHeaderToolkitMSISDN</param-name>
+			<param-value>HTTP_TK_MSISDN</param-value>
+		</init-param>
+	</servlet>
+
+	<servlet-mapping>
+		<servlet-name>ToolkitLoginServlet</servlet-name>
+		<url-pattern>/ToolkitLoginServlet</url-pattern>
+	</servlet-mapping>
+
+	<security-constraint>
+		<display-name>Restrict access to cc user</display-name>
+		<web-resource-collection>
+			<web-resource-name>Restrict access to cc user</web-resource-name>
+			<url-pattern>/ToolkitLoginServlet/*</url-pattern>
+		</web-resource-collection>
+		<auth-constraint>
+			<role-name>cc-user</role-name>
+			<role-name>ccl-user</role-name>
+			<role-name>soc-user</role-name>
+		</auth-constraint>
+	</security-constraint>
+
+	<security-role>
+		<role-name>cc-user</role-name>
+	</security-role>
+	<security-role>
+		<role-name>ccl-user</role-name>
+	</security-role>
+	<security-role>
+		<role-name>soc-user</role-name>
+	</security-role>
+
+	<!-- Configure login to be HTTP Basic -->
+	<login-config>
+		<auth-method>BASIC</auth-method>
+		<realm-name>default</realm-name>
+		<form-login-config>
+            <form-error-page>/ErrorPage.html</form-error-page>
+        </form-login-config>
+	</login-config>
+
+    <error-page>
+		<location>/ErrorPage.html</location>
+	</error-page>
+</web-app>
