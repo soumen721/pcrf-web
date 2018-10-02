@@ -5,11 +5,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.xml.datatype.DatatypeConfigurationException;
 
 import com.ee.cne.ws.dataproduct.generated.DataPass;
+import com.ee.cne.ws.dataproduct.generated.DataPass.ShareDetails.SharerDataUsage;
 import com.ee.cne.ws.dataproduct.generated.GetCurrentAndAvailableDataProductsResponse;
 import com.ee.cne.ws.dataproduct.generated.GetCurrentAndAvailableDataProductsResponse.Message.SubscriberInfo;
 
@@ -38,7 +40,7 @@ public class FilterService {
 					+ e.getPassEndTime().toGregorianCalendar().toZonedDateTime().toLocalDate()
 					+ "  \t|Expiry_Reason \t| " + e.getExpiryReason());
 		});
-		
+
 		printDataUsage(billCycleDataPasses, info);
 	}
 
@@ -103,17 +105,57 @@ public class FilterService {
 	}
 
 	private void printDataUsage(List<DataPass> dataPasses, final SubscriberInfo info) {
+
+		Long dataUsed_ult = 0L;
+		Long dataUsed_sha = 0L;
+		Long dataUsed_shaGrp = 0L;
+		Long dataUsed_nonSha = 0L;
+		Long userData = 0L;
+		Long data_avl = 0L;
+		Long data_rem = 0L;
+
 		System.out.println("Calculation begin here");
-		dataPasses.forEach(e->{
-			if("unlimited".equalsIgnoreCase(e.getExpiryReason())) {
-				System.out.println("Unlimited Pass :\t" + e.getInfoType()+"\t|"+e.getExpiryReason());
+		for (DataPass dataPass : dataPasses) {
+			if ("unlimited".equalsIgnoreCase(dataPass.getExpiryReason())) {
+
+				System.out.println("Unlimited Pass :\t" + dataPass.getInfoType() + "\t|" + dataPass.getExpiryReason());
+				dataUsed_ult += 0L;
 			}
-			if(info.getTypeOfAccess().contains("L") && e.getShareDetails() != null && e.getShareDetails().getSharerDataUsage().size() >0) {
-				System.out.println("Its a Shaed Pass: \t" + e.getInfoType()+"\t|"+e.getExpiryReason());
+			if (info.getTypeOfAccess().contains("L") && dataPass.getShareDetails() != null
+					&& dataPass.getShareDetails().getSharerDataUsage().size() > 0) {
+
+				List<SharerDataUsage> usage = dataPass.getShareDetails().getSharerDataUsage();
+				Optional<SharerDataUsage> vol = usage.stream().filter(e -> e.getMsisdn().equals(info.getMsisdn()))
+						.findFirst();
+				dataUsed_sha += vol.get().getUsedVolume();
+
+				if ("C".equals(dataPass.getInfoType())) {
+					dataUsed_shaGrp = dataUsed_shaGrp + dataPass.getFup() - dataPass.getVolume();
+					System.out.println("Its a Shaed Pass: Share Data \t" + vol.get().getUsedVolume()
+							+ "\t| ShareDtaa Group " + (dataPass.getFup() - dataPass.getVolume()));
+				} else if ("E".equals(dataPass.getInfoType())) {
+					dataUsed_shaGrp += dataPass.getVolume();
+					System.out.println("Its a Shaed Pass: Share Data \t" + vol.get().getUsedVolume()
+							+ "\t| ShareDtaa Group " + dataPass.getVolume());
+				}
+
+			} else {
+
+				System.out.println(
+						"Its a Non-Shaed Pass: \t" + dataPass.getInfoType() + "\t|" + dataPass.getExpiryReason());
+				dataUsed_nonSha += dataUsed_nonSha;
 			}
-		});
+
+			data_avl += dataPass.getFup();
+		}
+
+		System.out.println("*********************************************************************");
+		System.out.println("Total Data Used = " + (dataUsed_ult + dataUsed_sha + dataUsed_nonSha));
+		System.out.println("Data Avail = " + data_avl);
+		System.out.println("Data Remaining = " + (data_avl - (dataUsed_nonSha + dataUsed_shaGrp)));
+
 	}
-	
+
 	public static void main(String arg[]) throws DatatypeConfigurationException {
 
 		FilterService filterService = new FilterService();

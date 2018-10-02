@@ -50,15 +50,15 @@ public class DummyDataGenerator {
 		DataProducts dataProduct = new DataProducts();
 
 		DataPass dataPass = populateDataPass("C", "10GB Data EE HS EOBC", LocalDateTime.now().minusDays(15),
-				LocalDateTime.now().minusDays(4), 125872138L, 8715474912L, "virtual");
+				LocalDateTime.now().minusDays(4), 125872138L, 10737418240L, "virtual", new Long[]{8667008000L, 2942488576L});
 		DataPass dataPass1 = populateDataPass("E", "AFUP_CON_HS_UKEU_DCC", LocalDateTime.now().minusDays(20),
-				LocalDateTime.now().minusDays(12), 287161212L, 213123123L, "unlimited");
+				LocalDateTime.now().minusDays(12), 287161212L, 11811161088L, "unlimited", new Long[]{8960598016L, 2852495360L});
 		DataPass dataPass2 = populateDataPass("E", "EE AutoFUP HS_11GB", LocalDateTime.now().minusDays(23),
-				LocalDateTime.now().minusDays(15), 287161212L, 213123123L, "virtual");
+				LocalDateTime.now().minusDays(15), 287161212L, 10737418240L, "virtual", new Long[]{7904909312L, 7904932423L});
 		DataPass dataPass3 = populateDataPass("E", "EE AutoFUP HS_100GB", LocalDateTime.now().minusDays(27),
-				LocalDateTime.now().minusDays(15), 287161212L, 213123123L, "fup_change");
+				LocalDateTime.now().minusDays(15), 287161212L, 213123123L, "fup_change", new Long[]{790490931L, 7904242412L});
 		DataPass dataPass4 = populateDataPass("E", "EE AutoFUP HS_11GB", LocalDateTime.now().minusDays(28),
-				LocalDateTime.now().minusDays(15), 287161212L, 213123123L, "virtual");
+				LocalDateTime.now().minusDays(15), 287161212L, 213123123L, "virtual", new Long[]{241242414L, 79543559312L});
 
 		dataProduct.getDataProduct().addAll(Arrays.asList(dataPass, dataPass1, dataPass2, dataPass3, dataPass4));
 
@@ -69,7 +69,7 @@ public class DummyDataGenerator {
 	}
 
 	private static DataPass populateDataPass(String infoType, String passType, LocalDateTime startDate,
-			LocalDateTime endDate, Long volume, Long fup, String exp_reason)
+			LocalDateTime endDate, Long volume, Long fup, String exp_reason, Long[] useVol)
 			throws DatatypeConfigurationException {
 
 		DataPass dataPass = new DataPass();
@@ -88,10 +88,10 @@ public class DummyDataGenerator {
 
 		SharerDataUsage usage = new SharerDataUsage();
 		usage.setMsisdn(MSISDN);
-		usage.setUsedVolume(87216921L);
+		usage.setUsedVolume(useVol[0]);
 		SharerDataUsage usage1 = new SharerDataUsage();
 		usage1.setMsisdn("126321321333");
-		usage1.setUsedVolume(123213213L);
+		usage1.setUsedVolume(useVol[1]);
 
 		share.getSharerDataUsage().addAll(Arrays.asList(usage, usage1));
 		dataPass.setShareDetails(share);
