@@ -1,8 +1,8 @@
 package com.ee.cne.pcrf.servlet;
 
-import lombok.Data;
+//import lombok.Data;
 
-@Data
+//@Data
 public class DataUsageDetails {
 
 	private Long dataUsed;
