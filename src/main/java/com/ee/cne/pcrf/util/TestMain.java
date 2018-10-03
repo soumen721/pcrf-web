@@ -1,4 +1,4 @@
-package com.ee.cne.pcrf.servlet;
+package com.ee.cne.pcrf.util;
 
 import java.math.BigInteger;
 import java.time.LocalDate;
