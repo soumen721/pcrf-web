@@ -1,10 +1,10 @@
-package com.ee.cne.pcrf.util;
+package com.ericsson.eea.billing.util;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-public class PCRFConstant {
+public class BillingConstant {
 	
 	public final static List<String> INVALID_PASS_TYPE = Arrays.asList("HSAFUP0", "MBBAFUP0", "AFUP0PET");
 	public final static List<String> VALID_INFO_TYPE = Arrays.asList("C", "S", "E", "ZR", "EZR");

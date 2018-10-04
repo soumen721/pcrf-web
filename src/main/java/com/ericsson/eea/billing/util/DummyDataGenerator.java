@@ -1,14 +1,10 @@
-package com.ee.cne.pcrf.util;
+package com.ericsson.eea.billing.util;
 
 import java.math.BigInteger;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.Arrays;
-import java.util.GregorianCalendar;
 
 import javax.xml.datatype.DatatypeConfigurationException;
-import javax.xml.datatype.DatatypeFactory;
-import javax.xml.datatype.XMLGregorianCalendar;
 
 import com.ee.cne.ws.dataproduct.generated.DataPass;
 import com.ee.cne.ws.dataproduct.generated.DataPass.ShareDetails;
@@ -42,7 +38,7 @@ public class DummyDataGenerator {
 		info.setTypeOfAccess("DL");
 		info.setBillCycle(BigInteger.valueOf(24));
 		info.setCustomerType("NEXUS");
-		info.setLastCheckedDate(toXMLCalender(LocalDateTime.now()));
+		info.setLastCheckedDate(BillingUtils.toXMLCalender(LocalDateTime.now()));
 		info.setTariffType("Postpaid");
 		Location localtion = new Location();
 		localtion.setCountry("UK");
@@ -85,12 +81,12 @@ public class DummyDataGenerator {
 
 		DataPass dataPass20 = populateDataPass("E", "10GB Data EE HS EOBC",
 				LocalDateTime.now().minusDays(DAY_IN_MNTH * PENLTY_MONTH_CYCLE + 15),
-				LocalDateTime.now().minusDays(DAY_IN_MNTH * PENLTY_MONTH_CYCLE + 4), 125872138L, 10737418240L,
-				"virtual", new Long[] { 8667008000L, 2942488576L });
+				LocalDateTime.now().minusDays(DAY_IN_MNTH * PENLTY_MONTH_CYCLE + 4), 125823338L, 1073742330L,
+				"virtual", new Long[] { 866721321L, 2942488576L });
 		DataPass dataPass21 = populateDataPass("E", "AFUP_CON_HS_UKEU_DCC",
 				LocalDateTime.now().minusDays(DAY_IN_MNTH * PENLTY_MONTH_CYCLE + 31),
-				LocalDateTime.now().minusDays(DAY_IN_MNTH * PENLTY_MONTH_CYCLE + 12), 287161212L, 11811161088L,
-				"virtual", new Long[] { 8960598016L, 2852495360L });
+				LocalDateTime.now().minusDays(DAY_IN_MNTH * PENLTY_MONTH_CYCLE + 12), 287161232L, 118322228L,
+				"virtual", new Long[] { 896023286L, 2852495360L });
 
 		dataProduct.getDataProduct().addAll(Arrays.asList(dataPass, dataPass1, dataPass2, dataPass3, dataPass4,
 				dataPass10, dataPass11, dataPass20, dataPass21));
@@ -108,8 +104,8 @@ public class DummyDataGenerator {
 		DataPass dataPass = new DataPass();
 		dataPass.setInfoType(infoType);
 		dataPass.setPassType(passType);
-		dataPass.setPassStartTime(toXMLCalender(startDate));
-		dataPass.setPassEndTime(toXMLCalender(endDate));
+		dataPass.setPassStartTime(BillingUtils.toXMLCalender(startDate));
+		dataPass.setPassEndTime(BillingUtils.toXMLCalender(endDate));
 		dataPass.setVolume(volume);
 		dataPass.setExpiryReason(exp_reason);
 		dataPass.setFup(fup);
@@ -130,17 +126,6 @@ public class DummyDataGenerator {
 		dataPass.setShareDetails(share);
 
 		return dataPass;
-	}
-
-	private static XMLGregorianCalendar toXMLCalender(LocalDateTime date) throws DatatypeConfigurationException {
-
-		GregorianCalendar gcal = GregorianCalendar.from(date.atZone(ZoneId.systemDefault()));
-		return DatatypeFactory.newInstance().newXMLGregorianCalendar(gcal);
-	}
-
-	public static LocalDateTime toLocalDateTime(XMLGregorianCalendar xmlDate) {
-
-		return xmlDate.toGregorianCalendar().toZonedDateTime().toLocalDateTime();
 	}
 
 }

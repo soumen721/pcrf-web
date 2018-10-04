@@ -1,4 +1,4 @@
-package com.ee.cne.pcrf.service;
+package com.ericsson.eea.billing.service.impl;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -10,12 +10,16 @@ import java.util.stream.Collectors;
 
 import javax.xml.datatype.DatatypeConfigurationException;
 
-import com.ee.cne.pcrf.util.DummyDataGenerator;
-import com.ee.cne.pcrf.util.PCRFConstant;
 import com.ee.cne.ws.dataproduct.generated.DataPass;
 import com.ee.cne.ws.dataproduct.generated.DataPass.ShareDetails.SharerDataUsage;
 import com.ee.cne.ws.dataproduct.generated.GetCurrentAndAvailableDataProductsResponse;
 import com.ee.cne.ws.dataproduct.generated.GetCurrentAndAvailableDataProductsResponse.Message.SubscriberInfo;
+import com.ericsson.eea.billing.service.DataUsageCalculationService;
+import com.ericsson.eea.billing.util.BillingConstant;
+import com.ericsson.eea.billing.util.BillingUtils;
+import com.ericsson.eea.billing.util.DummyDataGenerator;
+import com.ericsson.eea.pcrf.model.DataUsageDetails;
+import com.ericsson.eea.pcrf.model.PeriodicalDataUsage;
 
 public class PostPaidDataUsageCalculationService implements DataUsageCalculationService {
 
@@ -31,67 +35,63 @@ public class PostPaidDataUsageCalculationService implements DataUsageCalculation
 		List<DataPass> filteredDataPasses = getFilteredDataPass(dataPasses);
 
 		// For Current Period
-		System.out.println("*************************	Current Period	****************************");
+		System.out.println("*************************	Current Period	****************************\n");
 		LocalDateTime billCycleEndDate = LocalDate.now().atStartOfDay();
 		LocalDateTime billCycleStartDate = billCycleEndDate.minusMonths(1).plusDays(1);
 		List<DataPass> currentCycleDataPasses = filterDataPassOnFUPChange(
 				getFilteredDataPassBasedOnBillCycle(filteredDataPasses, billCycleStartDate, billCycleEndDate));
 
 		System.out.println("Final Pass after FUP remove Current Cycle");
-		currentCycleDataPasses.forEach(e -> System.out.println(
-				e.getInfoType() + " \t| " + e.getPassStartTime().toGregorianCalendar().toZonedDateTime().toLocalDate()
-						+ " \t| " + e.getPassEndTime().toGregorianCalendar().toZonedDateTime().toLocalDate()
-						+ "  \t|Expiry_Reason \t| " + e.getExpiryReason()));
+		currentCycleDataPasses.forEach(BillingUtils::printLog);
 
-		printDataUsage(currentCycleDataPasses, info);
+		DataUsageDetails currentCycleDataUsage = printDataUsage(currentCycleDataPasses, info);
 
 		// For Previous Period
-		System.out.println("*************************	Previous Period	****************************");
+		System.out.println("*************************	Previous Period	****************************\n");
 		billCycleEndDate = billCycleEndDate.minusMonths(1);
 		billCycleStartDate = billCycleEndDate.minusMonths(1).plusDays(1);
 		List<DataPass> previousCycleDataPasses = filterDataPassOnFUPChange(
 				getFilteredDataPassBasedOnBillCycle(filteredDataPasses, billCycleStartDate, billCycleEndDate));
 
 		System.out.println("Final Pass after FUP remove -- Previous Cycle");
-		previousCycleDataPasses.forEach(e -> System.out.println(
-				e.getInfoType() + " \t| " + e.getPassStartTime().toGregorianCalendar().toZonedDateTime().toLocalDate()
-						+ " \t| " + e.getPassEndTime().toGregorianCalendar().toZonedDateTime().toLocalDate()
-						+ "  \t|Expiry_Reason \t| " + e.getExpiryReason()));
+		previousCycleDataPasses.forEach(BillingUtils::printLog);
 
-		printDataUsage(previousCycleDataPasses, info);
+		DataUsageDetails previousCycleDataUsage = printDataUsage(previousCycleDataPasses, info);
 
 		// For Penultimate Period
-		System.out.println("*************************	Penultimate Period	****************************");
+		System.out.println("*************************	Penultimate Period	****************************\n");
 		billCycleEndDate = billCycleEndDate.minusMonths(1);
 		billCycleStartDate = billCycleEndDate.minusMonths(1).plusDays(1);
 		List<DataPass> penultimateCycleDataPasses = filterDataPassOnFUPChange(
 				getFilteredDataPassBasedOnBillCycle(filteredDataPasses, billCycleStartDate, billCycleEndDate));
 
 		System.out.println("Final Pass after FUP remove -- Previous Cycle");
-		penultimateCycleDataPasses.forEach(e -> System.out.println(
-				e.getInfoType() + " \t| " + e.getPassStartTime().toGregorianCalendar().toZonedDateTime().toLocalDate()
-						+ " \t| " + e.getPassEndTime().toGregorianCalendar().toZonedDateTime().toLocalDate()
-						+ "  \t|Expiry_Reason \t| " + e.getExpiryReason()));
+		penultimateCycleDataPasses.forEach(BillingUtils::printLog);
 
-		printDataUsage(penultimateCycleDataPasses, info);
+		DataUsageDetails penultimateCycleDataUsage = printDataUsage(penultimateCycleDataPasses, info);
 
+		
+		PeriodicalDataUsage periodicalDataUsage =  PeriodicalDataUsage.builder()
+				.currentCycleDataUsage(currentCycleDataUsage)
+				.previousCycleDataUsage(previousCycleDataUsage)
+				.penultimateCycleDataUsage(penultimateCycleDataUsage)
+				.build() ;
+		
+		BillingUtils.printDataUsage(periodicalDataUsage);
 	}
 
 	// Get Filtered invalid PassType, InotType, Zone along and then sort based on
-	// Start
+	// Start Date
 	private List<DataPass> getFilteredDataPass(List<DataPass> dataPasses) {
 
 		System.out.println("Before First Iteration ");
-		dataPasses.forEach(e -> System.out.println(e.getInfoType() + " \t| " + e.getPassType() + " \t| "
-				+ e.getPassStartTime().toGregorianCalendar().toZonedDateTime().toLocalDate() + " \t| "
-				+ e.getPassEndTime().toGregorianCalendar().toZonedDateTime().toLocalDate() + "  \t|Expiry_Reason \t| "
-				+ e.getExpiryReason()));
+		dataPasses.forEach(BillingUtils::printLog);
 
 		Comparator<? super DataPass> dateComparator = (e1, e2) -> e1.getPassStartTime().compare(e2.getPassStartTime());
 
-		return dataPasses.stream().filter(pass -> !PCRFConstant.INVALID_PASS_TYPE.contains(pass.getPassType()))
-				.filter(info -> PCRFConstant.VALID_INFO_TYPE.contains(info.getInfoType()))
-				.filter(zone -> PCRFConstant.VALID_ZONE.equals(zone.getValidZone())).sorted(dateComparator.reversed())
+		return dataPasses.stream().filter(pass -> !BillingConstant.INVALID_PASS_TYPE.contains(pass.getPassType()))
+				.filter(info -> BillingConstant.VALID_INFO_TYPE.contains(info.getInfoType()))
+				.filter(zone -> BillingConstant.VALID_ZONE.equals(zone.getValidZone())).sorted(dateComparator.reversed())
 				.collect(Collectors.toList());
 
 	}
@@ -103,17 +103,14 @@ public class PostPaidDataUsageCalculationService implements DataUsageCalculation
 		System.out.println("Bill Cycle End Date=>\t " + billCycleEndDate.toLocalDate());
 
 		List<DataPass> list = dataPasses.stream()
-				.filter(pass -> (DummyDataGenerator.toLocalDateTime(pass.getPassStartTime()).isAfter(billCycleStartDate)
-						|| DummyDataGenerator.toLocalDateTime(pass.getPassStartTime()).isEqual(billCycleStartDate))
-						&& (DummyDataGenerator.toLocalDateTime(pass.getPassEndTime()).isBefore(billCycleEndDate))
-						|| DummyDataGenerator.toLocalDateTime(pass.getPassEndTime()).isEqual(billCycleEndDate))
+				.filter(pass -> (BillingUtils.toLocalDateTime(pass.getPassStartTime()).isAfter(billCycleStartDate)
+						|| BillingUtils.toLocalDateTime(pass.getPassStartTime()).isEqual(billCycleStartDate))
+						&& (BillingUtils.toLocalDateTime(pass.getPassEndTime()).isBefore(billCycleEndDate))
+						|| BillingUtils.toLocalDateTime(pass.getPassEndTime()).isEqual(billCycleEndDate))
 				.collect(Collectors.toList());
 
 		System.out.println("After Sorting ON Date\t|\t|");
-		list.forEach(e -> System.out.println(
-				e.getInfoType() + " \t| " + e.getPassStartTime().toGregorianCalendar().toZonedDateTime().toLocalDate()
-						+ " \t| " + e.getPassEndTime().toGregorianCalendar().toZonedDateTime().toLocalDate()
-						+ "  \t|Expiry_Reason \t| " + e.getExpiryReason()));
+		list.forEach(BillingUtils::printLog);
 
 		return list;
 	}
@@ -122,7 +119,7 @@ public class PostPaidDataUsageCalculationService implements DataUsageCalculation
 
 		List<DataPass> list = new ArrayList<>();
 		for (DataPass dataPass : dataPasses) {
-			if (PCRFConstant.EXPIRY_REASON.contains(dataPass.getExpiryReason())) {
+			if (BillingConstant.EXPIRY_REASON.contains(dataPass.getExpiryReason())) {
 				break;
 			}
 			list.add(dataPass);
@@ -131,7 +128,7 @@ public class PostPaidDataUsageCalculationService implements DataUsageCalculation
 		return list;
 	}
 
-	private void printDataUsage(List<DataPass> dataPasses, final SubscriberInfo info) {
+	private DataUsageDetails printDataUsage(List<DataPass> dataPasses, final SubscriberInfo info) {
 
 		long dataUsed_ult = 0L;
 		long dataUsed_sha = 0L;
@@ -175,12 +172,19 @@ public class PostPaidDataUsageCalculationService implements DataUsageCalculation
 
 			data_avl += dataPass.getFup();
 		}
-
-		System.out.println("*********************************************************************");
-		System.out.println("Total Data Used = " + (dataUsed_ult + dataUsed_sha + dataUsed_nonSha));
+		
+		dataUsed_sha = (dataUsed_ult + dataUsed_sha + dataUsed_nonSha);
+		data_rem = data_avl - (dataUsed_nonSha + dataUsed_shaGrp);
+		System.out.println("*********************	Data Usage	********************");
+		System.out.println("Total Data Used = " + dataUsed_sha);
 		System.out.println("Data Avail = " + data_avl);
-		System.out.println("Data Remaining = " + (data_avl - (dataUsed_nonSha + dataUsed_shaGrp)));
+		System.out.println("Data Remaining = " + data_rem );
 
+		return DataUsageDetails.builder()
+				.dataUsed(dataUsed_sha)
+				.dataAvail(data_avl)
+				.dataRemaining(data_rem)
+				.build(); 
 	}
 
 	public static void main(String arg[]) throws DatatypeConfigurationException {

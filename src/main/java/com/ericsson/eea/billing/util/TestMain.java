@@ -1,4 +1,4 @@
-package com.ee.cne.pcrf.util;
+package com.ericsson.eea.billing.util;
 
 import java.math.BigInteger;
 import java.time.LocalDate;

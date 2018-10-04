@@ -1,4 +1,4 @@
-package com.ee.cne.pcrf.service;
+package com.ericsson.eea.billing.service;
 
 import javax.xml.datatype.DatatypeConfigurationException;
 

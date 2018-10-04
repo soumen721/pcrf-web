@@ -1,4 +1,4 @@
-package com.ee.cne.pcrf.servlet;
+package com.ericsson.eea.pcrf.servlet;
 
 import java.io.IOException;
 import java.io.PrintWriter;
