@@ -1,5 +1,7 @@
 package com.ericsson.eea.billing.service.impl;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -14,6 +16,8 @@ import com.ee.cne.ws.dataproduct.generated.DataPass;
 import com.ee.cne.ws.dataproduct.generated.DataPass.ShareDetails.SharerDataUsage;
 import com.ee.cne.ws.dataproduct.generated.GetCurrentAndAvailableDataProductsResponse;
 import com.ee.cne.ws.dataproduct.generated.GetCurrentAndAvailableDataProductsResponse.Message.SubscriberInfo;
+import com.ee.cne.ws.getctxwithoperations.generated.Calculator;
+import com.ee.cne.ws.getctxwithoperations.generated.CalculatorSoap;
 import com.ericsson.eea.billing.service.DataUsageCalculationService;
 import com.ericsson.eea.billing.util.BillingConstant;
 import com.ericsson.eea.billing.util.BillingUtils;
@@ -187,7 +191,13 @@ public class PostPaidDataUsageCalculationService implements DataUsageCalculation
 				.build(); 
 	}
 
-	public static void main(String arg[]) throws DatatypeConfigurationException {
+	public static void main(String arg[]) throws DatatypeConfigurationException, MalformedURLException {
+		//Calling a Dummy Wen Service
+		URL wsdlURL = new URL("http://www.dneonline.com/calculator.asmx?wsdl");
+		Calculator service = new Calculator(wsdlURL);
+		CalculatorSoap ctxport = service.getCalculatorSoap();
+		int resp = ctxport.add(10, 20);
+		System.out.println("Addition Result ==> "+ resp);
 
 		DataUsageCalculationService filterService = new PostPaidDataUsageCalculationService();
 		filterService.calculateDataUsage();
