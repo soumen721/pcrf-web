@@ -6,6 +6,7 @@ import com.ee.cne.ws.dataproduct.generated.GetCurrentAndAvailableDataProductsRes
 import com.ee.cne.ws.dataproduct.generated.GetCurrentAndAvailableDataProductsResponse.Message.SubscriberInfo;
 import com.ericsson.eea.billing.model.SubscriberBillingInfo;
 import com.ericsson.eea.billing.service.DataUsageCalculationService;
+import com.ericsson.eea.billing.util.BillingCycle;
 import com.ericsson.eea.billing.util.BillingUtils;
 import com.ericsson.eea.pcrf.model.DataUsageDetails;
 
@@ -39,7 +40,7 @@ public class PostPaidDataUsageCalculationService implements DataUsageCalculation
         System.out.println("Final Pass after FUP remove Current Cycle");
         currentCycleDataPasses.forEach(BillingUtils::printLog);
 
-        DataUsageDetails currentCycleDataUsage = printDataUsage(currentCycleDataPasses, info);
+        DataUsageDetails currentCycleDataUsage = printDataUsage(currentCycleDataPasses, info, BillingCycle.CURRENT);
 
         // For Previous Period
         System.out.println("*************************	Previous Period	****************************\n");
@@ -51,7 +52,7 @@ public class PostPaidDataUsageCalculationService implements DataUsageCalculation
         System.out.println("Final Pass after FUP remove -- Previous Cycle");
         previousCycleDataPasses.forEach(BillingUtils::printLog);
 
-        DataUsageDetails previousCycleDataUsage = printDataUsage(previousCycleDataPasses, info);
+        DataUsageDetails previousCycleDataUsage = printDataUsage(previousCycleDataPasses, info, BillingCycle.PREVIOUS);
 
         // For Penultimate Period
         System.out.println("*************************	Penultimate Period	****************************\n");
@@ -63,7 +64,7 @@ public class PostPaidDataUsageCalculationService implements DataUsageCalculation
         System.out.println("Final Pass after FUP remove -- Previous Cycle");
         penultimateCycleDataPasses.forEach(BillingUtils::printLog);
 
-        DataUsageDetails penultimateCycleDataUsage = printDataUsage(penultimateCycleDataPasses, info);
+        DataUsageDetails penultimateCycleDataUsage = printDataUsage(penultimateCycleDataPasses, info, BillingCycle.PENULTIMATE);
 
         SubscriberBillingInfo billingInfo = SubscriberBillingInfo.builder()
                 // Basic
@@ -92,15 +93,19 @@ public class PostPaidDataUsageCalculationService implements DataUsageCalculation
         return billingInfo;
     }
 
-    private DataUsageDetails printDataUsage(List<DataPass> dataPasses, final SubscriberInfo info) {
+    private DataUsageDetails printDataUsage(List<DataPass> dataPasses, final SubscriberInfo info, BillingCycle billingCycle) {
 
-        long dataUsed_ult = 0L;
-        long dataUsed_sha = 0L;
-        long dataUsed_shaGrp = 0L;
-        long dataUsed_nonSha = 0L;
-        long userData = 0L;
-        long data_avl = 0L;
-        long data_rem = 0L;
+        Double dataAvail = 0D;
+
+        Double dataUsedShared = 0D;
+
+        Double zeroRatedDataUsed;
+
+        Double dataUsed_ult = 0D;
+        Double dataUsed_shaGrp = 0D;
+        Double dataUsed_nonSha = 0D;
+        Double userData = 0D;
+        Double data_rem = 0D;
 
         System.out.println("Calculation begin here");
         for (DataPass dataPass : dataPasses) {
@@ -115,7 +120,7 @@ public class PostPaidDataUsageCalculationService implements DataUsageCalculation
                 List<SharerDataUsage> usage = dataPass.getShareDetails().getSharerDataUsage();
                 Optional<SharerDataUsage> vol = usage.stream().filter(e -> e.getMsisdn().equals(info.getMsisdn()))
                         .findFirst();
-                dataUsed_sha += vol.get().getUsedVolume();
+                dataUsedShared += vol.get().getUsedVolume();
 
                 if ("C".equals(dataPass.getInfoType())) {
                     dataUsed_shaGrp = dataUsed_shaGrp + dataPass.getFup() - dataPass.getVolume();
@@ -134,17 +139,17 @@ public class PostPaidDataUsageCalculationService implements DataUsageCalculation
                 dataUsed_nonSha += dataUsed_nonSha;
             }
 
-            data_avl += dataPass.getFup();
+            dataAvail += dataPass.getFup();
         }
 
-        dataUsed_sha = (dataUsed_ult + dataUsed_sha + dataUsed_nonSha);
-        data_rem = data_avl - (dataUsed_nonSha + dataUsed_shaGrp);
+        dataUsedShared = (dataUsed_ult + dataUsedShared + dataUsed_nonSha);
+        data_rem = dataAvail - (dataUsed_nonSha + dataUsed_shaGrp);
         System.out.println("*********************	Data Usage	********************");
-        System.out.println("Total Data Used = " + dataUsed_sha);
-        System.out.println("Data Avail = " + data_avl);
+        System.out.println("Total Data Used = " + dataUsedShared);
+        System.out.println("Data Avail = " + dataAvail);
         System.out.println("Data Remaining = " + data_rem);
 
-        return DataUsageDetails.builder().dataUsed(dataUsed_sha).dataAvail(data_avl).dataRemaining(data_rem).build();
+        return DataUsageDetails.builder().dataUsed(dataUsedShared).dataAvail(dataAvail).dataRemaining(data_rem).build();
     }
 
 }
