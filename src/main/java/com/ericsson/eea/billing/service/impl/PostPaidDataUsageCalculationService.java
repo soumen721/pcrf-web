@@ -28,7 +28,7 @@ import com.ericsson.eea.pcrf.model.DataUsageDetails;
 public class PostPaidDataUsageCalculationService implements DataUsageCalculationService {
 
 	@Override
-	public void calculateDataUsage() throws DatatypeConfigurationException {
+	public SubscriberBillingInfo calculateDataUsage() throws DatatypeConfigurationException {
 
 		GetCurrentAndAvailableDataProductsResponse response = DummyDataGenerator.pupulateResponseData();
 
@@ -97,6 +97,8 @@ public class PostPaidDataUsageCalculationService implements DataUsageCalculation
 		System.out.println(billingInfo.toString());
 		System.out.println(
 				"++++++++++++++++++++++++++++++++ SubscriberBillingInfo ++++++++++++++++++++++++++++++++++++++++");
+		
+		return billingInfo;
 	}
 
 	// Get Filtered invalid PassType, InotType, Zone along and then sort based on

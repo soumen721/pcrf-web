@@ -3,3 +3,6 @@
 /bin
 /.settings
 /.idea
+/.classpath
+/.project
+/pcrfweb.iml
