@@ -6,6 +6,7 @@ import com.ee.cne.ws.dataproduct.generated.GetCurrentAndAvailableDataProductsRes
 import com.ericsson.eea.billing.model.*;
 import com.ericsson.eea.billing.service.DataUsageCalculationService;
 import com.ericsson.eea.billing.service.SubscriberBillingRemote;
+import com.ericsson.eea.billing.util.DummyDataGenerator;
 
 import javax.ejb.Remote;
 import javax.ejb.Stateless;
@@ -25,19 +26,18 @@ public class SubscriberBillingInfoImpl implements SubscriberBillingRemote {
         // call PCRF web service and process and return response
         DataUsageCalculationService usageCalculationService = new PostPaidDataUsageCalculationService();
         MessageEnvelope<SubscriberBillingInfo> envelope = new MessageEnvelope();
-        envelope.setData(Arrays.asList(usageCalculationService.calculateDataUsage()));
+        envelope.setData(Arrays.asList(usageCalculationService.calculateDataUsage(null)));
 
         return envelope;
     }
 
     public static void main(String arg[]) throws DatatypeConfigurationException, MalformedURLException {
 
-        GetCurrentAndAvailableDataProductsResponse response = getDataProductsWebServiceResponse();
         DataUsageCalculationService usageCalculationService = new PostPaidDataUsageCalculationService();
-        usageCalculationService.calculateDataUsage();
+        usageCalculationService.calculateDataUsage(getDataProductsWebServiceResponse());
     }
 
-    private static GetCurrentAndAvailableDataProductsResponse getDataProductsWebServiceResponse() {
+    private static GetCurrentAndAvailableDataProductsResponse getDataProductsWebServiceResponse() throws DatatypeConfigurationException {
 
         try {
             URL wsdlURL = new URL("http://www.dneonline.com/calculator.asmx?wsdl");
@@ -62,6 +62,6 @@ public class SubscriberBillingInfoImpl implements SubscriberBillingRemote {
             e.printStackTrace();
         }
 
-        return null;
+        return DummyDataGenerator.pupulateResponseData();
     }
 }
