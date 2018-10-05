@@ -11,9 +11,13 @@ public class DataUsageDetails implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	private long dataUsed;
+	private double dataUsed;
 
-	private long dataAvail;
+	private double dataAvail;
 
-	private long dataRemaining;
+	private double dataRemaining;
+	
+	private double dataUsedShared;
+	
+	private double zeroRatedDataUsed;
 }

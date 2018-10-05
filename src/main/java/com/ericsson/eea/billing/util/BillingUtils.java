@@ -9,7 +9,7 @@ import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 
 import com.ee.cne.ws.dataproduct.generated.DataPass;
-import com.ericsson.eea.pcrf.model.PeriodicalDataUsage;
+import com.ericsson.eea.billing.model.SubscriberBillingInfo;
 
 public class BillingUtils {
 
@@ -32,22 +32,22 @@ public class BillingUtils {
 				+ "  \t|Expiry_Reason \t| " + dataPass.getExpiryReason());
 	}
 
-	public static void printDataUsage(PeriodicalDataUsage periodicalDataUsage) {
+	public static void printDataUsage(SubscriberBillingInfo billingInfo) {
 
 		System.out.println("=======================================================================");
 		System.out.println("Current Period Data Usage=>\n" + "DataUsed : "
-				+ periodicalDataUsage.getCurrentCycleDataUsage().getDataUsed() + "\t| Data Avail : "
-				+ periodicalDataUsage.getCurrentCycleDataUsage().getDataAvail() + "\t| Data Remaining : "
-				+ periodicalDataUsage.getCurrentCycleDataUsage().getDataRemaining());
+				+ billingInfo.getDataUsed() + "\t| Data Avail : "
+				+ billingInfo.getDataAvail() + "\t| Data Remaining : "
+				+ billingInfo.getDataUsedShared());
 
 		System.out.println("Previous Period Data Usage=>\n" + "DataUsed : "
-				+ periodicalDataUsage.getPreviousCycleDataUsage().getDataUsed() + "\t| Data Avail : "
-				+ periodicalDataUsage.getPreviousCycleDataUsage().getDataAvail() + "\t| Data Remaining : "
-				+ periodicalDataUsage.getPreviousCycleDataUsage().getDataRemaining());
+				+ billingInfo.getLbcDataUsed() + "\t| Data Avail : "
+				+ billingInfo.getLbcDataAvail() + "\t| Data Remaining : "
+				+ billingInfo.getLbcDataUsedShared());
 
 		System.out.println("Penultimate Period Data Usage=>\n" + "DataUsed : "
-				+ periodicalDataUsage.getPenultimateCycleDataUsage().getDataUsed() + "\t| Data Avail : "
-				+ periodicalDataUsage.getPenultimateCycleDataUsage().getDataAvail() + "\t| Data Remaining : "
-				+ periodicalDataUsage.getPenultimateCycleDataUsage().getDataRemaining());
+				+ billingInfo.getPbcDataUsed() + "\t| Data Avail : "
+				+ billingInfo.getPbcDataAvail() + "\t| Data Remaining : "
+				+ billingInfo.getPbcDataUsedShared());
 	}
 }

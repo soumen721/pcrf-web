@@ -12,18 +12,18 @@ import java.util.stream.Collectors;
 
 import javax.xml.datatype.DatatypeConfigurationException;
 
+import com.ee.cne.ws.dataproduct.generated.Calculator;
+import com.ee.cne.ws.dataproduct.generated.CalculatorSoap;
 import com.ee.cne.ws.dataproduct.generated.DataPass;
 import com.ee.cne.ws.dataproduct.generated.DataPass.ShareDetails.SharerDataUsage;
 import com.ee.cne.ws.dataproduct.generated.GetCurrentAndAvailableDataProductsResponse;
 import com.ee.cne.ws.dataproduct.generated.GetCurrentAndAvailableDataProductsResponse.Message.SubscriberInfo;
-import com.ee.cne.ws.getctxwithoperations.generated.Calculator;
-import com.ee.cne.ws.getctxwithoperations.generated.CalculatorSoap;
+import com.ericsson.eea.billing.model.SubscriberBillingInfo;
 import com.ericsson.eea.billing.service.DataUsageCalculationService;
 import com.ericsson.eea.billing.util.BillingConstant;
 import com.ericsson.eea.billing.util.BillingUtils;
 import com.ericsson.eea.billing.util.DummyDataGenerator;
 import com.ericsson.eea.pcrf.model.DataUsageDetails;
-import com.ericsson.eea.pcrf.model.PeriodicalDataUsage;
 
 public class PostPaidDataUsageCalculationService implements DataUsageCalculationService {
 
@@ -74,14 +74,29 @@ public class PostPaidDataUsageCalculationService implements DataUsageCalculation
 
 		DataUsageDetails penultimateCycleDataUsage = printDataUsage(penultimateCycleDataPasses, info);
 
-		
-		PeriodicalDataUsage periodicalDataUsage =  PeriodicalDataUsage.builder()
-				.currentCycleDataUsage(currentCycleDataUsage)
-				.previousCycleDataUsage(previousCycleDataUsage)
-				.penultimateCycleDataUsage(penultimateCycleDataUsage)
-				.build() ;
-		
-		BillingUtils.printDataUsage(periodicalDataUsage);
+		SubscriberBillingInfo billingInfo = SubscriberBillingInfo.builder()
+				// Basic
+				.billingUpdateTime(Long.valueOf(info.getLastCheckedDate().getMillisecond()))
+
+				// Current Period
+				.dataAvail(currentCycleDataUsage.getDataAvail()).dataUsed(currentCycleDataUsage.getDataUsed())
+				.dataUsedShared(currentCycleDataUsage.getDataRemaining())
+
+				// Previous Period
+				.lbcDataAvail(previousCycleDataUsage.getDataAvail()).lbcDataUsed(previousCycleDataUsage.getDataUsed())
+				.lbcDataUsedShared(previousCycleDataUsage.getDataRemaining())
+
+				// Penultimate Period
+				.pbcDataAvail(penultimateCycleDataUsage.getDataAvail())
+				.pbcDataUsed(penultimateCycleDataUsage.getDataUsed())
+				.pbcDataUsedShared(penultimateCycleDataUsage.getDataRemaining()).build();
+
+		BillingUtils.printDataUsage(billingInfo);
+		System.out.println(
+				"\n++++++++++++++++++++++++++++++++ SubscriberBillingInfo ++++++++++++++++++++++++++++++++++++++++");
+		System.out.println(billingInfo.toString());
+		System.out.println(
+				"++++++++++++++++++++++++++++++++ SubscriberBillingInfo ++++++++++++++++++++++++++++++++++++++++");
 	}
 
 	// Get Filtered invalid PassType, InotType, Zone along and then sort based on
@@ -95,8 +110,8 @@ public class PostPaidDataUsageCalculationService implements DataUsageCalculation
 
 		return dataPasses.stream().filter(pass -> !BillingConstant.INVALID_PASS_TYPE.contains(pass.getPassType()))
 				.filter(info -> BillingConstant.VALID_INFO_TYPE.contains(info.getInfoType()))
-				.filter(zone -> BillingConstant.VALID_ZONE.equals(zone.getValidZone())).sorted(dateComparator.reversed())
-				.collect(Collectors.toList());
+				.filter(zone -> BillingConstant.VALID_ZONE.equals(zone.getValidZone()))
+				.sorted(dateComparator.reversed()).collect(Collectors.toList());
 
 	}
 
@@ -176,28 +191,24 @@ public class PostPaidDataUsageCalculationService implements DataUsageCalculation
 
 			data_avl += dataPass.getFup();
 		}
-		
+
 		dataUsed_sha = (dataUsed_ult + dataUsed_sha + dataUsed_nonSha);
 		data_rem = data_avl - (dataUsed_nonSha + dataUsed_shaGrp);
 		System.out.println("*********************	Data Usage	********************");
 		System.out.println("Total Data Used = " + dataUsed_sha);
 		System.out.println("Data Avail = " + data_avl);
-		System.out.println("Data Remaining = " + data_rem );
+		System.out.println("Data Remaining = " + data_rem);
 
-		return DataUsageDetails.builder()
-				.dataUsed(dataUsed_sha)
-				.dataAvail(data_avl)
-				.dataRemaining(data_rem)
-				.build(); 
+		return DataUsageDetails.builder().dataUsed(dataUsed_sha).dataAvail(data_avl).dataRemaining(data_rem).build();
 	}
 
 	public static void main(String arg[]) throws DatatypeConfigurationException, MalformedURLException {
-		//Calling a Dummy Wen Service
+		// Calling a Dummy Wen Service
 		URL wsdlURL = new URL("http://www.dneonline.com/calculator.asmx?wsdl");
 		Calculator service = new Calculator(wsdlURL);
 		CalculatorSoap ctxport = service.getCalculatorSoap();
 		int resp = ctxport.add(10, 20);
-		System.out.println("Addition Result ==> "+ resp);
+		System.out.println("Addition Result ==> " + resp);
 
 		DataUsageCalculationService filterService = new PostPaidDataUsageCalculationService();
 		filterService.calculateDataUsage();

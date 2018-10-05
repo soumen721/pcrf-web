@@ -3,6 +3,11 @@ package com.ericsson.eea.billing.model;
 import java.io.Serializable;
 import java.util.Map;
 
+import lombok.Builder;
+import lombok.ToString;
+
+@Builder
+@ToString
 public class SubscriberBillingInfo implements Serializable {
 
     /**

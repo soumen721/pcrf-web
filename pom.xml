@@ -65,22 +65,19 @@
 						<phase>generate-sources</phase>
 						<configuration>
 							<sourceRoot>${project.build.directory}/generated-sources/cxf</sourceRoot>
-							<defaultOptions>
-								<extraargs>
-									<extraarg>--autoNameResolution</extraarg>
-									<extraarg>-impl</extraarg>
-									<extraarg>-verbose</extraarg>
-									<extraarg>-client</extraarg>
-									<extraarg>-xjc-XtoString</extraarg>
-									<extraarg>-xjc-Xequals</extraarg>
-									<extraarg>-xjc-XhashCode</extraarg>
-									<extraarg>-xjc-Xfluent-api</extraarg>
-									<extraarg>-xjc-Xvalue-constructor</extraarg>
-								</extraargs>
-
-							</defaultOptions>
 							<wsdlOptions>
 								<wsdlOption>
+									<extraargs>
+										<extraarg>--autoNameResolution</extraarg>
+										<extraarg>-impl</extraarg>
+										<extraarg>-verbose</extraarg>
+										<extraarg>-client</extraarg>
+										<extraarg>-xjc-XtoString</extraarg>
+										<extraarg>-xjc-Xequals</extraarg>
+										<extraarg>-xjc-XhashCode</extraarg>
+										<extraarg>-xjc-Xfluent-api</extraarg>
+										<extraarg>-xjc-Xvalue-constructor</extraarg>
+									</extraargs>
 									<wsdl>${basedir}/src/main/resources/wsdl/calculator.wsdl</wsdl>
 									<extraargs>
 										<extraarg>-p</extraarg>
