@@ -3,6 +3,9 @@ package com.ericsson.eea.billing.model;
 import java.io.Serializable;
 import java.util.List;
 
+import lombok.ToString;
+
+@ToString
 public class MessageEnvelope<T> implements Serializable {
 
 	/**
