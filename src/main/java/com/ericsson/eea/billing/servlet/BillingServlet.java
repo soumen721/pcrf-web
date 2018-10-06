@@ -1,5 +1,7 @@
 package com.ericsson.eea.billing.servlet;
 
+import com.ericsson.eea.billing.service.SubscriberBillingRemote;
+
 import java.io.IOException;
 import java.io.PrintWriter;
 
@@ -9,8 +11,6 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import com.ericsson.eea.billing.service.SubscriberBillingRemote;
 
 @WebServlet("/billingServlet")
 public class BillingServlet extends HttpServlet {

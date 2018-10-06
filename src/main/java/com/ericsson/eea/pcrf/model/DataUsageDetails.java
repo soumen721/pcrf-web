@@ -1,23 +1,26 @@
 package com.ericsson.eea.pcrf.model;
 
-import java.io.Serializable;
-
 import lombok.Builder;
 import lombok.Data;
+
+import java.io.Serializable;
 
 @Data
 @Builder
 public class DataUsageDetails implements Serializable {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	private double dataUsed;
+    private Long billingPeriodStartDate;
+    private Long billingPeriodEndDate;
 
-	private double dataAvail;
+    private Double dataUsed;
 
-	private double dataRemaining;
-	
-	private double dataUsedShared;
-	
-	private double zeroRatedDataUsed;
+    private Double dataAvail;
+
+    private Double dataRemaining;
+
+    private Double dataUsedShared;
+
+    private Double zeroRatedDataUsed;
 }

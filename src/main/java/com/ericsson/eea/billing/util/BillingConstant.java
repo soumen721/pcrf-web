@@ -10,5 +10,5 @@ public class BillingConstant {
 	public final static List<String> VALID_INFO_TYPE = Arrays.asList("C", "S", "E", "ZR", "EZR");
 	public final static List<String> EXPIRY_REASON = Collections.singletonList("fup_change");
 	public final static String VALID_ZONE = "1";
-
+	public final static String TYPE_UNLIMITED = "Unlimited";
 }

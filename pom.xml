@@ -35,6 +35,11 @@
 			<scope>provided</scope>
 		</dependency>
 
+		<dependency>
+			<groupId>subscriberBilling</groupId>
+			<artifactId>subscriber-billing</artifactId>
+			<version>1.0</version>
+		</dependency>
 	</dependencies>
 
 	<build>

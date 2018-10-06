@@ -13,6 +13,9 @@ import com.ericsson.eea.pcrf.model.DataUsageDetails;
 import javax.xml.datatype.DatatypeConfigurationException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -40,7 +43,7 @@ public class PostPaidDataUsageCalculationService implements DataUsageCalculation
         System.out.println("Final Pass after FUP remove Current Cycle");
         currentCycleDataPasses.forEach(BillingUtils::printLog);
 
-        DataUsageDetails currentCycleDataUsage = printDataUsage(currentCycleDataPasses, info, BillingCycle.CURRENT);
+        DataUsageDetails currentCycleDataUsage = printDataUsage(currentCycleDataPasses, info, BillingCycle.CURRENT, billCycleStartDate, billCycleEndDate);
 
         // For Previous Period
         System.out.println("*************************	Previous Period	****************************\n");
@@ -52,7 +55,7 @@ public class PostPaidDataUsageCalculationService implements DataUsageCalculation
         System.out.println("Final Pass after FUP remove -- Previous Cycle");
         previousCycleDataPasses.forEach(BillingUtils::printLog);
 
-        DataUsageDetails previousCycleDataUsage = printDataUsage(previousCycleDataPasses, info, BillingCycle.PREVIOUS);
+        DataUsageDetails previousCycleDataUsage = printDataUsage(previousCycleDataPasses, info, BillingCycle.PREVIOUS, billCycleStartDate, billCycleEndDate);
 
         // For Penultimate Period
         System.out.println("*************************	Penultimate Period	****************************\n");
@@ -64,7 +67,7 @@ public class PostPaidDataUsageCalculationService implements DataUsageCalculation
         System.out.println("Final Pass after FUP remove -- Previous Cycle");
         penultimateCycleDataPasses.forEach(BillingUtils::printLog);
 
-        DataUsageDetails penultimateCycleDataUsage = printDataUsage(penultimateCycleDataPasses, info, BillingCycle.PENULTIMATE);
+        DataUsageDetails penultimateCycleDataUsage = printDataUsage(penultimateCycleDataPasses, info, BillingCycle.PENULTIMATE, billCycleStartDate, billCycleEndDate);
 
         SubscriberBillingInfo billingInfo = SubscriberBillingInfo.builder()
                 // Basic
@@ -93,63 +96,95 @@ public class PostPaidDataUsageCalculationService implements DataUsageCalculation
         return billingInfo;
     }
 
-    private DataUsageDetails printDataUsage(List<DataPass> dataPasses, final SubscriberInfo info, BillingCycle billingCycle) {
+    private DataUsageDetails printDataUsage(List<DataPass> dataPasses, final SubscriberInfo info, BillingCycle billingCycle, LocalDateTime billingStartDate, LocalDateTime billingEndDate) {
 
         Double dataAvail = 0D;
-
+        Double DataUsed = 0D;
         Double dataUsedShared = 0D;
+        Double zeroRatedDataUsed = 0D;
 
-        Double zeroRatedDataUsed;
+        Double dataUsedUnlimited = 0D;
+        Double dataUsedSharedGrp = 0D;
+        Double dataUsedNonShared = 0D;
+        Double dataRemaining = 0D;
 
-        Double dataUsed_ult = 0D;
-        Double dataUsed_shaGrp = 0D;
-        Double dataUsed_nonSha = 0D;
-        Double userData = 0D;
-        Double data_rem = 0D;
+        System.out.println("Calculation begin here=============");
 
-        System.out.println("Calculation begin here");
-        for (DataPass dataPass : dataPasses) {
-            if ("unlimited".equalsIgnoreCase(dataPass.getExpiryReason())) {
+        if (BillingUtils.isUnlimitedUsage(dataPasses)) {
+            dataUsedUnlimited = dataPasses.stream()
+                    .filter(e -> Arrays.asList("C", "E").contains(e.getInfoType()))
+                    .filter(e -> e.getShareDetails() != null)
+                    .map(e -> e.getShareDetails().getSharerDataUsage())
+                    .flatMap(Collection::stream)
+                    .filter(sha -> info.getMsisdn().equals(sha.getMsisdn()))
+                    .mapToDouble(SharerDataUsage::getUsedVolume)
+                    .sum();
 
-                System.out.println("Unlimited Pass :\t" + dataPass.getInfoType() + "\t|" + dataPass.getExpiryReason());
-                dataUsed_ult += 0L;
-            }
-            if (info.getTypeOfAccess().contains("L") && dataPass.getShareDetails() != null
-                    && dataPass.getShareDetails().getSharerDataUsage().size() > 0) {
+            dataAvail = -1D;
+            dataRemaining = -1D;
+        } else {
 
-                List<SharerDataUsage> usage = dataPass.getShareDetails().getSharerDataUsage();
-                Optional<SharerDataUsage> vol = usage.stream().filter(e -> e.getMsisdn().equals(info.getMsisdn()))
-                        .findFirst();
-                dataUsedShared += vol.get().getUsedVolume();
+            for (DataPass dataPass : dataPasses) {
 
-                if ("C".equals(dataPass.getInfoType())) {
-                    dataUsed_shaGrp = dataUsed_shaGrp + dataPass.getFup() - dataPass.getVolume();
-                    System.out.println("Its a Shaed Pass: Share Data \t" + vol.get().getUsedVolume()
-                            + "\t| ShareDtaa Group " + (dataPass.getFup() - dataPass.getVolume()));
-                } else if ("E".equals(dataPass.getInfoType())) {
-                    dataUsed_shaGrp += dataPass.getVolume();
-                    System.out.println("Its a Shaed Pass: Share Data \t" + vol.get().getUsedVolume()
-                            + "\t| ShareDtaa Group " + dataPass.getVolume());
+                if (info.getTypeOfAccess().contains("L") && dataPass.getShareDetails() != null
+                        && dataPass.getShareDetails().getSharerDataUsage().size() > 0) {
+
+                    List<SharerDataUsage> usage = dataPass.getShareDetails().getSharerDataUsage();
+                    Optional<SharerDataUsage> vol = usage.stream().filter(e -> e.getMsisdn().equals(info.getMsisdn()))
+                            .findFirst();
+                    dataUsedShared += vol.get().getUsedVolume();
+
+                    if ("C".equals(dataPass.getInfoType())) {
+                        dataUsedSharedGrp = dataUsedSharedGrp + dataPass.getFup() - dataPass.getVolume();
+                        System.out.println("Its a Shaed Pass: Share Data \t" + vol.get().getUsedVolume()
+                                + "\t| ShareDtaa Group " + (dataPass.getFup() - dataPass.getVolume()));
+                    } else if ("E".equals(dataPass.getInfoType())) {
+                        dataUsedSharedGrp += dataPass.getVolume();
+                        System.out.println("Its a Shaed Pass: Share Data \t" + vol.get().getUsedVolume()
+                                + "\t| ShareDtaa Group " + dataPass.getVolume());
+                    }
+
+                } else {
+
+                    System.out.println(
+                            "Its a Non-Shaed Pass: \t" + dataPass.getInfoType() + "\t|" + dataPass.getExpiryReason());
+                    dataUsedNonShared += dataUsedNonShared;
                 }
 
-            } else {
-
-                System.out.println(
-                        "Its a Non-Shaed Pass: \t" + dataPass.getInfoType() + "\t|" + dataPass.getExpiryReason());
-                dataUsed_nonSha += dataUsed_nonSha;
+                dataAvail += dataPass.getFup();
             }
-
-            dataAvail += dataPass.getFup();
         }
 
-        dataUsedShared = (dataUsed_ult + dataUsedShared + dataUsed_nonSha);
-        data_rem = dataAvail - (dataUsed_nonSha + dataUsed_shaGrp);
+        if (BillingCycle.CURRENT == billingCycle) {
+            zeroRatedDataUsed = getZeroRatedUsage(dataPasses, "ZR");
+        } else if (BillingCycle.PREVIOUS == billingCycle) {
+            zeroRatedDataUsed = getZeroRatedUsage(dataPasses, "EZR");
+        }
+
+        dataUsedShared = (dataUsedUnlimited + dataUsedShared + dataUsedNonShared);
+        dataRemaining = dataAvail - (dataUsedNonShared + dataUsedSharedGrp);
         System.out.println("*********************	Data Usage	********************");
+        System.out.println("Data Usage Unlimited = " + dataUsedUnlimited);
         System.out.println("Total Data Used = " + dataUsedShared);
         System.out.println("Data Avail = " + dataAvail);
-        System.out.println("Data Remaining = " + data_rem);
+        System.out.println("Data ZeroRated = " + zeroRatedDataUsed);
 
-        return DataUsageDetails.builder().dataUsed(dataUsedShared).dataAvail(dataAvail).dataRemaining(data_rem).build();
+        return DataUsageDetails.builder()
+                .billingPeriodStartDate(billingStartDate.toEpochSecond(ZoneOffset.UTC))
+                .billingPeriodEndDate(billingEndDate.toEpochSecond(ZoneOffset.UTC))
+                .dataUsed(dataUsedShared)
+                .dataAvail(dataAvail)
+                .dataRemaining(dataRemaining)
+                .zeroRatedDataUsed(zeroRatedDataUsed)
+                .build();
+    }
+
+    private Double getZeroRatedUsage(List<DataPass> dataPasses, String infoType) {
+
+        return dataPasses.stream()
+                .filter(e -> infoType.equals(e.getInfoType()))
+                .mapToDouble(DataPass::getVolume)
+                .sum();
     }
 
 }

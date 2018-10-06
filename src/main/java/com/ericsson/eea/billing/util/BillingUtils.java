@@ -15,9 +15,11 @@ import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.ericsson.eea.billing.util.BillingConstant.TYPE_UNLIMITED;
+
 public class BillingUtils {
 
-    // Get Filtered invalid PassType, InotType, Zone along and then sort based on
+    // Get Filtered invalid PassType, InfoType, Zone along and then sort based on
     // Start Date
     public static List<DataPass> getFilteredDataPass(List<DataPass> dataPasses) {
 
@@ -86,6 +88,11 @@ public class BillingUtils {
         return customerType;
     }
 
+    public static boolean isUnlimitedUsage(List<DataPass> dataPasses) {
+
+        return dataPasses.stream().anyMatch(e -> TYPE_UNLIMITED.equals(e.getPassType()));
+    }
+
     //Some Util class might be remove in future
     public static XMLGregorianCalendar toXMLCalender(LocalDateTime date) throws DatatypeConfigurationException {
 
@@ -121,7 +128,7 @@ public class BillingUtils {
 
         System.out.println("Penultimate Period Data Usage=>\n" + "DataUsed : "
                 + billingInfo.getPbcDataUsed() + "\t| Data Avail : "
-                + billingInfo.getPbcDataAvail() + "\t| Data Remaining : "
+                + billingInfo.getPbcDataAvail() + "\t| Data ZeroRated : "
                 + billingInfo.getPbcDataUsedShared());
     }
 }
