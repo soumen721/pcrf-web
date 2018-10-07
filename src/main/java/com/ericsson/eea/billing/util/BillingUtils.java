@@ -1,7 +1,7 @@
 package com.ericsson.eea.billing.util;
 
 import com.ee.cne.ws.dataproduct.generated.DataPass;
-import com.ee.cne.ws.dataproduct.generated.GetCurrentAndAvailableDataProductsResponse;
+import com.ee.cne.ws.dataproduct.generated.GetCurrentAndAvailableDataProductsResponse.Message.SubscriberInfo;
 import com.ericsson.eea.billing.model.SubscriberBillingInfo;
 
 import javax.xml.datatype.DatatypeConfigurationException;
@@ -67,7 +67,7 @@ public class BillingUtils {
     }
 
     //Only for Prepaid Customer
-    public static CustomrType getCustomerTypeForPrepaid(GetCurrentAndAvailableDataProductsResponse.Message.SubscriberInfo info) {
+    public static CustomrType getCustomerTypeForPrepaid(SubscriberInfo info) {
 
         CustomrType customerType = CustomrType.P12;
         if (info != null && TariffType.Prepaid.name().equals(info.getCustomerType())) {
@@ -91,6 +91,11 @@ public class BillingUtils {
     public static boolean isUnlimitedUsage(List<DataPass> dataPasses) {
 
         return dataPasses.stream().anyMatch(e -> TYPE_UNLIMITED.equals(e.getPassType()));
+    }
+
+    public static boolean isSharedPass(SubscriberInfo info, DataPass dataPasse) {
+
+        return info.getTypeOfAccess().contains("L") && dataPasse.getShareDetails() != null && dataPasse.getShareDetails().getSharerDataUsage().size() > 1;
     }
 
     //Some Util class might be remove in future
@@ -118,17 +123,17 @@ public class BillingUtils {
         System.out.println("=======================================================================");
         System.out.println("Current Period Data Usage=>\n" + "DataUsed : "
                 + billingInfo.getDataUsed() + "\t| Data Avail : "
-                + billingInfo.getDataAvail() + "\t| Data Remaining : "
-                + billingInfo.getDataUsedShared());
+                + billingInfo.getDataAvail() + "\t| Data ZeroRated : "
+                + billingInfo.getZeroRatedDataUsed());
 
         System.out.println("Previous Period Data Usage=>\n" + "DataUsed : "
                 + billingInfo.getLbcDataUsed() + "\t| Data Avail : "
-                + billingInfo.getLbcDataAvail() + "\t| Data Remaining : "
-                + billingInfo.getLbcDataUsedShared());
+                + billingInfo.getLbcDataAvail() + "\t| Data ZeroRated : "
+                + billingInfo.getLbcZeroRatedDataUsed());
 
         System.out.println("Penultimate Period Data Usage=>\n" + "DataUsed : "
                 + billingInfo.getPbcDataUsed() + "\t| Data Avail : "
                 + billingInfo.getPbcDataAvail() + "\t| Data ZeroRated : "
-                + billingInfo.getPbcDataUsedShared());
+                + billingInfo.getPbcZeroRatedDataUsed());
     }
 }
