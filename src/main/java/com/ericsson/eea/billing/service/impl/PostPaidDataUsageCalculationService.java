@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
 
+import static com.ericsson.eea.billing.util.BillingConstant.VALID_INFO_TYPE_POSTPAID;
 import static com.ericsson.eea.billing.util.BillingUtils.filterDataPassOnFUPChange;
 import static com.ericsson.eea.billing.util.BillingUtils.getFilteredDataPassBasedOnBillCycle;
 
@@ -31,7 +32,7 @@ public class PostPaidDataUsageCalculationService implements DataUsageCalculation
         System.out.println("MSISDN ID ==> " + info.getMsisdn());
         List<DataPass> dataPasses = response.getMessage().getDataProducts().getDataProduct();
 
-        List<DataPass> filteredDataPasses = BillingUtils.getFilteredDataPass(dataPasses);
+        List<DataPass> filteredDataPasses = BillingUtils.getFilteredDataPass(dataPasses, type -> VALID_INFO_TYPE_POSTPAID.contains(type.getInfoType()));
 
         // For Current Period
         System.out.println("*************************	Current Period	****************************\n");
@@ -88,10 +89,10 @@ public class PostPaidDataUsageCalculationService implements DataUsageCalculation
 
         BillingUtils.printDataUsage(billingInfo);
         System.out.println(
-                "\n++++++++++++++++++++++++++++++++ SubscriberBillingInfo ++++++++++++++++++++++++++++++++++++++++");
+                "\n++++++++++++++++++++++++++++++++ SubscriberBillingInfo Postpaid  ++++++++++++++++++++++++++++++++++++++++");
         System.out.println(billingInfo.toString());
         System.out.println(
-                "++++++++++++++++++++++++++++++++ SubscriberBillingInfo ++++++++++++++++++++++++++++++++++++++++");
+                "++++++++++++++++++++++++++++++++ SubscriberBillingInfo Postpaid    ++++++++++++++++++++++++++++++++++++++++");
 
         return billingInfo;
     }
@@ -170,10 +171,10 @@ public class PostPaidDataUsageCalculationService implements DataUsageCalculation
         return DataUsageDetails.builder()
                 .billingPeriodStartDate(billingStartDate.toEpochSecond(ZoneOffset.UTC))
                 .billingPeriodEndDate(billingEndDate.toEpochSecond(ZoneOffset.UTC))
-                .dataUsed(dataUsed != 0D ?  dataUsed/1024: 0D)
-                .dataAvail(dataAvail != 0D && dataAvail != -1D ?  dataAvail/1024: 0D)
-                .dataRemaining(dataRemaining != 0D  && dataRemaining != -1D ?  dataRemaining/1024: 0D)
-                .zeroRatedDataUsed(zeroRatedDataUsed != 0D ?  zeroRatedDataUsed/1024: 0D)
+                .dataUsed(dataUsed != 0D ? dataUsed / 1024 : 0D)
+                .dataAvail(dataAvail != 0D && dataAvail != -1D ? dataAvail / 1024 : 0D)
+                .dataRemaining(dataRemaining != 0D && dataRemaining != -1D ? dataRemaining / 1024 : 0D)
+                .zeroRatedDataUsed(zeroRatedDataUsed != 0D ? zeroRatedDataUsed / 1024 : 0D)
                 .build();
     }
 

@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.GregorianCalendar;
 import java.util.List;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static com.ericsson.eea.billing.util.BillingConstant.TYPE_UNLIMITED;
@@ -21,7 +22,7 @@ public class BillingUtils {
 
     // Get Filtered invalid PassType, InfoType, Zone along and then sort based on
     // Start Date
-    public static List<DataPass> getFilteredDataPass(List<DataPass> dataPasses) {
+    public static List<DataPass> getFilteredDataPass(List<DataPass> dataPasses, Predicate<? super DataPass> predicate) {
 
         System.out.println("Before First Iteration ");
         dataPasses.forEach(BillingUtils::printLog);
@@ -29,13 +30,13 @@ public class BillingUtils {
         Comparator<? super DataPass> dateComparator = (e1, e2) -> e1.getPassStartTime().compare(e2.getPassStartTime());
 
         return dataPasses.stream().filter(pass -> !BillingConstant.INVALID_PASS_TYPE.contains(pass.getPassType()))
-                .filter(info -> BillingConstant.VALID_INFO_TYPE.contains(info.getInfoType()))
+                .filter(predicate)
                 .filter(zone -> BillingConstant.VALID_ZONE.equals(zone.getValidZone()))
                 .sorted(dateComparator.reversed()).collect(Collectors.toList());
 
     }
 
-    public static List<DataPass> getFilteredDataPassBasedOnBillCycle(final List<DataPass> dataPasses,
+        public static List<DataPass> getFilteredDataPassBasedOnBillCycle(final List<DataPass> dataPasses,
                                                                      final LocalDateTime billCycleStartDate, final LocalDateTime billCycleEndDate) {
 
         System.out.println("Bill Cycle Start Date =>\t " + billCycleStartDate.toLocalDate());

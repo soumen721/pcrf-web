@@ -27,7 +27,7 @@ public class DummyDataGenerator {
 	private final static int PREV_MONTH_CYCLE = 1;
 	private final static int PENLTY_MONTH_CYCLE = 2;
 
-	public static GetCurrentAndAvailableDataProductsResponse pupulateResponseData()
+	public static GetCurrentAndAvailableDataProductsResponse populateResponseData()
 			throws DatatypeConfigurationException {
 
 		GetCurrentAndAvailableDataProductsResponse response = new GetCurrentAndAvailableDataProductsResponse();
@@ -38,8 +38,9 @@ public class DummyDataGenerator {
 		info.setTypeOfAccess("DL");
 		info.setBillCycle(BigInteger.valueOf(24));
 		info.setCustomerType("NEXUS");
+		info.setTariffType(TariffType.Prepaid.name());
 		info.setLastCheckedDate(BillingUtils.toXMLCalender(LocalDateTime.now()));
-		info.setTariffType("Postpaid");
+		info.setTariffType("Prepaid");
 		Location localtion = new Location();
 		localtion.setCountry("UK");
 		localtion.setZone("1");
@@ -88,8 +89,7 @@ public class DummyDataGenerator {
 				LocalDateTime.now().minusDays(DAY_IN_MNTH * PENLTY_MONTH_CYCLE + 12), 287161232L, 118322228L,
 				"virtual", new Long[] { 896023286L, 2852495360L });
 
-		dataProduct.getDataProduct().addAll(Arrays.asList(dataPass, dataPass1, dataPass2, dataPass3, dataPass4,
-				dataPass10, dataPass11, dataPass20, dataPass21));
+		dataProduct.getDataProduct().addAll(Arrays.asList(dataPass));
 
 		message.setDataProducts(dataProduct);
 		response.setMessage(message);

@@ -7,6 +7,7 @@ import com.ericsson.eea.billing.model.*;
 import com.ericsson.eea.billing.service.DataUsageCalculationService;
 import com.ericsson.eea.billing.service.SubscriberBillingRemote;
 import com.ericsson.eea.billing.util.DummyDataGenerator;
+import com.ericsson.eea.billing.util.TariffType;
 
 import javax.ejb.Remote;
 import javax.ejb.Stateless;
@@ -18,6 +19,9 @@ import java.util.Arrays;
 @Stateless
 @Remote(SubscriberBillingRemote.class)
 public class SubscriberBillingInfoImpl implements SubscriberBillingRemote {
+
+    public SubscriberBillingInfoImpl() throws DatatypeConfigurationException {
+    }
 
     @Override
     public MessageEnvelope<SubscriberBillingInfo> getBillingCycleInfo(SubscriberFilter filter)
@@ -33,11 +37,22 @@ public class SubscriberBillingInfoImpl implements SubscriberBillingRemote {
 
     public static void main(String arg[]) throws DatatypeConfigurationException, MalformedURLException {
 
-        DataUsageCalculationService usageCalculationService = new PostPaidDataUsageCalculationService();
-        usageCalculationService.calculateDataUsage(getDataProductsWebServiceResponse());
+        GetCurrentAndAvailableDataProductsResponse response = getDataProductsWebServiceResponse();
+        GetCurrentAndAvailableDataProductsResponse.Message.SubscriberInfo subscriberInfo = response.getMessage().getSubscriberInfo();
+        DataUsageCalculationService usageCalculationService = null;
+
+        if (TariffType.Prepaid.name().equals(subscriberInfo.getTariffType())) {
+
+            usageCalculationService = new PrePaidDataUsageCalculationService();
+        } else if (TariffType.Postpaid.name().equals(subscriberInfo.getTariffType())) {
+
+            usageCalculationService = new PostPaidDataUsageCalculationService();
+        }
+        usageCalculationService.calculateDataUsage(response);
     }
 
-    private static GetCurrentAndAvailableDataProductsResponse getDataProductsWebServiceResponse() throws DatatypeConfigurationException {
+    private static GetCurrentAndAvailableDataProductsResponse getDataProductsWebServiceResponse() throws
+            DatatypeConfigurationException {
 
         try {
             URL wsdlURL = new URL("http://www.dneonline.com/calculator.asmx?wsdl");
@@ -62,6 +77,6 @@ public class SubscriberBillingInfoImpl implements SubscriberBillingRemote {
             e.printStackTrace();
         }
 
-        return DummyDataGenerator.pupulateResponseData();
+        return DummyDataGenerator.populateResponseData();
     }
 }
