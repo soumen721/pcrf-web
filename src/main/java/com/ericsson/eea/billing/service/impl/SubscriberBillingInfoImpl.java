@@ -20,63 +20,77 @@ import java.util.Arrays;
 @Remote(SubscriberBillingRemote.class)
 public class SubscriberBillingInfoImpl implements SubscriberBillingRemote {
 
-    public SubscriberBillingInfoImpl() throws DatatypeConfigurationException {
-    }
+	public SubscriberBillingInfoImpl() {
+	}
 
-    @Override
-    public MessageEnvelope<SubscriberBillingInfo> getBillingCycleInfo(SubscriberFilter filter)
-            throws SubscriberBillingInfoNotAvailableException, SubscriberBillingRetrievalFailedException, DatatypeConfigurationException {
+	@Override
+	public MessageEnvelope<SubscriberBillingInfo> getBillingCycleInfo(SubscriberFilter filter)
+			throws DatatypeConfigurationException {
 
-        // call PCRF web service and process and return response
-        DataUsageCalculationService usageCalculationService = new PostPaidDataUsageCalculationService();
-        MessageEnvelope<SubscriberBillingInfo> envelope = new MessageEnvelope();
-        envelope.setData(Arrays.asList(usageCalculationService.calculateDataUsage(null)));
+		// call PCRF web service and process and return response
+		GetCurrentAndAvailableDataProductsResponse response = getDataProductsWebServiceResponse();
+		GetCurrentAndAvailableDataProductsResponse.Message.SubscriberInfo subscriberInfo = response.getMessage()
+				.getSubscriberInfo();
+		DataUsageCalculationService usageCalculationService = null;
 
-        return envelope;
-    }
+		if (TariffType.Prepaid.name().equals(subscriberInfo.getTariffType())) {
 
-    public static void main(String arg[]) throws DatatypeConfigurationException, MalformedURLException {
+			usageCalculationService = new PrePaidDataUsageCalculationService();
+		} else if (TariffType.Postpaid.name().equals(subscriberInfo.getTariffType())) {
 
-        GetCurrentAndAvailableDataProductsResponse response = getDataProductsWebServiceResponse();
-        GetCurrentAndAvailableDataProductsResponse.Message.SubscriberInfo subscriberInfo = response.getMessage().getSubscriberInfo();
-        DataUsageCalculationService usageCalculationService = null;
+			usageCalculationService = new PostPaidDataUsageCalculationService();
+		}
+		SubscriberBillingInfo billingInfo = usageCalculationService.calculateDataUsage(response);
+		MessageEnvelope<SubscriberBillingInfo> envelope = new MessageEnvelope<>();
+		envelope.setData(Arrays.asList(billingInfo));
 
-        if (TariffType.Prepaid.name().equals(subscriberInfo.getTariffType())) {
+		return envelope;
+	}
 
-            usageCalculationService = new PrePaidDataUsageCalculationService();
-        } else if (TariffType.Postpaid.name().equals(subscriberInfo.getTariffType())) {
+	public static void main(String arg[]) throws DatatypeConfigurationException, MalformedURLException {
 
-            usageCalculationService = new PostPaidDataUsageCalculationService();
-        }
-        usageCalculationService.calculateDataUsage(response);
-    }
+		GetCurrentAndAvailableDataProductsResponse response = getDataProductsWebServiceResponse();
+		GetCurrentAndAvailableDataProductsResponse.Message.SubscriberInfo subscriberInfo = response.getMessage()
+				.getSubscriberInfo();
+		DataUsageCalculationService usageCalculationService = null;
 
-    private static GetCurrentAndAvailableDataProductsResponse getDataProductsWebServiceResponse() throws
-            DatatypeConfigurationException {
+		if (TariffType.Prepaid.name().equals(subscriberInfo.getTariffType())) {
 
-        try {
-            URL wsdlURL = new URL("http://www.dneonline.com/calculator.asmx?wsdl");
-            Calculator service = new Calculator(wsdlURL);
-            CalculatorSoap ctxport = service.getCalculatorSoap();
-            int resp = ctxport.add(10, 20);
-            System.out.println("Addition Result ==> " + resp);
+			usageCalculationService = new PrePaidDataUsageCalculationService();
+		} else if (TariffType.Postpaid.name().equals(subscriberInfo.getTariffType())) {
 
-			/*DataProductService dataService = new DataProductService(wsdlURL);
-			DataProduct port = dataService.getDataProduct10();
-			GetCurrentAndAvailableDataProductsRequest request =
-				ObjectFactory.createGetCurrentAndAvailableDataProductsRequest();
+			usageCalculationService = new PostPaidDataUsageCalculationService();
+		}
+		usageCalculationService.calculateDataUsage(response);
+	}
 
-			// set msisdn and request origin in the request and call service
-			GetCurrentAndAvailableDataProductsResponse response = port.
-					getCurrentAndAvailableDataProducts(request);
-		} catch (BusinessFault bex) {
-			// handle business fault by throwing EJB endpoint specific exception
-		} catch (TechnicalFault tex) {
-			// handle technical fault by throwing EJB endpoint specific exception*/
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        }
+	private static GetCurrentAndAvailableDataProductsResponse getDataProductsWebServiceResponse()
+			throws DatatypeConfigurationException {
 
-        return DummyDataGenerator.populateResponseData();
-    }
+		try {
+			URL wsdlURL = new URL("http://www.dneonline.com/calculator.asmx?wsdl");
+			Calculator service = new Calculator(wsdlURL);
+			CalculatorSoap ctxport = service.getCalculatorSoap();
+			int resp = ctxport.add(10, 20);
+			System.out.println("Addition Result ==> " + resp);
+
+			/*
+			 * DataProductService dataService = new DataProductService(wsdlURL); DataProduct
+			 * port = dataService.getDataProduct10();
+			 * GetCurrentAndAvailableDataProductsRequest request =
+			 * ObjectFactory.createGetCurrentAndAvailableDataProductsRequest();
+			 * 
+			 * // set msisdn and request origin in the request and call service
+			 * GetCurrentAndAvailableDataProductsResponse response = port.
+			 * getCurrentAndAvailableDataProducts(request); } catch (BusinessFault bex) { //
+			 * handle business fault by throwing EJB endpoint specific exception } catch
+			 * (TechnicalFault tex) { // handle technical fault by throwing EJB endpoint
+			 * specific exception
+			 */
+		} catch (MalformedURLException e) {
+			e.printStackTrace();
+		}
+
+		return DummyDataGenerator.populateResponseData();
+	}
 }
