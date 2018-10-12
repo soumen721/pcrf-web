@@ -38,9 +38,8 @@ public class DummyDataGenerator {
 		info.setTypeOfAccess("DL");
 		info.setBillCycle(BigInteger.valueOf(24));
 		info.setCustomerType("NEXUS");
-		info.setTariffType(TariffType.Prepaid.name());
+		info.setTariffType(TariffType.Postpaid.name());
 		info.setLastCheckedDate(BillingUtils.toXMLCalender(LocalDateTime.now()));
-		info.setTariffType("Prepaid");
 		Location localtion = new Location();
 		localtion.setCountry("UK");
 		localtion.setZone("1");
