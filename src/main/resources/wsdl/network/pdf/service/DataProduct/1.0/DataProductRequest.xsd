@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema xmlns="http://www.w3.org/2001/XMLSchema" xmlns:commdt="http://www.everythingeverywhere.com/common/datatype/DataTypes/v1.0" xmlns:req="http://www.everythingeverywhere.com/common/message/Request/v1.0" xmlns:tns="http://www.everythingeverywhere.com/network/pdf/service/DataProduct/DataProductRequest/v1.0" targetNamespace="http://www.everythingeverywhere.com/network/pdf/service/DataProduct/DataProductRequest/v1.0" elementFormDefault="unqualified" version="1.0">
+	<!-- Include all service operation request XSDs -->
+	<include schemaLocation="BuyDataPassRequest.xsd"/>
+	<include schemaLocation="GetCurrentAndAvailableDataProductsRequest.xsd"/>
+	    <!-- Include all service operation request XSDs -->
+	<include schemaLocation="GetDataForGiftingRequest.xsd"/>
+
+</schema>

@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2006 sp1 U (http://www.altova.com) by Orange PCS Ltd (Orange PCS Ltd) -->
+<schema xmlns="http://www.w3.org/2001/XMLSchema" xmlns:types="http://www.everythingeverywhere.com/common/datatype/DataTypes/v1.0" targetNamespace="http://www.everythingeverywhere.com/network/pdf/model/DataPass/v1.0" elementFormDefault="unqualified" version="1.0">
+	<import namespace="http://www.everythingeverywhere.com/common/datatype/DataTypes/v1.0" schemaLocation="../../../../../common/datatype/1.0/DataTypes.xsd"/>
+	<complexType name="DataPass">
+		<annotation>
+			<documentation>This model contains information about Subscriber's current , available or expired Datapass</documentation>
+		</annotation>
+		<sequence>
+			<element name="infoType" type="string">
+				<annotation>
+					<documentation>This element describes the type of data in the
+info structure.
+Current pass information,
+Expired pass information or
+Available pass information.
+It is possible for the response to contain all types and there could be several of each type. The possible values are :                                A = Available Pass            C = Current Pass              P = Pending Subscription      E = Expired Pass               S = [Booked] Stacked Pass   AS = Available stacked Passes                           AB = Available Bundle      CB = Current Bundle        EB = Expired Bundle            CB = Current FUP</documentation>
+				</annotation>
+			</element>
+			<element name="passType" type="string">
+				<annotation>
+					<documentation>Pass type returned which is appropriate for customer. This ID should be used to identify pass and any 3rd party specific pass
+information rather than
+PassTypeName. (e.g Rpo)
+Rpo = Roaming Pass Postpay
+30Rpo = 30 day Roaming Pass
+Postpay
+24Sp = 24 hour speed pass
+all = allowance
+“free” will indicate data given free outside of any pass/allowance</documentation>
+				</annotation>
+			</element>
+			<element name="passTypeName" type="string" minOccurs="0">
+				<annotation>
+					<documentation>Pass type name which is describing the Pass Type and to ease PDF configuration and maintenance. (e.g. : 30 day roaming pass)</documentation>
+				</annotation>
+			</element>
+			<element name="passStartTime" type="dateTime" minOccurs="0">
+				<annotation>
+					<documentation>This element contains the pass start time.             Note : This will not be available for propositions to purchase – infoType: A
+</documentation>
+				</annotation>
+			</element>
+			<element name="passEndTime" type="dateTime" minOccurs="0">
+				<annotation>
+					<documentation>This element contains the pass end time.      Remaining pass time can be
+calculated by current time vs. PassEndTime          Note : This will not be available for propositions to purchase – infoType: A</documentation>
+				</annotation>
+			</element>
+			<element name="volume" type="long" minOccurs="0">
+				<annotation>
+					<documentation>Data volume in bytes summing up uplink and downlink
+InfoType:
+A - Shows pass limit (FUP) if
+expired or available pass.       
+E - Shows used data             
+C - Shows volume remaining for a current pass until “FUP” breach. Does not count > FUP. If the data field is empty then the 
+pass volume could not be
+detected (esp. because another system is managing FUP or pass is unlimited)
+The remaining volume on an
+active pass can be inaccurate
+since PDF is receiving a volume report only after fixed quotas have been consumed or after a
+timeout occurs. An additional
+LookUp does not update the
+volume if a small amount of data has been used.
+This restriction does affect pass volume display only but not charging accuracy.
+The inaccuracy also depends on the volume size of the smallest passes.                    
+AB/CB/EB - Shows the days
+used from the bundle and the total number of days in the bundle (1xxyy). E.g. 10207 (2used, out of 7).         
+CF - Shows volume in bytes
+used since last PassStartTime
+(ie start of current billing cycle).
+The remaining volume on an
+active pass can be inaccurate
+since PDF is receiving a volume report only after fixed quotas
+have been consumed or after a
+timeout occurs.</documentation>
+				</annotation>
+			</element>
+			<element name="expiryReason" type="string" minOccurs="0">
+				<annotation>
+					<documentation>Expiry reason of a pass – given on InfoType E only. Expiry reasons supported: fup_change,
+time or volume</documentation>
+				</annotation>
+			</element>
+			<element name="price" type="long" minOccurs="0">
+				<annotation>
+					<documentation>Pass price in pence</documentation>
+				</annotation>
+			</element>
+			<element name="passLength" type="string" minOccurs="0">
+				<annotation>
+					<documentation>Pass length in days unless h suffix.
+30 means 30 days
+8h means 8 hours</documentation>
+				</annotation>
+			</element>
+			<element name="fup" type="long" minOccurs="0">
+				<annotation>
+					<documentation>Pass Fair Use Policy / Data Allowance in bytes given in all InfoTypes. 
+Value can be 0 if pass is set as “volume unlimited pass / external volume management control”
+</documentation>
+				</annotation>
+			</element>
+			<element name="salesChannel" type="string" minOccurs="0">
+				<annotation>
+					<documentation>This field indicates the pass
+purchase channel. It can be
+“SMS” or any of the specified
+x-pdf-RequestOrigins.</documentation>
+				</annotation>
+			</element>
+			<element name="validZone" type="string" minOccurs="0">
+				<annotation>
+					<documentation>Indicates the Zone a pass is
+valid in</documentation>
+				</annotation>
+			</element>
+			<element name="shareDetails" minOccurs="0">
+				<complexType>
+					<sequence>
+						<element name="originatorMsisdn" type="types:Msisdn">
+							<annotation>
+								<documentation>A string representing the msisdn of the Originator.Originator will be the share lead for any allowance (passType="all") and will be the subscriber that purchased tha pass , if passType is not allowance (e.g: "Rpo","30Rpo","24Sp") </documentation>
+							</annotation>
+						</element>
+						<element name="sharerDataUsage" minOccurs="0" maxOccurs="20">
+							<annotation>
+								<documentation>The element contains sharer details</documentation>
+							</annotation>
+							<complexType>
+								<sequence>
+									<element name="msisdn" type="types:Msisdn">
+										<annotation>
+											<documentation>MSISDN (in international format. e.g.:- 447675988345)</documentation>
+										</annotation>
+									</element>
+									<element name="usedVolume" type="long">
+										<annotation>
+											<documentation>Used data volume bytes (e.g. 34523)</documentation>
+										</annotation>
+									</element>
+								</sequence>
+							</complexType>
+						</element>
+					</sequence>
+				</complexType>
+			</element>
+			<element name="iFupDetails" minOccurs="0">
+				<complexType>
+					<sequence>
+						<element name="optOutStatus" type="int" minOccurs="0">
+							<annotation>
+								<documentation>Indicates if the customer is
+currently opted-out or not from
+their current FUP limit. 0 = not
+opted out, 1 = opted out. (iFUP
+only)</documentation>
+							</annotation>
+						</element>
+						<element name="profile" type="string" minOccurs="0">
+							<annotation>
+								<documentation>Indicates a customer group as
+specified through the
+provisioning chain. (iFUP only)</documentation>
+							</annotation>
+						</element>
+						<element name="throttleSpeed" type="long" minOccurs="0">
+							<annotation>
+								<documentation>Indicates the bandwidth throttle
+which will be applied in Kilobits
+per second if or when a FUP
+breach occurs. (iFUP only)</documentation>
+							</annotation>
+						</element>
+						<element name="usageWarning" type="int" minOccurs="0">
+							<annotation>
+								<documentation>Indicates the current level of
+usage:
+0 = usage is between zero and
+less-than ‘WarningThreshold’
+1 = usage is between
+‘WarningThreshold’ and
+less-than ‘FUP level’
+2 = usage is equal-to or
+greater-than ‘FUP level’
+Note: ‘WarningThreshold’ is
+defined</documentation>
+							</annotation>
+						</element>
+					</sequence>
+				</complexType>
+			</element>
+		</sequence>
+	</complexType>
+</schema>

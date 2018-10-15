@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2006 sp1 U (http://www.altova.com) by Orange PCS Ltd (Orange PCS Ltd) -->
+<schema xmlns="http://www.w3.org/2001/XMLSchema" xmlns:commdt="http://www.everythingeverywhere.com/common/datatype/DataTypes/v1.0" xmlns:respmsg="http://www.everythingeverywhere.com/common/message/ResponseMessage/v1.0" xmlns:resp="http://www.everythingeverywhere.com/common/message/Response/v1.0" xmlns:subInfo="http://www.everythingeverywhere.com/network/pdf/service/DataProduct/SubscriberInfo/v1.0" xmlns:dataPass="http://www.everythingeverywhere.com/network/pdf/model/DataPass/v1.0" xmlns:tns="http://www.everythingeverywhere.com/network/pdf/service/DataProduct/DataProductResponse/v1.0" targetNamespace="http://www.everythingeverywhere.com/network/pdf/service/DataProduct/DataProductResponse/v1.0" elementFormDefault="unqualified" version="1.0">
+	<import namespace="http://www.everythingeverywhere.com/common/datatype/DataTypes/v1.0" schemaLocation="../../../../../common/datatype/1.0/DataTypes.xsd">
+		<annotation>
+			<documentation>EE Common Datatype schema import</documentation>
+		</annotation>
+	</import>
+	<import namespace="http://www.everythingeverywhere.com/common/message/Response/v1.0" schemaLocation="../../../../../common/message/1.0/Response.xsd">
+		<annotation>
+			<documentation> EE Common Response Schema import</documentation>
+		</annotation>
+	</import>
+	<import namespace="http://www.everythingeverywhere.com/common/message/ResponseMessage/v1.0" schemaLocation="../../../../../common/message/1.0/ResponseMessage.xsd">
+		<annotation>
+			<documentation> EE Common ResponseMessage Schema import</documentation>
+		</annotation>
+	</import>
+	<import namespace="http://www.everythingeverywhere.com/network/pdf/model/DataPass/v1.0" schemaLocation="../../../model/DataPass/1.0/DataPass.xsd">
+		<annotation>
+			<documentation> DataPass Common Model Schema import</documentation>
+		</annotation>
+	</import>
+	<import namespace="http://www.everythingeverywhere.com/network/pdf/service/DataProduct/SubscriberInfo/v1.0" schemaLocation="SubscriberInfo.xsd">
+		<annotation>
+			<documentation> SubscriberInfo Common Model Schema import</documentation>
+		</annotation>
+	</import>
+	<element name="getCurrentAndAvailableDataProductsResponse" type="tns:GetCurrentAndAvailableDataProductsResponse">
+		<annotation>
+			<documentation>Response object for GetCurrentAndAvailableDataProducts operation in DataProduct service.</documentation>
+		</annotation>
+	</element>
+	<complexType name="GetCurrentAndAvailableDataProductsResponse">
+		<complexContent>
+			<extension base="resp:Response">
+				<sequence>
+					<element name="message">
+						<complexType mixed="false">
+							<complexContent mixed="false">
+								<extension base="respmsg:ResponseMessage">
+									<sequence>
+										<element name="subscriberInfo">
+											<annotation>
+												<documentation>This element contains subscriber information for who,  Data Products are been retrieved. </documentation>
+											</annotation>
+											<complexType mixed="false">
+												<complexContent mixed="false">
+													<extension base="subInfo:SubscriberInfo">
+														<sequence>
+															<element name="typeOfAccess" type="string" minOccurs="0">
+																<annotation>
+																	<documentation>Information about
+customer’s pass
+information.
+Can be more than one
+and thus a list of codes.
+E.g. [RV]
+V – Volume exceeded
+X – Pass expired
+R – Roaming D
+– Domestic
+A – Advanced protocol
+usage, N – No pass
+E – Error
+O – Out of data session
+B – Business
+L – Share
+P – Pass purchase
+restricted (A sharer not
+allowed to buy passes will
+be LP)
+[E|S], on its own or a
+combination of
+( – not present)
+[A|B|-], advanced,
+business or not present
+[D|R|O], session info
+[V|X|N|-], expiry info
+T - Speed 3G
+M - Speed medium
+F - Speed superfast 4G
+U - Prepaid Nexus
+managed subscription
+customer
+X and V are returned only
+if there is a valid pass
+history for this customer
+(configurable history time)
+independent whether it
+was a roaming or
+domestic pass that
+expired. Values can come
+in any order.</documentation>
+																</annotation>
+															</element>
+															<element name="lastCheckedDate" type="dateTime" minOccurs="0">
+																<annotation>
+																	<documentation>Time stamp indicating
+when the customers data
+was last checked</documentation>
+																</annotation>
+															</element>
+														</sequence>
+													</extension>
+												</complexContent>
+											</complexType>
+										</element>
+										<element name="dataProducts" minOccurs="0">
+											<annotation>
+												<documentation>The element contains a list of Current , Expired and Available data products</documentation>
+											</annotation>
+											<complexType>
+												<sequence>
+													<element name="dataProduct" type="dataPass:DataPass" maxOccurs="unbounded"/>
+												</sequence>
+											</complexType>
+										</element>
+									</sequence>
+								</extension>
+							</complexContent>
+						</complexType>
+					</element>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+</schema>

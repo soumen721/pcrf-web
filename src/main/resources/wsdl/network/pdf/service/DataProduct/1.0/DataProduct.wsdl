@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://schemas.xmlsoap.org/wsdl/" xmlns:fault="http://www.everythingeverywhere.com/common/message/FaultMessage/v1.0" 
+xmlns:req="http://www.everythingeverywhere.com/network/pdf/service/DataProduct/DataProductRequest/v1.0"
+ xmlns:res="http://www.everythingeverywhere.com/network/pdf/service/DataProduct/DataProductResponse/v1.0" 
+ xmlns:soapHeader="http://www.everythingeverywhere.com/common/message/SoapHeader/v1.0" 
+ xmlns:tns="http://www.everythingeverywhere.com/network/pdf/service/DataProduct/v1.0" 
+ xmlns:wsdlsoap="http://schemas.xmlsoap.org/wsdl/soap/" 
+ xmlns:ns="http://messaging.ei.tmobile.net/datatypes" 
+ targetNamespace="http://www.everythingeverywhere.com/network/pdf/service/DataProduct/v1.0">
+	<documentation>DataProduct WSDL V1.0 provides operations to buyDataPass and getCurrentAndAvailableDataProducts.</documentation>
+	<!--========================================================-->
+	<!--             I M P O R T E D  F I L E S 																-->
+	<!--========================================================-->
+	<import namespace="http://www.everythingeverywhere.com/common/message/FaultMessage/v1.0" location="../../../../../common/message/1.0/FaultMessage.wsdl"/>
+	<!--========================================================-->
+	<!--                      T Y P E S              																-->
+	<!--========================================================-->
+	<types>
+		<schema elementFormDefault="unqualified" targetNamespace="http://www.everythingeverywhere.com/network/pdf/service/DataProduct/v1.0" xmlns="http://www.w3.org/2001/XMLSchema">
+			<!-- XSD import for Request/Response -->
+			<import namespace="http://www.everythingeverywhere.com/network/pdf/service/DataProduct/DataProductRequest/v1.0" schemaLocation="DataProductRequest.xsd"/>
+			<import namespace="http://www.everythingeverywhere.com/network/pdf/service/DataProduct/DataProductResponse/v1.0" schemaLocation="DataProductResponse.xsd"/>
+		</schema>
+	</types>
+	<!--========================================================-->
+	<!--                    M E S S A G E S           															-->
+	<!--========================================================-->
+	<message name="buyDataPassRequest">
+		<part name="parameters" element="req:buyDataPass"/>
+	</message>
+	<message name="buyDataPassResponse">
+		<part name="parameters" element="res:buyDataPassResponse"/>
+	</message>
+	<message name="getCurrentAndAvailableDataProductsRequest">
+		<part name="parameters" element="req:getCurrentAndAvailableDataProducts"/>
+	</message>
+	<message name="getCurrentAndAvailableDataProductsResponse">
+		<part name="parameters" element="res:getCurrentAndAvailableDataProductsResponse"/>
+	</message>
+	
+	 <message name="getDataForGiftingRequest">
+        <part element="req:getDataForGifting" name="request"/>
+    </message>
+    <message name="getDataForGiftingResponse">
+        <part element="res:getDataForGiftingResponse" name="response"/>
+    </message>
+	
+	<!--========================================================-->
+	<!--                    P O R T  T Y P E         															-->
+	<!--========================================================-->
+	<portType name="DataProduct">
+		<operation name="buyDataPass">
+			<documentation>This operation is to buy the DataPass. It is a wrapper over PDF BuyPass service.</documentation>
+			<input name="buyDataPassRequest" message="tns:buyDataPassRequest"/>
+			<output name="buyDataPassResponse" message="tns:buyDataPassResponse"/>
+			<fault name="technicalFault" message="fault:technicalFault">
+				<documentation>List of Technical Fault codes applicable for BuyDataPass operation in DataProduct service.
+                                	DOWNSTREAM_GENERAL_ERROR - When PDF service returns 401 or any other HTTP status code which is not specified
+					PASS_PURCHASE_FAILED : When PDF service returns HTTP Status Code 407
+					DOWNSTREAM_SERVICE_ACCESS_DENIED : When PDF service returns HTTP Status Code 411
+					SERVICE_INVOCATION_ERROR : When PDF service returns HTTP Status Code 500
+					CONNECTION_FAILURE : When PDF service returns HTTP Status Code 503
+					UNKNOWN_SESSION : When PDF service returns HTTP Status Code 506
+					SEVAS_COMMUNICATION_ERROR : When PDF service returns HTTP Status Code 507
+					UNKNOWN_ERROR : Generic error code
+				</documentation>
+			</fault>
+			<fault name="businessFault" message="fault:businessFault">
+				<documentation>List of Business Fault codes applicable for BuyDataPass operation in DataProduct service. 
+					INSUFFICIENT_FUNDS : When PDF service returns HTTP Status Code 402
+					REQUESTED_PASS_CURRENTLY_ACTIVE : When PDF service returns HTTP Status Code 403					
+					SUBSCRIBER_NOT_FOUND : When PDF service returns HTTP Status Code 406			
+					CREDIT_CHECK_FAILED : When PDF service returns HTTP Status Code 408					
+					ACCOUNT_NOT_ACTIVE : When PDF service returns HTTP Status Code 409
+				</documentation>
+			</fault>
+		</operation>
+		<operation name="getCurrentAndAvailableDataProducts">
+			<documentation>This operation is to retrieve the current and available Data Products.It is wrapper over PDF Lookup service.</documentation>
+			<input name="getCurrentAndAvailableDataProductsRequest" message="tns:getCurrentAndAvailableDataProductsRequest"/>
+			<output name="getCurrentAndAvailableDataProductsResponse" message="tns:getCurrentAndAvailableDataProductsResponse"/>
+			<fault name="technicalFault" message="fault:technicalFault">
+				<documentation>List of Technical Fault codes applicable for GetCurrentAndAvailableDataProducts operation in DataProduct service.
+                                	DOWNSTREAM_GENERAL_ERROR - When PDF service returns 401 or any other HTTP status code which is not specified
+					DOWNSTREAM_SERVICE_ACCESS_DENIED : When PDF service returns HTTP Status Code 411
+					SERVICE_INVOCATION_ERROR : When PDF service returns HTTP Status Code 500
+					CONNECTION_FAILURE : When PDF service returns HTTP Status Code 503
+					UNKNOWN_SESSION : When PDF service returns HTTP Status Code 506
+					SEVAS_COMMUNICATION_ERROR : When PDF service returns HTTP Status Code 507
+					UNKNOWN_ERROR : Generic error code
+				</documentation>
+			</fault>	
+			<fault name="businessFault" message="fault:businessFault">
+				<documentation>List of Business Fault codes applicable for GetCurrentAndAvailableDataProducts operation in DataProduct service. 
+					SUBSCRIBER_NOT_FOUND : When PDF service returns HTTP Status Code 406
+					ORIGINATOR_NOT_FOUND : If ShareDetails are present in the response of downstream PDF service but Originator msisdn is not present  
+					INVALID_RESPONSE : If shareDetails from downstream PDF service does not come in the agreed format which is {originator:msisdn{volume:msisdn}..}
+				</documentation>
+			</fault>
+		</operation>
+		   <operation name="getDataForGifting">
+            <input message="tns:getDataForGiftingRequest" name="getDataForGiftingRequest"/>
+            <output message="tns:getDataForGiftingResponse" name="getDataForGiftingResponse"/>
+            <fault message="fault:technicalFault" name="technicalFault">
+            <documentation>
+			  DOWNSTREAM_GENERAL_ERROR : PDF general error - likely Server issue (temporary due to signalling delay or permanent due to configuration fault)(When PCRF service returns 401 or any other HTTP status code which is not specified)
+		      DOWNSTREAM_SERVICE_ACCESS_DENIED : Access Denied - PDF webAPI service blocked since x-pdf-OriginRequest is wrong or not allowed to use the indicated web service(When PCRF service returns HTTP Status Code 411) 
+			  SERVICE_INVOCATION_ERROR : PDF/PDFweb Application error(When PCRF service returns HTTP Status Code 500) 
+			  CONNECTION_FAILURE : If a connection to a PDF is not available or if the client exceeds the request rate that it is allowed, the request will be rejected(When PDF service returns HTTP Status Code 503) 
+			  UNKNOWN_SESSION : Session Unknown Exception(When PCRF service returns HTTP Status Code 506) 
+			  SEVAS_COMMUNICATION_ERROR : S-EVAS communication error(When PCRF service returns HTTP Status Code 507) 
+			  SERVICE_EXECUTION_ERROR : Service Execution Error
+			</documentation>
+            </fault>
+            <fault message="fault:businessFault" name="businessFault">
+             <documentation>
+				ACTIVE_QUOTA_NOT_FOUND : Active quota not found for MSISDN - {%s} 
+				MSISDN_NOT_FOUND : MSISDN - {%s} is not found in PCRF(When PCRF service returns HTTP Status Code 406) 
+				ORIGINATOR_NOT_FOUND : Share Details does not have Originator msisdn for subscriber {0}(If ShareDetails are present in the response of downstream PCRF service but Originator msisdn is not present) 
+				INVALID_RESPONSE : Invalid response from PDF for shareDetails for subscriber {0}(If shareDetails from downstream PCRF service does not come in the agreed format which is {originator:msisdn{volume:msisdn}..})
+			</documentation>
+            </fault>
+        </operation>
+	</portType>
+	<!--========================================================-->
+	<!--                     B I N D I N G           	    -->
+	<!--========================================================-->
+	<binding name="DataProductSoapBinding" type="tns:DataProduct">
+		<wsdlsoap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+		<operation name="buyDataPass">
+			<input>
+				<wsdlsoap:body parts="parameters" use="literal"/>
+			</input>
+			<output>
+				<wsdlsoap:body parts="parameters" use="literal"/>
+			</output>
+			<fault name="technicalFault">
+				<wsdlsoap:fault name="technicalFault" use="literal"/>
+			</fault>
+			<fault name="businessFault">
+				<wsdlsoap:fault name="businessFault" use="literal"/>
+			</fault>
+		</operation>
+		<operation name="getCurrentAndAvailableDataProducts">
+			<input>
+				<wsdlsoap:body parts="parameters" use="literal"/>
+			</input>
+			<output>
+				<wsdlsoap:body parts="parameters" use="literal"/>
+			</output>
+			<fault name="technicalFault">
+				<wsdlsoap:fault name="technicalFault" use="literal"/>
+			</fault>
+			<fault name="businessFault">
+				<wsdlsoap:fault name="businessFault" use="literal"/>
+			</fault>
+		</operation>
+		 <operation name="getDataForGifting">
+            <input>
+                <wsdlsoap:body parts="request" use="literal"/>
+            </input>
+            <output>
+                <wsdlsoap:body parts="response" use="literal"/>
+            </output>
+            <fault name="technicalFault">
+                <wsdlsoap:fault name="technicalFault" use="literal"/>
+            </fault>
+            <fault name="businessFault">
+                <wsdlsoap:fault name="businessFault" use="literal"/>
+            </fault>
+        </operation>
+	</binding>
+	<!--========================================================-->
+	<!--              S E R V I C E  			   -->
+	<!--========================================================-->
+	<service name="DataProductService">
+	<documentation>This service supports buyDataPass (wrapper over PDF BuyPass service) and getCurrentAndAvailableDataProducts(wrapper over PDF Lookup service) operations.</documentation>
+		<port name="DataProduct_1.0" binding="tns:DataProductSoapBinding">
+			<wsdlsoap:address location="http://{servicehost:port}/newtork/service/DataProduct-1_0"/>
+		</port>
+	</service>
+</definitions>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- edited with XMLSPY v2004 rel. 3 U (http://www.xmlspy.com) by XMLSPY 2004 Enterprise Ed. Release 3 (Orange PCS Ltd) -->
+<schema xmlns="http://www.w3.org/2001/XMLSchema" xmlns:messageContext="http://messaging.ei.tmobile.net/datatypes" targetNamespace="http://www.everythingeverywhere.com/common/message/Response/v1.0" version="1.0">
+	<import namespace="http://messaging.ei.tmobile.net/datatypes" schemaLocation="ei.messaging.datatypes.xsd"/>
+	<complexType name="Response">
+		<annotation>
+			<documentation>An abstract base type for all Responses, used to abstract and enforce the inclusion of a Header.</documentation>
+		</annotation>
+		<sequence>
+			<element name="eiMessageContext2" type="messageContext:EIMessageContext2"/>
+		</sequence>
+	</complexType>
+</schema>

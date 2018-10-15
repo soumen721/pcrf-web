@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2006 sp1 U (http://www.altova.com) by Orange PCS Ltd (Orange PCS Ltd) -->
+<schema xmlns="http://www.w3.org/2001/XMLSchema" xmlns:commdt="http://www.everythingeverywhere.com/common/datatype/DataTypes/v1.0" xmlns:req="http://www.everythingeverywhere.com/common/message/Request/v1.0" xmlns:dpDetails="http://www.everythingeverywhere.com/network/pdf/service/DataProduct/DataProductBasicRequest/v1.0" xmlns:tns="http://www.everythingeverywhere.com/network/pdf/service/DataProduct/DataProductRequest/v1.0" targetNamespace="http://www.everythingeverywhere.com/network/pdf/service/DataProduct/DataProductRequest/v1.0" elementFormDefault="unqualified" version="1.0">
+	<import namespace="http://www.everythingeverywhere.com/common/message/Request/v1.0" schemaLocation="../../../../../common/message/1.0/Request.xsd">
+		<annotation>
+			<documentation>EE Common Request schema import</documentation>
+		</annotation>
+	</import>
+	<import namespace="http://www.everythingeverywhere.com/common/datatype/DataTypes/v1.0" schemaLocation="../../../../../common/datatype/1.0/DataTypes.xsd">
+		<annotation>
+			<documentation>EE Common Datatype schema import</documentation>
+		</annotation>
+	</import>
+	<import namespace="http://www.everythingeverywhere.com/network/pdf/service/DataProduct/DataProductBasicRequest/v1.0" schemaLocation="DataProductBasicRequest.xsd">
+		<annotation>
+			<documentation>EE Common Request schema import</documentation>
+		</annotation>
+	</import>
+	<element name="getCurrentAndAvailableDataProducts" type="tns:GetCurrentAndAvailableDataProductsRequest">
+		<annotation>
+			<documentation>Request object for GetCurrentAndAvailableDataProducts operation in DataProduct service.</documentation>
+		</annotation>
+	</element>
+	<complexType name="GetCurrentAndAvailableDataProductsRequest">
+		<complexContent>
+			<extension base="req:Request">
+				<sequence>
+					<element name="message">
+						<complexType mixed="false">
+							<complexContent mixed="false">
+								<extension base="dpDetails:DataProductBasicRequest"/>
+							</complexContent>
+						</complexType>
+					</element>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+</schema>

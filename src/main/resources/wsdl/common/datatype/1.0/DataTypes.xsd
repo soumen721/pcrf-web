@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- edited with XMLSPY v2004 rel. 3 U (http://www.xmlspy.com) by Orange PCS Ltd (Orange PCS Ltd) -->
+<schema xmlns="http://www.w3.org/2001/XMLSchema" xmlns:ns1="http://www.everythingeverywhere.com/common/datatype/DataTypes/v1.0" targetNamespace="http://www.everythingeverywhere.com/common/datatype/DataTypes/v1.0" elementFormDefault="unqualified" version="1.0">
+	<simpleType name="Msisdn">
+		<annotation>
+			<documentation>MSISDN is a number uniquely identifying a subscription in a GSM or a UMTS mobile network. The MSISDN follows the numbering plan defined in the ITU-T recommendation E.164.  MSISDN = CC (country code) + NDC (national destination code) + SN (subscriber number)</documentation>
+		</annotation>
+		<restriction base="string">
+			<pattern value="[1-9]{1}\d{2,14}"/>
+		</restriction>
+	</simpleType>
+	<simpleType name="UkSimNumber">
+		<annotation>
+			<documentation>A string representing the SIM number. SIM number will be 19/20 digits starting 8944 to indicate a UK SIM.</documentation>
+		</annotation>
+		<restriction base="string">
+			<pattern value="8944\d{15}[0-9a-fA-F]{0,1}"/>
+		</restriction>
+	</simpleType>
+	<simpleType name="Imei">
+		<annotation>
+			<documentation>A string representing the IMEI number. An IMEI will be either 15 digits (including the check digit) or 16 digits if an IMEISV</documentation>
+		</annotation>
+		<restriction base="string">
+			<minLength value="15"/>
+			<maxLength value="16"/>
+			<pattern value="[0-9]*"/>
+		</restriction>
+	</simpleType>
+	<simpleType name="AccountNumber">
+		<annotation>
+			<documentation>A string representing the account number. Account numbers can be a maximum of 20 characters.</documentation>
+		</annotation>
+		<restriction base="string">
+			<maxLength value="20"/>
+			<pattern value="[0-9]*"/>
+		</restriction>
+	</simpleType>
+	<simpleType name="ImeiOrangeSupplied">
+		<annotation>
+			<documentation>A character value represents whether the IMEI is orange supplied or not. Possible values Y or N.</documentation>
+		</annotation>
+		<restriction base="string">
+			<enumeration value="Y"/>
+			<enumeration value="N"/>
+			<enumeration value=""/>
+		</restriction>
+	</simpleType>
+	<simpleType name="AccountId">
+		<annotation>
+			<documentation>An integer represents the account id.</documentation>
+		</annotation>
+		<restriction base="int"/>
+	</simpleType>
+	<simpleType name="TelephonyId">
+		<annotation>
+			<documentation>MSISDN or land-line number </documentation>
+		</annotation>
+		<restriction base="string">
+			<maxLength value="20"/>
+			<pattern value="\d{10,20}"/>
+		</restriction>
+	</simpleType>
+	<simpleType name="UserId">
+		<annotation>
+			<documentation>User or system log-on Id, e.g: bloggs_j or IVR</documentation>
+		</annotation>
+		<restriction base="string">
+			<maxLength value="8"/>
+		</restriction>
+	</simpleType>
+	<simpleType name="Postcode">
+		<annotation>
+			<documentation>This is the standard UK Postcode. The postciode format must be according to the BS 7666 standards.</documentation>
+		</annotation>
+		<restriction base="string">
+			<pattern value="[A-Z]{1,2}[0-9R][0-9A-Z]? [0-9][A-Z-[CIKMOV]]{2}"/>
+		</restriction>
+	</simpleType>
+	<simpleType name="Imsi">
+		<annotation>
+			<documentation>A string representing the IMSI number. IMSI will be of 15 digit.</documentation>
+		</annotation>
+		<restriction base="string">
+			<pattern value="\d{15}"/>
+		</restriction>
+	</simpleType>
+	<simpleType name="Brand">
+		<annotation>
+			<documentation>A string representing the brand</documentation>
+		</annotation>
+		<restriction base="string">
+			<enumeration value="OUK"/>
+			<enumeration value="TMUK"/>
+			<enumeration value="EE"/>
+		</restriction>
+	</simpleType>
+
+</schema>

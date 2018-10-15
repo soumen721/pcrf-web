@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2006 sp1 U (http://www.altova.com) by Orange PCS Ltd (Orange PCS Ltd) -->
+<schema xmlns="http://www.w3.org/2001/XMLSchema" xmlns:types="http://www.everythingeverywhere.com/common/datatype/DataTypes/v1.0" targetNamespace="http://www.everythingeverywhere.com/network/pdf/service/DataProduct/SubscriberInfo/v1.0" elementFormDefault="unqualified" version="1.0">
+	<import namespace="http://www.everythingeverywhere.com/common/datatype/DataTypes/v1.0" schemaLocation="../../../../../common/datatype/1.0/DataTypes.xsd"/>
+	<complexType name="SubscriberInfo">
+		<annotation>
+			<documentation>DataProductBasicResponse element contains the common request elements for DataProduct service.</documentation>
+		</annotation>
+		<sequence>
+			<element name="msisdn" type="types:Msisdn">
+				<annotation>
+					<documentation>MSISDN (in international format. e.g.:- 447675988345)</documentation>
+				</annotation>
+			</element>
+			<element name="tariffType" type="string">
+				<annotation>
+					<documentation>Customer’s tariff . Possible values are "Prepaid", "Postpaid" or "Mixit"</documentation>
+				</annotation>
+			</element>
+			<element name="prepayBalance" type="integer" minOccurs="0">
+				<annotation>
+					<documentation>This element stores the current prepay balance in pence. If not present prepay balance shall not be assumed to be £0.</documentation>
+				</annotation>
+			</element>
+			<element name="location" minOccurs="0">
+				<annotation>
+					<documentation>A string of characters identifying the customer’s current EBDC (Event Based Data Charging) Zone and Country name.</documentation>
+				</annotation>
+				<complexType>
+					<sequence>
+						<element name="zone" type="string"/>
+						<element name="country" type="string"/>
+					</sequence>
+				</complexType>
+			</element>
+			<element name="billCycle" minOccurs="0">
+				<annotation>
+					<documentation>An integer i.e. "22" representing the Bill Cycle day. Bill Cycle represents the last day of the bill cycle (so the current allowance expires on 23:59 of the bill cycle day). </documentation>
+				</annotation>
+				<simpleType>
+					<restriction base="integer"/>
+				</simpleType>
+			</element>
+			<element name="serviceProviderId" minOccurs="0" type="string">
+				<annotation>
+					<documentation>An agreed ID that represents the service provider i.e. Virgin, Orange, T-Mobile, EEONE, UKONE, Other</documentation>
+				</annotation>
+			</element>
+			<element name="customerType" minOccurs="0">
+				<annotation>
+					<documentation>An agreed ID that represents the type of customer, MBB, Postpay, PPD.</documentation>
+				</annotation>
+				<simpleType>
+					<restriction base="string"/>
+				</simpleType>
+			</element>
+		</sequence>
+	</complexType>
+</schema>

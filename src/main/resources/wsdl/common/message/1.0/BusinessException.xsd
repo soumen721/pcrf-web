@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<schema xmlns="http://www.w3.org/2001/XMLSchema" xmlns:fault="http://www.everythingeverywhere.com/common/message/Fault/v1.0" targetNamespace="http://www.everythingeverywhere.com/common/message/BusinessException/v1.0" version="1.0">
+	<import namespace="http://www.everythingeverywhere.com/common/message/Fault/v1.0" schemaLocation="Fault.xsd"/>
+	<element name="businessException">
+		<annotation>
+			<documentation>Description about the business failures</documentation>
+		</annotation>
+		<complexType mixed="false">
+			<complexContent>
+				<extension base="fault:Fault"/>
+			</complexContent>
+		</complexType>
+	</element>
+</schema>

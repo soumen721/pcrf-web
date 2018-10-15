@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<schema xmlns:messageContext="http://messaging.ei.tmobile.net/datatypes" xmlns="http://www.w3.org/2001/XMLSchema" xmlns:ns1="http://www.everythingeverywhere.com/common/message/Fault/v1.0" targetNamespace="http://www.everythingeverywhere.com/common/message/Fault/v1.0" elementFormDefault="qualified" attributeFormDefault="qualified" version="1.0">
+	<import namespace="http://messaging.ei.tmobile.net/datatypes" schemaLocation="ei.messaging.datatypes.xsd"/>
+	<complexType name="Fault">
+		<annotation>
+			<documentation>An abstract base type extended by BusinessException and TechnicalException.</documentation>
+		</annotation>
+		<complexContent>
+			<extension base="messageContext:SOABPException2">
+				<sequence>
+					<element name="code" type="string">
+						<annotation>
+							<documentation>Element contains the error/exception code. E.g. ACCOUNT_NOT_FOUND</documentation>
+						</annotation>
+					</element>
+					<element name="fault_description" type="string">
+						<annotation>
+							<documentation>Element contains the error/exception description E.g. Account details not found using account number - abc.</documentation>
+						</annotation>
+					</element>
+					<element name="sourceSystem" type="string">
+						<annotation>
+							<documentation>Element contains the system name which generates the error. E.g. CRM, PAYMENTS etc.</documentation>
+						</annotation>
+					</element>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+</schema>

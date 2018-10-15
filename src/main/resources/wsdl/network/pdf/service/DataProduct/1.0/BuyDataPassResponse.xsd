@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2006 sp1 U (http://www.altova.com) by Orange PCS Ltd (Orange PCS Ltd) -->
+<schema xmlns="http://www.w3.org/2001/XMLSchema" xmlns:commdt="http://www.everythingeverywhere.com/common/datatype/DataTypes/v1.0" xmlns:subInfo="http://www.everythingeverywhere.com/network/pdf/service/DataProduct/SubscriberInfo/v1.0" xmlns:resp="http://www.everythingeverywhere.com/common/message/Response/v1.0" xmlns:respmsg="http://www.everythingeverywhere.com/common/message/ResponseMessage/v1.0" xmlns:tns="http://www.everythingeverywhere.com/network/pdf/service/DataProduct/DataProductResponse/v1.0" targetNamespace="http://www.everythingeverywhere.com/network/pdf/service/DataProduct/DataProductResponse/v1.0" elementFormDefault="unqualified" version="1.0">
+	<import namespace="http://www.everythingeverywhere.com/common/datatype/DataTypes/v1.0" schemaLocation="../../../../../common/datatype/1.0/DataTypes.xsd">
+		<annotation>
+			<documentation>EE Common Datatype schema import</documentation>
+		</annotation>
+	</import>
+	<import namespace="http://www.everythingeverywhere.com/common/message/Response/v1.0" schemaLocation="../../../../../common/message/1.0/Response.xsd">
+		<annotation>
+			<documentation> EE Common Response Schema import</documentation>
+		</annotation>
+	</import>
+	<import namespace="http://www.everythingeverywhere.com/common/message/ResponseMessage/v1.0" schemaLocation="../../../../../common/message/1.0/ResponseMessage.xsd">
+		<annotation>
+			<documentation> EE Common ResponseMessage Schema import</documentation>
+		</annotation>
+	</import>
+	<import namespace="http://www.everythingeverywhere.com/network/pdf/service/DataProduct/SubscriberInfo/v1.0" schemaLocation="SubscriberInfo.xsd">
+		<annotation>
+			<documentation>Common SubscriberInfo Schema import</documentation>
+		</annotation>
+	</import>
+	<element name="buyDataPassResponse" type="tns:BuyDataPassResponse"/>
+	<annotation>
+		<documentation>Response object for BuyDataPass operation in DataProduct service.</documentation>
+	</annotation>
+	<complexType name="BuyDataPassResponse">
+		<complexContent>
+			<extension base="resp:Response">
+				<sequence>
+					<element name="message">
+						<complexType mixed="false">
+							<complexContent mixed="false">
+								<extension base="respmsg:ResponseMessage">
+									<sequence>
+										<element name="subscriberInfo">
+											<annotation>
+												<documentation>This element contains subscriber information for who,  Data Products are been retrieved. </documentation>
+											</annotation>
+											<complexType mixed="false">
+												<complexContent mixed="false">
+													<extension base="subInfo:SubscriberInfo"/>
+												</complexContent>
+											</complexType>
+										</element>
+										<element name="passDetails">
+											<annotation>
+												<documentation>The element contains the pass details</documentation>
+											</annotation>
+											<complexType>
+												<sequence>
+													<element name="passType">
+														<annotation>
+															<documentation>Type of pass purchased (e.g. MbbPr7d)</documentation>
+														</annotation>
+														<simpleType>
+															<restriction base="string"/>
+														</simpleType>
+													</element>
+													<element name="passTypeName">
+														<annotation>
+															<documentation>Name of Pass (e.g. MBB 7 Day Pass)</documentation>
+														</annotation>
+														<simpleType>
+															<restriction base="string"/>
+														</simpleType>
+													</element>
+												</sequence>
+											</complexType>
+										</element>
+									</sequence>
+								</extension>
+							</complexContent>
+						</complexType>
+					</element>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+</schema>

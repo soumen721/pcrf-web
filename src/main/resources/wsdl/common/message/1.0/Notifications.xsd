@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.everythingeverywhere.com/common/message/Notifications/v1.0" version="1.0">
+	<complexType name="Notifications">
+		<annotation>
+			<documentation>Notifications provide a means of conveying information other than faults. There may be a notification list of one or more.</documentation>
+		</annotation>
+		<sequence>
+			<element name="notification" maxOccurs="unbounded">
+				<complexType>
+					<sequence>
+						<element name="code">
+							<annotation>
+								<documentation>Contant style text e.g. PHONE_STOCK_LOW</documentation>
+							</annotation>
+							<simpleType>
+								<restriction base="string">
+									<maxLength value="50"/>
+								</restriction>
+							</simpleType>
+						</element>
+						<element name="description">
+							<annotation>
+								<documentation>Free text giving details of the code e.g. "Phone has been ordered successfully but delivery may be delayed"</documentation>
+							</annotation>
+							<simpleType>
+								<restriction base="string">
+									<maxLength value="1000"/>
+								</restriction>
+							</simpleType>
+						</element>
+					</sequence>
+				</complexType>
+			</element>
+		</sequence>
+	</complexType>
+</schema>

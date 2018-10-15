@@ -1,0 +1,783 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema xmlns:tns="http://messaging.ei.tmobile.net/datatypes" xmlns="http://www.w3.org/2001/XMLSchema" xmlns:xsd="http://www.w3.org/2001/XMLSchema" targetNamespace="http://messaging.ei.tmobile.net/datatypes" elementFormDefault="qualified" attributeFormDefault="qualified" version="1.0">
+	<!--
+		!! @AUTHORS:
+		- CHANGES HERE WILL POSSIBLY BREAK A LOT OF AGREEMENTS 
+		- INCREMENT VERSION NUMBER AFTER CHANGES
+		!!
+	-->
+	<annotation>
+		<documentation>
+			contains data type definitions used in all wsdl-files of all
+			domains of all arm-components
+		</documentation>
+	</annotation>
+	<!-- ****************************************************************** -->
+	<simpleType name="EIMessageTarget">
+		<annotation>
+			<documentation>
+				Target of the Message. The target attribute is used to
+				address a certain port of a service. Ports are directly
+				linked to different service providers. Therefore the
+				target attribute enables service consumers to address a
+				certain service provider, e.g. when a service is
+				provided by several local instances. Valid content of
+				the target attribute is defined by the static linkage
+				defined in CEISeR. Every port of a service gets a unique
+				name. The defined port names can be used when calling
+				the service. Using an undefined port name results in an
+				error as the call cannot be routed. In cases when just a
+				single port for a service is available the service
+				consumer MAY omit the target. It is then determined
+				automatically.
+			</documentation>
+		</annotation>
+		<restriction base="string">
+			<minLength value="1"/>
+			<maxLength value="64"/>
+		</restriction>
+	</simpleType>
+	<!-- ****************************************************************** -->
+	<simpleType name="EIMessageCorrelationId">
+		<annotation>
+			<documentation>
+			Correlation-ID of the Message.
+			It contains the unique identifier of a specific single instance of a business process (see chapter ?9.1). Ideally this ID is universally
+			unique. It SHOULD be considered being an unstructured string and not be interpreted by any application receiving it. An application
+			initiating a business process instance MUST set correlationId. There very same ID MUST be used by every single application involved in
+			executing this business process instance and sent with every single service request and response or fault. This allows messages to be
+			correlated to this particular business process instance. Specifically a server MUST NOT create a new correlationId when sending a
+			response or fault or in "nested service calls" belonging to the same business process instance. It MUST use the very same ID it received
+			as part of a request. correlationId is used for Business Activity Monitoring, Message Warehouse, debugging and error management.
+			</documentation>
+		</annotation>
+		<restriction base="string">
+			<minLength value="5"/>
+			<maxLength value="255"/>
+		</restriction>
+	</simpleType>
+	<!-- ****************************************************************** -->
+	<simpleType name="EIMessageRequestId">
+		<annotation>
+			<documentation>
+			Request-ID of the Message.
+			If used, it MUST contain a unique identifier. Ideally this ID is universally unique. It SHOULD be considered being an unstructured string and not be interpreted by the service provider. As an interpretation of the content is not possible for the service provider and not all providers are capable of handling the complete UTF-8 character set the character set used for the requestId MUST be limited to plain ASCII.
+			requestId is not needed at all and can be omitted in a fully synchronous service usage. For asynchronous service usage the client needs some means to correlate a response to the original request. requestId SHOULD be used to serve this purpose. If a client has some other mechanism to do this correlation, it MAY use it. It is up to service user and service provider to agree on usage of a different mechanism.
+			If requestId is used in a service request, the server MUST pass on the very same value received by putting it into the requestId element of the corresponding service response or fault. This way the client receiving the response or fault can associate it correctly with the service request sent previously.
+			ESB always forwards a requestId without any interpretation or modification, independently of the MEP used.
+			</documentation>
+		</annotation>
+		<restriction base="string">
+			<minLength value="5"/>
+			<maxLength value="255"/>
+		</restriction>
+	</simpleType>
+	<!-- ****************************************************************** -->
+	<simpleType name="EIMessageSender">
+		<annotation>
+			<documentation>
+			This element is mandatory and of type EIMessageSender, which is a xsd:string with a length ranging from 2 to 255 and the specific format
+			described below. sender identifies the component instance sending a message. It MUST contain an URI of the following format: sndr:
+			[{username}@]{component instance}[/{machine}[/{instance}]] The URI MUST contain the component instance. Values for the component SHOULD
+			be chosen according to ARM (see reference ?[53]), but will also need to include local or system name elements to make it unique. The
+			component instance is needed to determine the correct routing of the services (as this is stored in CEISeR) and to support SCM. sender
+			SHOULD also contain the machine name and instance to ease debugging and error management. The URI MAY contain the username of the human
+			user who caused the request. This username SHOULD not be used for identity management. It is intended for informational purposes only.
+			sender MUST be set for every single message sent. So both a client sending a service request and a server sending a response or fault
+			must set sender to a value including their own component name and optionally machine and instance. Internally to the ESB, sender is used
+			for Service Contract Management. Without sender properly set, ESB would not be able to control or monitor compliance to service
+			contracts.
+			</documentation>
+		</annotation>
+		<restriction base="string">
+			<minLength value="2"/>
+			<maxLength value="255"/>
+		</restriction>
+	</simpleType>
+	<!-- ****************************************************************** -->
+	<simpleType name="EIMessageReplyTo">
+		<annotation>
+			<documentation>
+			The replyTo attribute is used in the context of asynchronous request/response scenarios.  As no component has a state to store
+			correlation or routing attributes in the message itself provides the replyTo field which MUST be returned by the client without
+			interpretation. This field is modified by the binding components to store the response queue and the receiving component in it to be
+			able to route the response correctly. The service consumer MUST NOT fill this attribute. It is in the responsibility of the service
+			provider binding component to ensure that the service provider can understand and store the whole character set used in the replyTo
+			field. It SHOULD just contain ASCII characters.
+			</documentation>
+		</annotation>
+		<restriction base="string">
+			<minLength value="1"/>
+			<maxLength value="1000"/>
+		</restriction>
+	</simpleType>
+	<!-- ****************************************************************** -->
+	<simpleType name="EIMessageTimeLeft">
+		<annotation>
+			<documentation>
+			Defines the lifetime of the request in the ESB in milliseconds.
+			This element is optional and of type EIMessageTimeLeft, which is a xsd:long. If used, it MUST contain a time interval in milliseconds.
+			timeLeft MAY be used to support a timeout mechanism. If a client using a request / response service is not ready to wait longer than a
+			specific time for a response, it MAY set timeLeft to define the timeout value. Whenever asked to forward a message with a timeLeft set,
+			ESB calculates an expiration time stamp based on the value of timeLeft and the current UTC time. After that point in time passes, ESB
+			writes a log entry when and moves the  expired message to a "dead letter queue". Messages with no timeLeft specified or timeLeft set to
+			0 will not expire. Servers MAY use timeLeft to determine whether they should process a request or not. If the needed processing time is
+			known to be longer than timeLeft, a server could refrain from further processing of the request. timeLeft is handed over to a server "as
+			is", not reduced by ESB latency. So it does not exactly reflect the real time left, but it is still an upper limit.
+			</documentation>
+		</annotation>
+		<restriction base="long"/>
+	</simpleType>
+	<!-- ****************************************************************** -->
+	<simpleType name="EIMessagePriority">
+		<annotation>
+			<documentation>
+			Priority of the Message (0 = lowest; 9 = highest).
+			This element is optional and of type EIMessagePriority, which is an enumeration of xsd:short with values 0, 1, 2, 3, 4, 5, 6, 7, 8, 9.
+			If used, it MUST be set to one of the enumeration values. As the ESB is built upon a product that is compliant to the JMS standard,
+			priority is supported as described by this standard. JMS defines a ten-level priority value, with 0 as the lowest priority and 9 as the
+			highest. In addition clients should consider priorities 0 to 4 as gradations of normal priority and priorities 5 to 9 as gradations of
+			expedited priority. JMS does not require a product implementing the standard to strictly implement a priority ordering of messages;
+			however, it should do its best to deliver expedited messages ahead of normal messages. Internally ESB defaults to 4 in case no priority
+			is explicitly set. A server MAY honour priority.
+			</documentation>
+		</annotation>
+		<restriction base="short">
+			<!-- enumeration value="0">
+				<annotation>
+					<documentation>lowest</documentation>
+				</annotation>
+			</enumeration>
+			<enumeration value="1"/>
+			<enumeration value="2"/>
+			<enumeration value="3"/>
+			<enumeration value="4"/>
+			<enumeration value="5"/>
+			<enumeration value="6"/>
+			<enumeration value="7"/>
+			<enumeration value="8"/>
+			<enumeration value="9">
+				<annotation>
+					<documentation>highest</documentation>
+				</annotation>
+			</enumeration-->
+		</restriction>
+	</simpleType>
+	<!-- ****************************************************************** -->
+	<simpleType name="EIMessageRedelivered">
+		<annotation>
+			<documentation>
+			Redelivered-Flag.
+			This flag is set by a client-application or SOA backplane-components whenever a message is delivered a second time.
+			This may be done because a redelivery is triggered via the message warehouse or because the web service gateway
+			could not deliver a notification successfully the first time.
+			It might also be set by the client itself as the client does a retry (due to timeouts, errors, etc).
+			If this flag is set  the server MAY do additional checks (e.g. duplicate) before processing the message. 
+			If the flag is absent the mesage is considered as a first time delivery. 		
+			</documentation>
+		</annotation>
+		<restriction base="string">
+			<enumeration value="CLIENT">
+				<annotation>
+					<documentation>redelivery by client-application</documentation>
+				</annotation>
+			</enumeration>
+			<enumeration value="SOABP">
+				<annotation>
+					<documentation>redelivery by SOA-Backplane-components (WebService-Gateway or JMS-Server)</documentation>
+				</annotation>
+			</enumeration>
+			<enumeration value="MANUAL">
+				<annotation>
+					<documentation>redelivery by human interaction (e.g. message-warehouse-operator)</documentation>
+				</annotation>
+			</enumeration>
+		</restriction>
+	</simpleType>
+	<!-- ****************************************************************** -->
+	<simpleType name="EIMessageRevision">
+		<annotation>
+			<documentation>
+			Revision-String.
+			A user defined string which reflects the revision of the service description.
+			This is currently purely meant as (debugging) information and not for automatic processing.
+			As SOA Backplane SHOULD contain a concept to make compatible versions (or revisions)
+			it is useful to know which revision is used by the client or server in its request.
+			</documentation>
+		</annotation>
+		<restriction base="string"/>
+	</simpleType>
+	<!-- ****************************************************************** -->
+	<simpleType name="EIOperationCompleted">
+		<annotation>
+			<documentation>
+				If this element is set the originator of the fault indicates if the requested operation was
+				guaranteed cancelled or could be maybe completed. Often enough it is clear that a request was not
+				successfully completed and it could be repeated later on when the error condition is cleared. But
+				sometimes the outcome is not clear - consider a typical timeout situation. The provider did not
+				respond in the agreed timeframe; it is simply not clear if it processed the request successfully
+				or not.
+				This flag should help consumers to decide if a call can be safely retried (it was not completed)
+				or if manual interaction is needed (call is not idempotent and maybe completed).
+				If the flag is absend a consumer should assume that the call may be completed.
+			</documentation>
+		</annotation>
+		<restriction base="string">
+			<enumeration value="no">
+				<annotation>
+					<documentation>
+					    This flag should be issued when it is clear that a operation was not executed. 
+					    This might be the case when e.g. the service provider was not reachable.
+					</documentation>
+				</annotation>
+			</enumeration>
+			<enumeration value="maybe">
+				<annotation>
+					<documentation>
+					   This flag should be used when it is not clear to the sender of the fault if an operation
+					   was completed, e.g. when a exception because of an timeout was returned.
+					</documentation>
+				</annotation>
+			</enumeration>
+		</restriction>
+	</simpleType>
+	<!-- ****************************************************************** -->
+	<simpleType name="EISequenceNumber">
+	  <annotation>
+	     <documentation>
+	     	May be used to define a total order to notifications. The consumer of these notifications may than
+	     	do reordering of necessary to get the original order back. The sequence number must be unique for
+	     	the sender (defined by the sender attribute) and the notification type (defined by the qualified 
+	     	name of the operation).
+	     	Please do also note that the notification provider must define a total order, which is often difficult.
+	     </documentation>
+	  </annotation>
+	  <restriction base="positiveInteger"/>
+	</simpleType>
+	<!-- ****************************************************************** -->
+	<complexType name="EIMessageProperty">
+	  <annotation>
+	     <documentation>
+	         Properties are less frequent used message context extensions. These might just be valuable
+	         for certain situations or systems. They do furthermore add the flexibility to define the content
+	         on a more semantical basis then on a syntactical bases.
+	         SOA Backplane will control the use of these properties by maintaining a list of valid attributes
+	         and their description. Properties in calls will be checked against this list. Having such a control
+	         prevents defining a property more than once (same meaning but different spelling) and puts hold
+	         on wrongly using the technical arguments.
+	         Service providers should ignore unknown attributes unless the mustUnderstand attribute is set.
+	     </documentation>
+	  </annotation>
+	  <simpleContent>
+		<extension base="string">
+		  	<attribute name="name" type="string" use="required">
+				<annotation>
+				   <documentation>
+				      Defines the name of the attribute. The name must be a known name for SOA Backplane otherwise the access layer
+				      may reject the request. If you believe that you need a new, yet undefined attribute please contact
+				      jens.ketterer@t-mobile.de
+				      The name-prefix "soabp." is reserved for SOABP-internal usage.
+				   </documentation>
+				</annotation>
+		  	</attribute>
+	      	<attribute name="policy" type="string" use="optional">
+				<annotation>
+				   <documentation>
+				       Defines a policy how to handle the property at runtime. If the policy is unkown (and mustUnderstand not set) it can
+				       be safely ignored.
+				       If set to "passthrough" the service provider should attach the attribute to all subsequent calls (activated by this one)
+				       as well as to the response. By this a status field can be forwarded through the call hierarchy.
+				       If set to "filter" the element can be used as low level filter element for the SOA Backplane core routing. Such
+				       filters can be used with notifications. Subscribers to a notification can limited the reception of notification
+				       by filtering through ONE of these filter elements. The filter policy is evaluated and executed by the CAL. 
+				   </documentation>
+				</annotation>
+	      	</attribute>
+    	  	<attribute name="mustUnderstand" use="optional" type="boolean" default="false">
+				<annotation>
+				   <documentation>
+				      Behaves like the SOAP header attribute of the same name. A provider must responde with an error if
+				      it does not know how to handle this attribute.
+				   </documentation>
+				</annotation>
+    	  	</attribute>
+    	  	<attribute name="type" use="optional">
+				<annotation>
+				   <documentation>
+				      Defines a type of the property. Can be used as a hint on processing the value. In general it should 
+				      be clear for the user of a property from which type it is.
+				      Will be used on filter elements to ensure the right sort sequence in filter comparisons.
+				   </documentation>
+				</annotation>
+				<simpleType>
+					<restriction base="string">
+						<enumeration value="boolean"/>
+						<enumeration value="byte"/>
+						<enumeration value="short"/>
+						<enumeration value="int"/>
+						<enumeration value="long"/>
+						<enumeration value="float"/>
+						<enumeration value="double"/>
+						<enumeration value="string"/>
+					</restriction>
+				</simpleType>
+    	  	</attribute>
+	    </extension>
+      </simpleContent>
+	</complexType>	
+	<!-- ****************************************************************** -->
+	<complexType name="EIMessagePropertyCollection">
+		<sequence>
+			<element name="property" type="tns:EIMessageProperty" minOccurs="1" maxOccurs="unbounded"/>
+		</sequence>
+	</complexType>
+	<!-- ****************************************************************** -->
+	<complexType name="EIMessageContext">
+		<annotation>
+		   <documentation>
+		   		DEPRECATED! Please use for new service interfaces the EIMessageContext2.
+		   	</documentation>
+			<xsd:appinfo>#soabp.deprecated</xsd:appinfo>
+		</annotation>
+		<sequence>
+			<element name="target" type="tns:EIMessageTarget" minOccurs="0" maxOccurs="1"/>
+			<element name="replyTo" type="tns:EIMessageReplyTo" minOccurs="0" maxOccurs="1"/>
+			<element name="requestId" type="tns:EIMessageRequestId" minOccurs="0" maxOccurs="1"/>
+			<element name="timeLeft" type="tns:EIMessageTimeLeft" minOccurs="0" maxOccurs="1"/>
+			<element name="priority" type="tns:EIMessagePriority" minOccurs="0" maxOccurs="1"/>
+			<element name="redelivered" type="tns:EIMessageRedelivered" minOccurs="0" maxOccurs="1"/>
+			<element name="revision" type="tns:EIMessageRevision" minOccurs="0" maxOccurs="1"/>
+			<element name="sender" type="tns:EIMessageSender" minOccurs="1" maxOccurs="1"/>
+			<element name="correlationId" type="tns:EIMessageCorrelationId" minOccurs="1" maxOccurs="1"/>
+		</sequence>
+	</complexType>
+	<!-- ****************************************************************** -->
+	<complexType name="EIMessageContext2">
+		<sequence>
+			<element name="target" type="tns:EIMessageTarget" minOccurs="0" maxOccurs="1"/>
+			<element name="replyTo" type="tns:EIMessageReplyTo" minOccurs="0" maxOccurs="1"/>
+			<element name="requestId" type="tns:EIMessageRequestId" minOccurs="0" maxOccurs="1"/>
+			<element name="timeLeft" type="tns:EIMessageTimeLeft" minOccurs="0" maxOccurs="1"/>
+			<element name="priority" type="tns:EIMessagePriority" minOccurs="0" maxOccurs="1"/>
+			<element name="redelivered" type="tns:EIMessageRedelivered" minOccurs="0" maxOccurs="1"/>
+			<element name="revision" type="tns:EIMessageRevision" minOccurs="0" maxOccurs="1"/>
+			<element name="sender" type="tns:EIMessageSender" minOccurs="1" maxOccurs="1"/>
+			<element name="correlationId" type="tns:EIMessageCorrelationId" minOccurs="1" maxOccurs="1"/>
+			<element name="sequenceId" type="tns:EISequenceNumber" minOccurs="0" maxOccurs="1"/>
+			<element name="properties" type="tns:EIMessagePropertyCollection" minOccurs="0" maxOccurs="1"/>
+		</sequence>
+	</complexType>
+	<complexType name="EITechnicalException">
+		<annotation>
+			<documentation>
+		   		DEPRECATED! Please use for new service interfaces the SOABPException2.
+			</documentation>
+			<xsd:appinfo>#soabp.deprecated</xsd:appinfo>
+		</annotation>
+		<sequence>
+			<element name="eiMessageContext" type="tns:EIMessageContext"/>
+			<element name="message" type="string"/>
+			<element name="exceptionClass" type="string"/>
+			<element name="stackTraceString" type="string" minOccurs="0"/>
+			<element name="furtherInfo" type="string" minOccurs="0" maxOccurs="unbounded"/>
+		</sequence>
+	</complexType>
+	<!-- ****************************************************************** -->
+	<complexType name="EIEmpty">
+		<sequence>
+			<!-- Note: EMPTY SEQUENCE ! -->
+		</sequence>
+	</complexType>
+	<!-- ****************************************************************** -->
+	<complexType name="EIEmptyResponse">
+		<sequence>
+			<element name="eiMessageContext" type="tns:EIMessageContext"/>
+			<element name="data" type="tns:EIEmpty"/>
+		</sequence>
+	</complexType>
+	<!-- ****************************************************************** -->
+	<complexType name="EIEmptyResponse2">
+		<sequence>
+			<element name="eiMessageContext" type="tns:EIMessageContext2"/>
+			<element name="data" type="tns:EIEmpty"/>
+		</sequence>
+	</complexType>
+	<!-- ****************************************************************** -->
+	<complexType name="EIEmptyRequest">
+		<sequence>
+			<element name="eiMessageContext" type="tns:EIMessageContext"/>
+			<element name="data" type="tns:EIEmpty"/>
+		</sequence>
+	</complexType>
+	<!-- ****************************************************************** -->
+	<complexType name="EIEmptyRequest2">
+		<sequence>
+			<element name="eiMessageContext" type="tns:EIMessageContext2"/>
+			<element name="data" type="tns:EIEmpty"/>
+		</sequence>
+	</complexType>
+	<!-- ****************************************************************** -->
+	<complexType name="EINamedTimeMeasurementCollection">
+		<sequence>
+			<element name="timeMeasurement" type="tns:EINamedTimeMeasurement" minOccurs="0" maxOccurs="unbounded"/>
+		</sequence>
+	</complexType>
+	<!-- ****************************************************************** -->
+	<complexType name="EINamedTimeMeasurement">
+		<sequence>
+			<element name="description" type="string"/>
+			<element name="startTimestamp" type="dateTime"/>
+			<element name="durationMillis" type="long"/>
+			<element name="stopTimestamp" type="dateTime" minOccurs="0"/>
+		</sequence>
+	</complexType>
+	<!-- ****************************************************************** -->
+	<complexType name="EIPingData">
+		<sequence>
+			<element name="technicalComponent" type="tns:EIPingTargetType" minOccurs="0" maxOccurs="1"/>
+			<element name="subComponent" type="string" minOccurs="0" maxOccurs="1"/>
+		</sequence>
+	</complexType>
+	<!-- ****************************************************************** -->
+	<simpleType name="EIPingTargetType">
+		<restriction base="string">
+			<enumeration value="Client"/>
+			<enumeration value="Server"/>
+			<enumeration value="Provider"/>
+		</restriction>
+	</simpleType>
+	<!-- ****************************************************************** -->
+	<complexType name="EIPingResponse">
+		<sequence>
+			<element name="eiMessageContext" type="tns:EIMessageContext2"/>
+			<element name="data" type="tns:EIPingInfoCollection"/>
+		</sequence>
+	</complexType>
+	<!-- ****************************************************************** -->
+	<complexType name="EIPingRequest">
+		<sequence>
+			<element name="eiMessageContext" type="tns:EIMessageContext2"/>
+			<element name="data" type="tns:EIPingData"/>
+		</sequence>
+	</complexType>
+	<!-- ****************************************************************** -->
+	<complexType name="EIPingInfoCollection">
+		<sequence>
+			<element name="technicalComponent" type="tns:EIPingInfo" minOccurs="0" maxOccurs="unbounded"/>
+		</sequence>
+	</complexType>
+	<!-- ****************************************************************** -->
+	<complexType name="EIPingInfo">
+		<sequence>
+			<element name="type" type="tns:EIPingTargetType" minOccurs="0" maxOccurs="1"/>
+			<element name="subComponent" type="string" minOccurs="0" maxOccurs="1"/>
+			<element name="location" type="string" minOccurs="0" maxOccurs="1"/>
+			<element name="version" type="string" minOccurs="0" maxOccurs="1"/>
+			<element name="timeMeasurementCollection" type="tns:EINamedTimeMeasurementCollection" minOccurs="0" maxOccurs="1"/>
+		</sequence>
+	</complexType>
+	<!-- ****************************************************************** -->
+	<attribute name="lang" type="string" default="en"/>
+	<!-- ****************************************************************** -->
+	<complexType name="EIDescriptionElement">
+	    <annotation>
+		    <documentation>
+       			If used it contains a plain text description of the fault. This description is expected to be
+				helpful in explaining the fault to users. There MAY be any number of description elements.
+				SOA BP components will always issue their error messages in English.
+		        If support for multilingual error messages if desired one may define a description id to
+		        enable a lookup for the description text in another language.
+		        One may also use placeholders within the text to indicate that a certain variable is used.
+		        These placeholder can be inserted in the translatetd text again. The syntax using placeholders 
+		        in XML style is favored against the printf style placeholders as the internal application
+		        syntax for replacing fragments must not be defined.
+		    </documentation>
+		</annotation>
+		<simpleContent>
+			<extension base="string">
+				<attribute ref="tns:lang" use="optional" default="en"/>
+				<attribute name="descId" type="string" use="optional"/>
+			</extension>
+		</simpleContent>
+	</complexType>
+	<!-- ****************************************************************** -->
+	<complexType name="EIPlaceholderValue">
+		<annotation>
+			<documentation>
+			    Defines variables which can be used in the placeholders of the description elements. Simplifies
+			    the translation process of error messages. Be aware that the names of the values are not globally
+			    unique, that means when you want to merge different description elements where placeholders refer
+			    to the same placeholder name but coming from different exceptions you have the responsibility to
+			    rename one of the variables.
+			    
+			    Values must contain a name attribute (name of the placeholder) and are of a certain type.
+			    Please note that you should usually chose the stringValue just when different formattings for
+			    the localization could be required a extra datatype is offered, namely for time, date, dateTime
+			    and floats.
+			</documentation>
+		</annotation>
+	    <simpleContent>
+			<extension base="string">
+			  	<attribute name="name" type="string" use="required">
+			  	</attribute>
+	    	  	<attribute name="type" use="optional" default="string">
+					<annotation>
+					   <documentation>
+					      Defines a type of the placeholder. Can be used as a hint on processing the value. In general it should 
+					      be clear for the user of a placeholder  from which type it is.
+					      Will be used on filter elements to ensure the right sort sequence in filter comparisons.
+					   </documentation>
+					</annotation>
+					<simpleType>
+						<restriction base="string">
+							<enumeration value="boolean"/>
+							<enumeration value="int"/>
+							<enumeration value="float"/>
+							<enumeration value="string"/>
+							<enumeration value="date"/>
+							<enumeration value="dateTime"/>
+							<enumeration value="time"/>
+						</restriction>
+					</simpleType>
+	    	  	</attribute>
+			</extension>
+	    </simpleContent>
+	</complexType>
+	<!-- ****************************************************************** -->
+	<complexType name="EIPlaceholderValueCollection">
+		<sequence>
+		   <element name="placeholderValue" type="tns:EIPlaceholderValue" minOccurs="1" maxOccurs="unbounded"/>
+	   </sequence>
+	</complexType>
+	<!-- ****************************************************************** -->
+	<complexType name="SOABPException">
+		<annotation>
+			<documentation>
+		   		DEPRECATED! Please use for new service interfaces the SOABPException2.
+			</documentation>
+			<xsd:appinfo>#soabp.deprecated</xsd:appinfo>
+		</annotation>
+		<sequence>
+			<element name="eiMessageContext" type="tns:EIMessageContext">
+				<annotation>
+					<documentation>
+						Defines the EI message context as in every message. As it is not possible
+						to include the context in a SOAP fault similar as in the SOAP body it is
+						stored in the SOABPException itself. The fields defined by this structure
+						should be filled accordingly to their description.
+					</documentation>
+				</annotation>					
+			</element>				
+			<element name="timestamp" type="dateTime" minOccurs="1" maxOccurs="1">
+				<annotation>
+					<documentation>
+						It MUST be set to the time at which the fault occurred. There MUST be only one timestamp
+						element in BaseFault. In the absence of the time zone designation, the value MUST be
+						interpreted as universal time (UTC) time.
+						Please note that machines within the T-Mobile universe do not have synchronized clocks.
+						Therefore the timestamp should be considered as a reference to the service provider agents log files.
+					</documentation>
+				</annotation>
+			</element>
+			<element name="originator" type="anyURI" minOccurs="0" maxOccurs="1">
+				<annotation>
+					<documentation>
+						This element is an optional URI EndpointReference of the Web service that generated the fault.
+						This element MAY be omitted if the fault originator is clearly implied by the context in which
+						the fault appears (for example in a simple request response message exchange). One use of this
+						element is in a situation of nested faults.
+					</documentation>
+				</annotation>
+			</element>
+			<element name="exceptionClass" type="string" minOccurs="0" maxOccurs="1">
+				<annotation>
+					<documentation>
+						The exceptionClass contains a machine readable classification of the exception. Its up to the
+						service provider to limit the number of classes here and provide the information which kind
+						of errors can occur to the consumer.
+						This attribute is optional as a provider might find it more useful to distinguish all possible
+						error cases with different fault types. Anyhow, this attribute provides flexibility to refine
+						the type of the error in a machine interpretable way.
+						Please not that the name "class" is meant in a classification sense and not as an object
+						oriented class.
+					</documentation>
+				</annotation>
+			</element>
+			<element name="subCode" type="string" minOccurs="0" maxOccurs="1">
+				<annotation>
+					<documentation>
+						It should be filled when machine readable information of a nested error are available, e.g.
+						a database error number could be stored here. It is up to the service provider to define the
+						possible sub error codes and their meaning.
+						But generally it should be clear that the list of all possible sub error codes is not complete.
+						Consider the case of database errors; these are countless and can not be enumerated and described
+						completely.
+						Best practise for such information would be to distinguish between typical cases which might
+						need different treatment than the usual cases of the exception class.
+					</documentation>
+				</annotation>
+			</element>
+			<element name="description" type="string" minOccurs="0" maxOccurs="unbounded">			
+				<annotation>
+					<documentation>
+						If used it contains a plain text description of the fault. This description is expected to be
+						helpful in explaining the fault to users. There MAY be any number of description elements.
+						SOA BP components will always issue their error messages in English.
+					</documentation>
+				</annotation>
+			</element>		
+			<element name="completed" type="tns:EIOperationCompleted" minOccurs="0" maxOccurs="1">
+				<annotation>
+					<documentation>
+						If this element is set the originator of the fault indicates if the requested operation was
+						guaranteed cancelled or could be maybe completed. Often enough it is clear that a request was not
+						successfully completed and it could be repeated later on when the error condition is cleared. But
+						sometimes the outcome is not clear - consider a typical timeout situation. The provider did not
+						respond in the agreed timeframe; it is simply not clear if it processed the request successfully
+						or not.
+						This flag should help consumers to decide if a call can be safely retried (it was not completed)
+						or if manual interaction is needed (call is not idempotent and maybe completed).
+					</documentation>
+				</annotation>
+			</element>
+			<element name="stackTraceString" type="string" minOccurs="0">
+				<annotation>
+					<documentation>
+						Allows to add stack trace information if an internal exception of the service
+						provider occured while processing the service. The stack trace is just intended
+						as a quick debugging aid, thus its structure must just be understood by the
+						service provider.
+						Subject to be removed from the exception when communicating to an external partner
+						to not expose internals to the outside world.
+					</documentation>
+				</annotation>
+			</element>
+			<element name="furtherInfo" type="string" minOccurs="0" maxOccurs="unbounded">
+				<annotation>
+					<documentation>
+						Additional human readable information can be added by using
+						the furtherInfo attribute. Should be understood as a debugging
+						aid for the service provider, thus unformatted text format is expected.
+						Simplifies the usage of the exception when sub errors are not delivered 
+						as a SOABPException (in such a case - when a nested service call failed -
+						the resulting error SHOULD be added using the recursive feature of the 
+						base fault), e.g. a database error occured. 
+						Subject to be removed from the exception when communicating to an external partner
+						to not expose internals to the outside world.
+					</documentation>
+				</annotation>
+			</element>
+		</sequence>
+	</complexType>
+	<!-- ****************************************************************** -->
+	<simpleType name="EIExceptionTimeStamp">
+		<annotation>
+			<documentation>
+				It MUST be set to the time at which the fault occurred. There MUST be only one timestamp
+				element in BaseFault. In the absence of the time zone designation, the value MUST be
+				interpreted as universal time (UTC) time.
+				Please note that machines within the T-Mobile universe do not have synchronized clocks.
+				Therefore the timestamp should be considered as a reference to the service provider agents log files.
+			</documentation>
+		</annotation>
+		<restriction base="dateTime"/>
+	</simpleType>
+	<!-- ****************************************************************** -->
+	<simpleType name="EIExceptionOriginator">
+		<annotation>
+			<documentation>
+				This element is an optional URI EndpointReference of the Web service that generated the fault.
+				This element MAY be omitted if the fault originator is clearly implied by the context in which
+				the fault appears (for example in a simple request response message exchange). One use of this
+				element is in a situation of nested faults.
+			</documentation>
+		</annotation>
+		<restriction base="anyURI"/>	
+	</simpleType>
+	<!-- ****************************************************************** -->
+	<simpleType name="EIExceptionClass">
+		<annotation>
+			<documentation>
+				The exceptionClass contains a machine readable classification of the exception. Its up to the
+				service provider to limit the number of classes here and provide the information which kind
+				of errors can occur to the consumer.
+				This attribute is optional as a provider might find it more useful to distinguish all possible
+				error cases with different fault types. Anyhow, this attribute provides flexibility to refine
+				the type of the error in a machine interpretable way.
+				Please not that the name "class" is meant in a classification sense and not as an object
+				oriented class.
+			</documentation>
+		</annotation>
+		<restriction base="string"/>	
+	</simpleType>
+	<!-- ****************************************************************** -->
+	<simpleType name="EIExceptionSubCode">
+		<annotation>
+			<documentation>
+				It should be filled when machine readable information of a nested error are available, e.g.
+				a database error number could be stored here. It is up to the service provider to define the
+				possible sub error codes and their meaning.
+				But generally it should be clear that the list of all possible sub error codes is not complete.
+				Consider the case of database errors; these are countless and can not be enumerated and described
+				completely.
+				Best practise for such information would be to distinguish between typical cases which might
+				need different treatment than the usual cases of the exception class.
+			</documentation>
+		</annotation>
+		<restriction base="string"/>	
+	</simpleType>
+	<!-- ****************************************************************** -->
+	<simpleType name="EIExceptionStackTrace">
+		<annotation>
+			<documentation>
+				Allows to add stack trace information if an internal exception of the service
+				provider occured while processing the service. The stack trace is just intended
+				as a quick debugging aid, thus its structure must just be understood by the
+				service provider.
+				Subject to be removed from the exception when communicating to an external partner
+				to not expose internals to the outside world.
+			</documentation>
+		</annotation>
+		<restriction base="string"/>
+	</simpleType>
+	<!-- ****************************************************************** -->
+	<simpleType name="EIExceptionFurtherInfo">
+		<annotation>
+			<documentation>
+				Additional human readable information can be added by using
+				the furtherInfo attribute. Should be understood as a debugging
+				aid for the service provider, thus unformatted text format is expected.
+				Simplifies the usage of the exception when sub errors are not delivered 
+				as a SOABPException (in such a case - when a nested service call failed -
+				the resulting error SHOULD be added using the recursive feature of the 
+				base fault), e.g. a database error occured. 
+				Subject to be removed from the exception when communicating to an external partner
+				to not expose internals to the outside world.
+			</documentation>
+		</annotation>
+		<restriction base="string"/>	
+	</simpleType>
+	<!-- ****************************************************************** -->
+	<complexType name="SOABPException2">
+		<annotation>
+			<documentation>
+				The SOABPException2 is the designed default exception of the SOA backplane. All technical
+				errors of the web service gateway are delivered by this error structure. It is also recommended 
+				to use the SOABPException to deliver business errors.
+			</documentation>
+		</annotation>
+		<sequence>
+			<element name="eiMessageContext" type="tns:EIMessageContext2"/>
+			<element name="timestamp" type="tns:EIExceptionTimeStamp" minOccurs="1" maxOccurs="1"/>
+			<element name="originator" type="tns:EIExceptionOriginator" minOccurs="0" maxOccurs="1"/>
+			<element name="exceptionClass" type="tns:EIExceptionClass" minOccurs="0" maxOccurs="1"/>
+			<element name="subCode" type="tns:EIExceptionSubCode" minOccurs="0" maxOccurs="1"/>
+			<element name="description" type="tns:EIDescriptionElement" minOccurs="0" maxOccurs="unbounded"/>			
+			<element name="completed" type="tns:EIOperationCompleted" minOccurs="0" maxOccurs="1"/>
+			<element name="stackTraceString" type="tns:EIExceptionStackTrace" minOccurs="0"/>
+			<element name="furtherInfo" type="tns:EIExceptionFurtherInfo" minOccurs="0" maxOccurs="unbounded"/>
+			<element name="placeholderValues" type="tns:EIPlaceholderValueCollection" minOccurs="0" maxOccurs="1"/>
+		</sequence>
+	</complexType>
+	<!-- ****************************************************************** -->
+</schema>

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2006 sp1 U (http://www.altova.com) by Orange PCS Ltd (Orange PCS Ltd) -->
+<schema xmlns="http://www.w3.org/2001/XMLSchema" xmlns:types="http://www.everythingeverywhere.com/common/datatype/DataTypes/v1.0" targetNamespace="http://www.everythingeverywhere.com/network/pdf/service/DataProduct/DataProductBasicRequest/v1.0" elementFormDefault="unqualified" version="1.0">
+	<import namespace="http://www.everythingeverywhere.com/common/datatype/DataTypes/v1.0" schemaLocation="../../../../../common/datatype/1.0/DataTypes.xsd"/>
+	<complexType name="DataProductBasicRequest">
+		<annotation>
+			<documentation>DataProductBasicRequest element contains the common request elements for DataProduct service.</documentation>
+		</annotation>
+		<sequence>
+			<element name="keyIdentifier">
+				<annotation>
+					<documentation>This element contains choice of subscriber identifiers and Any one (msisdn or ipAddress) needs to be passed in the request</documentation>
+				</annotation>
+				<complexType>
+					<choice>
+						<element name="msisdn" type="types:Msisdn">
+							<annotation>
+								<documentation>MSISDN (in international format. e.g.:- 447675988345) of the subscriber for which operation is being performed</documentation>
+							</annotation>
+						</element>
+						<element name="ipAddress">
+							<annotation>
+								<documentation>Representing subscriber's IP Address , for which operation is being performed</documentation>
+							</annotation>
+							<simpleType>
+								<restriction base="string">
+									<minLength value="7"/>
+								</restriction>
+							</simpleType>
+						</element>
+					</choice>
+				</complexType>
+			</element>
+			<element name="requestOrigin">
+				<annotation>
+					<documentation>Predefined 3rd party application service / system ID assigned by EE               </documentation>
+				</annotation>
+				<simpleType>
+					<restriction base="string">
+						<minLength value="1"/>
+					</restriction>
+				</simpleType>
+			</element>
+		</sequence>
+	</complexType>
+</schema>

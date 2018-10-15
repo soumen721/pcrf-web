@@ -104,7 +104,7 @@
 										<extraarg>-xjc-Xfluent-api</extraarg>
 										<extraarg>-xjc-Xvalue-constructor</extraarg>
 									</extraargs>
-									<wsdl>${basedir}/src/main/resources/wsdl/calculator.wsdl</wsdl>
+									<wsdl>${basedir}/src/main/resources/wsdl/network/pdf/service/DataProduct/1.0/DataProduct.wsdl</wsdl>
 									<extraargs>
 										<extraarg>-p</extraarg>
 										<extraarg>com.ee.cne.ws.dataproduct.generated</extraarg>

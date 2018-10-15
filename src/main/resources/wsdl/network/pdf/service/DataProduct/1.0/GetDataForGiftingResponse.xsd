@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema xmlns="http://www.w3.org/2001/XMLSchema" 
+xmlns:resp="http://www.everythingeverywhere.com/common/message/Response/v1.0" 
+xmlns:respmsg="http://www.everythingeverywhere.com/common/message/ResponseMessage/v1.0" 
+xmlns:tns="http://www.everythingeverywhere.com/network/pdf/service/DataProduct/DataProductResponse/v1.0" 
+targetNamespace="http://www.everythingeverywhere.com/network/pdf/service/DataProduct/DataProductResponse/v1.0" elementFormDefault="unqualified" version="1.0">
+
+	<import namespace="http://www.everythingeverywhere.com/common/message/Response/v1.0" schemaLocation="../../../../../common/message/1.0/Response.xsd">
+		<annotation>
+			<documentation> EE Common Response Schema import</documentation>
+		</annotation>
+	</import>
+	<import namespace="http://www.everythingeverywhere.com/common/message/ResponseMessage/v1.0" schemaLocation="../../../../../common/message/1.0/ResponseMessage.xsd">
+		<annotation>
+			<documentation> EE Common Response Message Schema Import </documentation>
+		</annotation>
+	</import>
+	<element name="getDataForGiftingResponse" type="tns:getDataForGiftingResponse">
+		<annotation>
+			<documentation>Response object for service.</documentation>
+		</annotation>
+	</element>
+	<complexType name="getDataForGiftingResponse">
+		<complexContent>
+			<extension base="resp:Response">
+				<sequence>
+					<element name="message">
+						<complexType>
+							<complexContent>
+								<extension base="respmsg:ResponseMessage">
+									<sequence>
+										<element name="dataGiftingDetails">
+											<complexType>
+												<sequence>
+													<element name="totalDataAllowance" type="long">
+														<annotation>
+															<documentation>
+Indicates the total data allowance in MB.Calculated based on the Sum of "FUP" values returned from PCRF Look up API.
+</documentation>
+														</annotation>
+													</element>
+													<element name="totalDataAvailable" type="long">
+														<annotation>
+															<documentation>
+Indicates the total available data in MB .Calculated based on the sum of volume returned from PCRF Look up API
+</documentation>
+														</annotation>
+													</element>
+													<element name="quotasCount" type="int">
+														<annotation>
+															<documentation>
+Indicates count of the number of records i,e count of current or stacked passes
+</documentation>
+														</annotation>
+													</element>
+													<element name="activeQuota">
+														<annotation>
+															<documentation>
+Possible values are Y/N , set to Y-if there is a matching record for "Current" or "Stacked" data passes , set to N-if there is a record only for "Expired"
+</documentation>
+														</annotation>
+														<simpleType>
+															<restriction base="string">
+																<enumeration value="Y"/>
+																<enumeration value="N"/>
+															</restriction>
+														</simpleType>
+													</element>
+													<element name="quotaDetails">
+														<annotation>
+															<documentation>
+The element contains a list of Current , Expired and Stacked quota products
+</documentation>
+														</annotation>
+														<complexType>
+															<sequence>
+																<element name="quotaDetail" maxOccurs="unbounded">
+																	<complexType>
+																		<sequence>
+																			<element name="passType" type="string">
+																				<annotation>
+																					<documentation>
+Pass types returned which are appropriate for customer. This ID should be used to identify pass and any 3rd party specific pass information(e.g. Rpo, 30Rpo)
+</documentation>
+																				</annotation>
+																			</element>
+																			<element name="infoType" type="string">
+																				<annotation>
+																					<documentation>
+This element describes the type of data in the info structure. Current pass information, Expired pass information or Stacked pass information. It is possible for the response to contain all types and there could be several of each type. The possible values are : C = Current Pass E = Expired Pass S = [Booked] Stacked Pass
+</documentation>
+																				</annotation>
+																			</element>
+																		</sequence>
+																	</complexType>
+																</element>
+															</sequence>
+														</complexType>
+													</element>
+													<element name="lowDataWarning" type="string" minOccurs="0">
+														<annotation>
+															<documentation>
+LowDataWarning has two potential values: “Low Data”, “No Data”, set to LowData when ActiveQuota= "Yes" and if TotalDataAvailable / TotalDataAllowance is less than or equal to 0.2 No Data-Where ActiveQuota= "No"
+</documentation>
+														</annotation>
+													</element>
+													<element name="allowedDataTransferAmount" minOccurs="0">
+														<complexType>
+															<sequence>
+																<element name="transferAmount" type="long" minOccurs="1" maxOccurs="unbounded">
+																	<annotation>
+																		<documentation>
+Represents the amount of data to be transferred																	
+if TotalDataAvailable is 1575 MB, the collection should consist of 500MB, 1024MB, 1536MB.
+</documentation>
+																	</annotation>
+																</element>
+															</sequence>
+														</complexType>
+													</element>
+												</sequence>
+											</complexType>
+										</element>
+									</sequence>
+								</extension>
+							</complexContent>
+						</complexType>
+					</element>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+</schema>

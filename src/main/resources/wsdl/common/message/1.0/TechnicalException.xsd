@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<schema targetNamespace="http://www.everythingeverywhere.com/common/message/TechnicalException/v1.0" xmlns="http://www.w3.org/2001/XMLSchema" xmlns:fault="http://www.everythingeverywhere.com/common/message/Fault/v1.0" version="1.0">
+	<import namespace="http://www.everythingeverywhere.com/common/message/Fault/v1.0" schemaLocation="Fault.xsd"/>
+	<element name="technicalException">
+		<annotation>
+			<documentation>Description about the technical failures</documentation>
+		</annotation>
+		<complexType mixed="false">
+			<complexContent mixed="false">
+				<extension base="fault:Fault"/>
+			</complexContent>
+		</complexType>
+	</element>
+</schema>
