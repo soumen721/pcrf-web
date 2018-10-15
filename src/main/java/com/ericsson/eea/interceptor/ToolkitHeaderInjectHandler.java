@@ -1,4 +1,4 @@
-package com.ericsson.eea;
+package com.ericsson.eea.interceptor;
 
 import javax.xml.namespace.QName;
 import javax.xml.soap.*;

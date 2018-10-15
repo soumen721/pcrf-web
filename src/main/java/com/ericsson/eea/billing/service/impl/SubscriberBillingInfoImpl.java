@@ -6,7 +6,6 @@ import java.net.URL;
 import java.util.Collections;
 import javax.ejb.Remote;
 import javax.ejb.Stateless;
-import javax.xml.datatype.DatatypeConfigurationException;
 import org.jboss.logging.Logger;
 import com.ee.cne.ws.dataproduct.generated.DataProduct;
 import com.ee.cne.ws.dataproduct.generated.DataProductService;
@@ -21,7 +20,6 @@ import com.ericsson.eea.billing.model.SubscriberFilter;
 import com.ericsson.eea.billing.service.DataUsageCalculationService;
 import com.ericsson.eea.billing.service.SubscriberBillingRemote;
 import com.ericsson.eea.billing.util.BillingUtils;
-import com.ericsson.eea.billing.util.DummyDataGenerator;
 import com.ericsson.eea.billing.util.TariffType;
 
 @Stateless

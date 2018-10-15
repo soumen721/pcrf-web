@@ -1,5 +1,17 @@
 package com.ericsson.eea.billing.service.impl;
 
+import static com.ericsson.eea.billing.util.BillingConstant.VALID_INFO_TYPE_POSTPAID;
+import static com.ericsson.eea.billing.util.BillingUtils.filterDataPassOnFUPChange;
+import static com.ericsson.eea.billing.util.BillingUtils.getFilteredDataPassBasedOnBillCycle;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
+import java.util.function.Predicate;
+import org.jboss.logging.Logger;
 import com.ee.cne.ws.dataproduct.generated.DataPass;
 import com.ee.cne.ws.dataproduct.generated.DataPass.ShareDetails.SharerDataUsage;
 import com.ee.cne.ws.dataproduct.generated.GetCurrentAndAvailableDataProductsResponse;
@@ -11,21 +23,6 @@ import com.ericsson.eea.billing.service.DataUsageCalculationService;
 import com.ericsson.eea.billing.util.BillingCycle;
 import com.ericsson.eea.billing.util.BillingUtils;
 import com.ericsson.eea.pcrf.model.DataUsageDetails;
-import org.jboss.logging.Logger;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZoneOffset;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
-import java.util.function.Predicate;
-
-import static com.ericsson.eea.billing.util.BillingConstant.VALID_INFO_TYPE_POSTPAID;
-import static com.ericsson.eea.billing.util.BillingUtils.filterDataPassOnFUPChange;
-import static com.ericsson.eea.billing.util.BillingUtils.getFilteredDataPassBasedOnBillCycle;
 
 public class PostPaidDataUsageCalculationService implements DataUsageCalculationService {
     private static final Logger log = Logger.getLogger(PostPaidDataUsageCalculationService.class);
