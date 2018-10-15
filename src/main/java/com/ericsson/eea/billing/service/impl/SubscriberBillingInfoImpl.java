@@ -1,112 +1,121 @@
 package com.ericsson.eea.billing.service.impl;
 
-import com.ee.cne.ws.dataproduct.generated.Calculator;
-import com.ee.cne.ws.dataproduct.generated.CalculatorSoap;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.util.Collections;
+import javax.ejb.Remote;
+import javax.ejb.Stateless;
+import javax.xml.datatype.DatatypeConfigurationException;
+import org.jboss.logging.Logger;
+import com.ee.cne.ws.dataproduct.generated.DataProduct;
+import com.ee.cne.ws.dataproduct.generated.DataProductService;
+import com.ee.cne.ws.dataproduct.generated.GetCurrentAndAvailableDataProductsRequest;
 import com.ee.cne.ws.dataproduct.generated.GetCurrentAndAvailableDataProductsResponse;
-import com.ericsson.eea.billing.model.*;
+import com.ee.cne.ws.dataproduct.generated.ObjectFactory;
+import com.ericsson.eea.billing.model.MessageEnvelope;
+import com.ericsson.eea.billing.model.SubscriberBillingInfo;
+import com.ericsson.eea.billing.model.SubscriberBillingInfoNotAvailableException;
+import com.ericsson.eea.billing.model.SubscriberBillingRetrievalFailedException;
+import com.ericsson.eea.billing.model.SubscriberFilter;
 import com.ericsson.eea.billing.service.DataUsageCalculationService;
 import com.ericsson.eea.billing.service.SubscriberBillingRemote;
 import com.ericsson.eea.billing.util.BillingUtils;
 import com.ericsson.eea.billing.util.DummyDataGenerator;
 import com.ericsson.eea.billing.util.TariffType;
-import org.jboss.logging.Logger;
-
-import javax.ejb.Remote;
-import javax.ejb.Stateless;
-import javax.xml.datatype.DatatypeConfigurationException;
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.util.Collections;
 
 @Stateless
 @Remote(SubscriberBillingRemote.class)
 public class SubscriberBillingInfoImpl implements SubscriberBillingRemote {
-    private static final Logger log = Logger.getLogger(SubscriberBillingInfoImpl.class);
+  private static final Logger log = Logger.getLogger(SubscriberBillingInfoImpl.class);
 
-    @Override
-    public MessageEnvelope<SubscriberBillingInfo> getBillingCycleInfo(SubscriberFilter filter)
-            throws SubscriberBillingInfoNotAvailableException, SubscriberBillingRetrievalFailedException {
+  @Override
+  public MessageEnvelope<SubscriberBillingInfo> getBillingCycleInfo(SubscriberFilter filter)
+      throws SubscriberBillingInfoNotAvailableException, SubscriberBillingRetrievalFailedException {
 
-        // call PCRF web service and process and return response
-        GetCurrentAndAvailableDataProductsResponse response = getDataProductsWebServiceResponse();
-        GetCurrentAndAvailableDataProductsResponse.Message.SubscriberInfo subscriberInfo =
-                response.getMessage().getSubscriberInfo();
-        DataUsageCalculationService usageCalculationService;
+    // call PCRF web service and process and return response
+    GetCurrentAndAvailableDataProductsResponse response = getDataProductsWebServiceResponse();
+    GetCurrentAndAvailableDataProductsResponse.Message.SubscriberInfo subscriberInfo =
+        response.getMessage().getSubscriberInfo();
+    DataUsageCalculationService usageCalculationService;
 
-        if (TariffType.Prepaid.name().equals(subscriberInfo.getTariffType())) {
+    if (TariffType.Prepaid.name().equals(subscriberInfo.getTariffType())) {
 
-            usageCalculationService = new PrePaidDataUsageCalculationService();
-        } else if (TariffType.Postpaid.name().equals(subscriberInfo.getTariffType())) {
+      usageCalculationService = new PrePaidDataUsageCalculationService();
+    } else if (TariffType.Postpaid.name().equals(subscriberInfo.getTariffType())) {
 
-            usageCalculationService = new PostPaidDataUsageCalculationService();
-        } else {
-            throw new SubscriberBillingInfoNotAvailableException();
-        }
-
-        SubscriberBillingInfo billingInfo = usageCalculationService.calculateDataUsage(response);
-        MessageEnvelope<SubscriberBillingInfo> envelope = new MessageEnvelope<>();
-        envelope.setData(Collections.singletonList(billingInfo));
-
-        return envelope;
+      usageCalculationService = new PostPaidDataUsageCalculationService();
+    } else {
+      throw new SubscriberBillingInfoNotAvailableException();
     }
 
-    public static void main(String arg[]) throws SubscriberBillingInfoNotAvailableException, SubscriberBillingRetrievalFailedException {
+    SubscriberBillingInfo billingInfo = usageCalculationService.calculateDataUsage(response);
+    MessageEnvelope<SubscriberBillingInfo> envelope = new MessageEnvelope<>();
+    envelope.setData(Collections.singletonList(billingInfo));
 
-        GetCurrentAndAvailableDataProductsResponse response = getDataProductsWebServiceResponse();
-        GetCurrentAndAvailableDataProductsResponse.Message.SubscriberInfo subscriberInfo =
-                response.getMessage().getSubscriberInfo();
-        DataUsageCalculationService usageCalculationService;
+    return envelope;
+  }
 
-        if (TariffType.Prepaid.name().equals(subscriberInfo.getTariffType())) {
+  public static void main(String arg[])
+      throws SubscriberBillingInfoNotAvailableException, SubscriberBillingRetrievalFailedException {
 
-            usageCalculationService = new PrePaidDataUsageCalculationService();
-        } else if (TariffType.Postpaid.name().equals(subscriberInfo.getTariffType())) {
+    GetCurrentAndAvailableDataProductsResponse response = getDataProductsWebServiceResponse();
+    GetCurrentAndAvailableDataProductsResponse.Message.SubscriberInfo subscriberInfo =
+        response.getMessage().getSubscriberInfo();
+    DataUsageCalculationService usageCalculationService;
 
-            usageCalculationService = new PostPaidDataUsageCalculationService();
-        } else {
-            throw new SubscriberBillingInfoNotAvailableException();
-        }
-        usageCalculationService.calculateDataUsage(response);
+    if (TariffType.Prepaid.name().equals(subscriberInfo.getTariffType())) {
+
+      usageCalculationService = new PrePaidDataUsageCalculationService();
+    } else if (TariffType.Postpaid.name().equals(subscriberInfo.getTariffType())) {
+
+      usageCalculationService = new PostPaidDataUsageCalculationService();
+    } else {
+      throw new SubscriberBillingInfoNotAvailableException();
+    }
+    usageCalculationService.calculateDataUsage(response);
+  }
+
+  private static GetCurrentAndAvailableDataProductsResponse getDataProductsWebServiceResponse()
+      throws SubscriberBillingInfoNotAvailableException, SubscriberBillingRetrievalFailedException {
+
+    GetCurrentAndAvailableDataProductsResponse response = null;
+    try {
+      URL wsdlURL =
+          new URL(BillingUtils.getProperties().getProperty(BillingUtils.PCRF_BILLING_WS_URL));
+      log.info("BIlling WebService URL :: " + wsdlURL.toURI().toString());
+
+      // TODO remove once got actual Response
+      //response = DummyDataGenerator.populateResponseData();
+      if (response == null) {
+        DataProductService dataService = new DataProductService(wsdlURL);
+        DataProduct port = dataService.getDataProduct10();
+        GetCurrentAndAvailableDataProductsRequest request =
+            new ObjectFactory().createGetCurrentAndAvailableDataProductsRequest();
+
+        // set msisdn and request origin in the request and call service
+        response = port.getCurrentAndAvailableDataProducts(request);
+      }
+
+    } catch (MalformedURLException e) {
+
+      log.error("Exception Occured :: " + e.getMessage());
+      throw new SubscriberBillingInfoNotAvailableException();
+    } catch ( URISyntaxException e) {
+
+      log.error("Exception Occured :: " + e.getMessage());
+      throw new SubscriberBillingRetrievalFailedException();
+    } catch (Exception e) {
+
+      log.error("Exception Occured :: " + e.getMessage());
+      // throw new SubscriberBillingRetrievalFailedException();
     }
 
-    private static GetCurrentAndAvailableDataProductsResponse getDataProductsWebServiceResponse()
-            throws SubscriberBillingInfoNotAvailableException, SubscriberBillingRetrievalFailedException {
-
-        GetCurrentAndAvailableDataProductsResponse response;
-        try {
-            URL wsdlURL =
-                    new URL(BillingUtils.getProperties().getProperty(BillingUtils.PCRF_BILLING_WS_URL));
-            log.info("BIlling WebService URL :: " + wsdlURL.toURI().toString());
-
-            Calculator service = new Calculator(wsdlURL);
-            CalculatorSoap ctxport = service.getCalculatorSoap();
-            int resp = ctxport.add(10, 20);
-            log.info("Addition Result ==> " + resp);
-
-            /*
-             * DataProductService dataService = new DataProductService(wsdlURL); DataProduct port =
-             * dataService.getDataProduct10(); GetCurrentAndAvailableDataProductsRequest request =
-             * ObjectFactory.createGetCurrentAndAvailableDataProductsRequest();
-             *
-             * // set msisdn and request origin in the request and call service
-             * GetCurrentAndAvailableDataProductsResponse response = port.
-             * getCurrentAndAvailableDataProducts(request); } catch (BusinessFault bex) { // handle
-             * business fault by throwing EJB endpoint specific exception } catch (TechnicalFault tex) {
-             * // handle technical fault by throwing EJB endpoint specific exception
-             */
-            response = DummyDataGenerator.populateResponseData();
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-            throw new SubscriberBillingInfoNotAvailableException();
-        } catch (DatatypeConfigurationException | URISyntaxException e) {
-            throw new SubscriberBillingRetrievalFailedException();
-        }
-
-        if (response == null || response.getMessage() == null || response.getMessage().getSubscriberInfo() == null) {
-            throw new SubscriberBillingInfoNotAvailableException();
-        }
-
-        return response;
+    if (response == null || response.getMessage() == null
+        || response.getMessage().getSubscriberInfo() == null) {
+      throw new SubscriberBillingInfoNotAvailableException();
     }
+
+    return response;
+  }
 }

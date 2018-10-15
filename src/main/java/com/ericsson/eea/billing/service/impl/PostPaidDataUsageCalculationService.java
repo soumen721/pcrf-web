@@ -15,6 +15,7 @@ import org.jboss.logging.Logger;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.util.Arrays;
 import java.util.Collection;
@@ -43,7 +44,7 @@ public class PostPaidDataUsageCalculationService implements DataUsageCalculation
 
         // For Current Period
         log.info("*************************	Current Period	****************************\n");
-        LocalDateTime billCycleEndDate = LocalDate.now().atStartOfDay();
+        LocalDateTime billCycleEndDate = LocalDate.now(ZoneOffset.UTC).atStartOfDay().withDayOfMonth(Integer.valueOf(info.getBillCycle()+""));
         LocalDateTime billCycleStartDate = billCycleEndDate.minusMonths(1).plusDays(1);
         List<DataPass> currentCycleDataPasses =
                 filterDataPassOnFUPChange(getFilteredDataPassBasedOnBillCycle(filteredDataPasses,
