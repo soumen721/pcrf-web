@@ -1,8 +1,12 @@
 package com.ericsson.eea.billing.util;
 
 import static com.ericsson.eea.billing.util.BillingConstant.TYPE_UNLIMITED;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
@@ -15,7 +19,19 @@ import java.util.stream.Collectors;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.soap.SOAPMessage;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 import org.jboss.logging.Logger;
+import org.w3c.dom.Document;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 import com.ee.cne.ws.dataproduct.generated.DataPass;
 import com.ee.cne.ws.dataproduct.generated.GetCurrentAndAvailableDataProductsResponse.Message.SubscriberInfo;
 import com.ericsson.eea.billing.model.SubscriberBillingInfo;
@@ -164,5 +180,48 @@ public class BillingUtils {
     log.info("Penultimate Period Data Usage=>\n" + "DataUsed : " + billingInfo.getPbcDataUsed()
         + "\t| Data Avail : " + billingInfo.getPbcDataAvail() + "\t| Data ZeroRated : "
         + billingInfo.getPbcZeroRatedDataUsed());
+  }
+  
+  public static final String prettyPrintXML(Document xml) throws Exception {
+    Transformer tf = TransformerFactory.newInstance().newTransformer();
+    tf.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
+    tf.setOutputProperty(OutputKeys.INDENT, "yes");
+    Writer out = new StringWriter();
+    tf.transform(new DOMSource(xml), new StreamResult(out));
+
+    return out.toString();
+  }
+
+  public static Document toXmlDocument(String str)
+      throws ParserConfigurationException, SAXException, IOException {
+
+    DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
+    DocumentBuilder docBuilder = docBuilderFactory.newDocumentBuilder();
+    Document document = docBuilder.parse(new InputSource(new StringReader(str)));
+
+    return document;
+  }
+
+  public static String soapMessageToString(SOAPMessage message) throws Exception {
+    String result = null;
+
+    if (message != null) {
+      ByteArrayOutputStream baos = null;
+      try {
+        baos = new ByteArrayOutputStream();
+        message.writeTo(baos);
+        result = baos.toString();
+      } catch (IOException e) {
+        throw e;
+      } finally {
+        if (baos != null) {
+          try {
+            baos.close();
+          } catch (IOException ioe) {
+          }
+        }
+      }
+    }
+    return result;
   }
 }

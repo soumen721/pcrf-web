@@ -4,21 +4,28 @@ import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Collections;
+import java.util.UUID;
 import javax.ejb.Remote;
 import javax.ejb.Stateless;
 import org.jboss.logging.Logger;
 import com.ee.cne.ws.dataproduct.generated.DataProduct;
+import com.ee.cne.ws.dataproduct.generated.DataProductBasicRequest.KeyIdentifier;
 import com.ee.cne.ws.dataproduct.generated.DataProductService;
+import com.ee.cne.ws.dataproduct.generated.EIMessageContext2;
 import com.ee.cne.ws.dataproduct.generated.GetCurrentAndAvailableDataProductsRequest;
+import com.ee.cne.ws.dataproduct.generated.GetCurrentAndAvailableDataProductsRequest.Message;
 import com.ee.cne.ws.dataproduct.generated.GetCurrentAndAvailableDataProductsResponse;
 import com.ee.cne.ws.dataproduct.generated.ObjectFactory;
+import com.ericsson.eea.billing.interceptor.DataProductServiceImpl;
 import com.ericsson.eea.billing.model.MessageEnvelope;
 import com.ericsson.eea.billing.model.SubscriberBillingInfo;
 import com.ericsson.eea.billing.model.SubscriberBillingInfoNotAvailableException;
 import com.ericsson.eea.billing.model.SubscriberBillingRetrievalFailedException;
 import com.ericsson.eea.billing.model.SubscriberFilter;
+import com.ericsson.eea.billing.model.SubscriberIdType;
 import com.ericsson.eea.billing.service.DataUsageCalculationService;
 import com.ericsson.eea.billing.service.SubscriberBillingRemote;
+import com.ericsson.eea.billing.util.BillingConstant;
 import com.ericsson.eea.billing.util.BillingUtils;
 import com.ericsson.eea.billing.util.TariffType;
 
@@ -32,7 +39,7 @@ public class SubscriberBillingInfoImpl implements SubscriberBillingRemote {
       throws SubscriberBillingInfoNotAvailableException, SubscriberBillingRetrievalFailedException {
 
     // call PCRF web service and process and return response
-    GetCurrentAndAvailableDataProductsResponse response = getDataProductsWebServiceResponse();
+    GetCurrentAndAvailableDataProductsResponse response = getDataProductsWebServiceResponse(filter);
     GetCurrentAndAvailableDataProductsResponse.Message.SubscriberInfo subscriberInfo =
         response.getMessage().getSubscriberInfo();
     DataUsageCalculationService usageCalculationService;
@@ -57,7 +64,7 @@ public class SubscriberBillingInfoImpl implements SubscriberBillingRemote {
   public static void main(String arg[])
       throws SubscriberBillingInfoNotAvailableException, SubscriberBillingRetrievalFailedException {
 
-    GetCurrentAndAvailableDataProductsResponse response = getDataProductsWebServiceResponse();
+    GetCurrentAndAvailableDataProductsResponse response = getDataProductsWebServiceResponse(null);
     GetCurrentAndAvailableDataProductsResponse.Message.SubscriberInfo subscriberInfo =
         response.getMessage().getSubscriberInfo();
     DataUsageCalculationService usageCalculationService;
@@ -74,7 +81,7 @@ public class SubscriberBillingInfoImpl implements SubscriberBillingRemote {
     usageCalculationService.calculateDataUsage(response);
   }
 
-  private static GetCurrentAndAvailableDataProductsResponse getDataProductsWebServiceResponse()
+  private static GetCurrentAndAvailableDataProductsResponse getDataProductsWebServiceResponse(SubscriberFilter filter)
       throws SubscriberBillingInfoNotAvailableException, SubscriberBillingRetrievalFailedException {
 
     GetCurrentAndAvailableDataProductsResponse response = null;
@@ -84,14 +91,41 @@ public class SubscriberBillingInfoImpl implements SubscriberBillingRemote {
       log.info("BIlling WebService URL :: " + wsdlURL.toURI().toString());
 
       // TODO remove once got actual Response
-      //response = DummyDataGenerator.populateResponseData();
+      response = null;  //DummyDataGenerator.populateResponseData();
       if (response == null) {
-        DataProductService dataService = new DataProductService(wsdlURL);
-        DataProduct port = dataService.getDataProduct10();
+        
         GetCurrentAndAvailableDataProductsRequest request =
             new ObjectFactory().createGetCurrentAndAvailableDataProductsRequest();
-
-        // set msisdn and request origin in the request and call service
+        
+        if(filter != null && filter.getId() != null) {
+          EIMessageContext2 messageContext = new EIMessageContext2();
+          messageContext.setTarget("pdf");
+          messageContext.setTimeLeft(200L);
+          messageContext.setSender(BillingConstant.EEA_SENDER_ID);
+          messageContext.setCorrelationId(UUID.randomUUID().toString());
+          request.setEiMessageContext2(messageContext);
+          
+          String msisdn = null;
+          if(SubscriberIdType.msisdn == filter.getId().getIdType()) {
+            msisdn = filter.getId().getId();
+          } else {
+            log.error("No MSISDN subscriberType found");
+            throw new SubscriberBillingRetrievalFailedException();
+          }
+          
+          Message message = new Message();
+          KeyIdentifier identifier = new KeyIdentifier();
+          identifier.setMsisdn(msisdn); 
+          message.setKeyIdentifier(identifier );
+          message.setRequestOrigin(BillingConstant.EEA_SENDER_ID);
+          request.setMessage(message);
+        } else {
+          log.error("NO Id found for retriveing Billing");
+          throw new SubscriberBillingRetrievalFailedException();
+        }
+        
+        DataProductService dataService = new DataProductServiceImpl(wsdlURL);
+        DataProduct port = dataService.getDataProduct10();
         response = port.getCurrentAndAvailableDataProducts(request);
       }
 

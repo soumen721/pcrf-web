@@ -1,5 +1,8 @@
 package com.ericsson.eea.billing.servlet;
 
+import com.ericsson.eea.billing.model.SubscriberFilter;
+import com.ericsson.eea.billing.model.SubscriberId;
+import com.ericsson.eea.billing.model.SubscriberIdType;
 import com.ericsson.eea.billing.service.SubscriberBillingRemote;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -28,7 +31,12 @@ public class BillingServlet extends HttpServlet {
     String resp = null;
     PrintWriter writer = response.getWriter();
     try {
-      resp = bean.getBillingCycleInfo(null).toString();
+      SubscriberFilter filter = new SubscriberFilter();
+      SubscriberId id = new SubscriberId();
+      id.setId("447432993984");
+      id.setIdType(SubscriberIdType.msisdn);
+      filter.setId(id );
+      resp = bean.getBillingCycleInfo(filter).toString();
     } catch (Exception e) {
       // TODO: handle exception
     }
