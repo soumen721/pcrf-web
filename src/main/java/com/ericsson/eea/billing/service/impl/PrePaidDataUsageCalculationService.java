@@ -37,7 +37,7 @@ public class PrePaidDataUsageCalculationService implements DataUsageCalculationS
           .billingPeriodStartDate(LocalDate.now(ZoneOffset.UTC).atStartOfDay().withDayOfMonth(1)
               .toEpochSecond(ZoneOffset.UTC))
           .billingPeriodEndDate(
-              LocalDate.now(ZoneOffset.UTC).atStartOfDay().toEpochSecond(ZoneOffset.UTC))
+              LocalDate.now(ZoneOffset.UTC).atTime(23, 59, 59).toEpochSecond(ZoneOffset.UTC))
           .dataUsed(0D).dataAvail(0D).dataUsedShared(0D)
 
           .lbcDataUsed(0D).lbcDataAvail(0D).lbcDataUsedShared(0D)
@@ -65,7 +65,7 @@ public class PrePaidDataUsageCalculationService implements DataUsageCalculationS
       if (calPasses == null) {
         billingStardDate = LocalDate.now(ZoneOffset.UTC).atStartOfDay().withDayOfMonth(1);
         billingEndDate = now;
-        billingInfo.setBillingPeriodStartDate(billingStardDate.toLocalDate().toEpochDay());
+        billingInfo.setBillingPeriodStartDate(billingStardDate.toEpochSecond(ZoneOffset.UTC));
         billingInfo.setBillingPeriodEndDate(billingEndDate.toEpochSecond(ZoneOffset.UTC));
       } else {
         for (int i = 0; i < calPasses.size(); i++) {
@@ -74,7 +74,11 @@ public class PrePaidDataUsageCalculationService implements DataUsageCalculationS
           if (billCycle.getCurrentCycle() == null) {
             billCycle.setCurrentCycle(BillingCycle.CURRENT);
           } else if (billCycle.getCurrentCycle() == BillingCycle.CURRENT) {
-            billCycle.setCurrentCycle(BillingCycle.PREVIOUS);
+            if ("S".equals(pass.getInfoType())) {
+              billCycle.setCurrentCycle(BillingCycle.CURRENT);
+            } else {
+              billCycle.setCurrentCycle(BillingCycle.PREVIOUS);
+            }
           } else if (billCycle.getCurrentCycle() == BillingCycle.PREVIOUS) {
             billCycle.setCurrentCycle(BillingCycle.PENULTIMATE);
           } else {
@@ -83,27 +87,31 @@ public class PrePaidDataUsageCalculationService implements DataUsageCalculationS
 
           if (BillingCycle.CURRENT == billCycle.getCurrentCycle()) {
 
-            billingInfo.setBillingPeriodStartDate(
-                toLocalDateTime(pass.getPassStartTime()).toEpochSecond(ZoneOffset.UTC));
-            billingInfo.setBillingPeriodEndDate(
-                toLocalDateTime(pass.getPassEndTime()).toEpochSecond(ZoneOffset.UTC));
+            if ("S".equals(pass.getInfoType())) {
+              billingInfo
+                  .setDataAvail(billingInfo.getDataAvail() != null ? billingInfo.getDataAvail()
+                      : 0 + ((double) pass.getFup() / 1024));
+            } else {
+              billingInfo.setBillingPeriodStartDate(
+                  toLocalDateTime(pass.getPassStartTime()).toEpochSecond(ZoneOffset.UTC));
+              billingInfo.setBillingPeriodEndDate(
+                  toLocalDateTime(pass.getPassEndTime()).toEpochSecond(ZoneOffset.UTC));
 
-            if ("C".equals(pass.getInfoType())) {
-              billingInfo.setDataUsed((double) (pass.getFup() - pass.getVolume()) / 1024);
-            } else if ("E".equals(pass.getInfoType())) {
-              billingInfo.setDataUsed((double) (pass.getVolume()) / 1024);
+              if ("C".equals(pass.getInfoType())) {
+                billingInfo.setDataUsed((double) (pass.getFup() - pass.getVolume()) / 1024);
+              } else if ("E".equals(pass.getInfoType())) {
+                billingInfo.setDataUsed((double) (pass.getVolume()) / 1024);
+              }
+
+              billingInfo.setDataAvail((double) pass.getFup() / 1024);
             }
-            billingInfo.setDataAvail((double) pass.getFup() / 1024);
-
           } else if (BillingCycle.PREVIOUS == billCycle.getCurrentCycle()) {
             billingInfo.setLbcStartDate(
                 toLocalDateTime(pass.getPassStartTime()).toEpochSecond(ZoneOffset.UTC));
             billingInfo.setLbcEndDate(
                 toLocalDateTime(pass.getPassEndTime()).toEpochSecond(ZoneOffset.UTC));
 
-            if ("E".equals(pass.getInfoType())) {
-              billingInfo.setLbcDataUsed((double) (pass.getVolume()) / 1024);
-            }
+            billingInfo.setLbcDataUsed((double) (pass.getVolume()) / 1024);
             billingInfo.setLbcDataAvail((double) pass.getFup() / 1024);
           } else if (BillingCycle.PENULTIMATE == billCycle.getCurrentCycle()) {
             billingInfo.setPbcStartDate(
@@ -111,9 +119,7 @@ public class PrePaidDataUsageCalculationService implements DataUsageCalculationS
             billingInfo.setPbcEndDate(
                 toLocalDateTime(pass.getPassEndTime()).toEpochSecond(ZoneOffset.UTC));
 
-            if ("E".equals(pass.getInfoType())) {
-              billingInfo.setPbcDataUsed((double) (pass.getVolume()) / 1024);
-            }
+            billingInfo.setPbcDataUsed((double) (pass.getVolume()) / 1024);
             billingInfo.setPbcDataAvail((double) pass.getFup() / 1024);
           }
         }
