@@ -1,8 +1,9 @@
-package com.ericsson.eea.pcrf.model;
+package com.ericsson.eea.billing.model;
 
+import java.io.Serializable;
+import java.util.Map;
 import lombok.Builder;
 import lombok.Data;
-import java.io.Serializable;
 
 @Data
 @Builder
@@ -22,4 +23,6 @@ public class DataUsageDetails implements Serializable {
   private Double dataUsedShared;
 
   private Double zeroRatedDataUsed;
+  
+  private Map<String, Double> zeroRatedDataUsedPerService;
 }

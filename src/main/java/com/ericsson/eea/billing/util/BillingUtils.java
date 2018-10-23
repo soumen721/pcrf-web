@@ -9,6 +9,7 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.GregorianCalendar;
@@ -112,6 +113,20 @@ public class BillingUtils {
     return list;
   }
 
+  public static SubscriberBillingInfo populateResponseBasicDetails(SubscriberBillingInfo billingInfo, SubscriberInfo info) {
+    
+    billingInfo.setImsi(Long.valueOf(info.getMsisdn()));
+    billingInfo.setBillingUpdateTime(toLocalDateTime(info.getLastCheckedDate()).toEpochSecond(ZoneOffset.UTC));
+    billingInfo.setBillingPlanCategory(0); //TODO need to populate actual value
+    Integer subscriberType = 0;
+    if(TariffType.Prepaid.name().equals(info.getTariffType())) {
+      subscriberType = 1;
+    }
+    billingInfo.setSubscriberType(subscriberType );
+    
+    return billingInfo;
+  }
+  
   // Only for Prepaid Customer
   public static CustomrType getCustomerTypeForPrepaid(SubscriberInfo info) {
 
