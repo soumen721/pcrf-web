@@ -1,4 +1,4 @@
-package com.ericsson.eea.billing.interceptor;
+package com.ericsson.eea.billing.ws.client;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -32,7 +32,7 @@ public class BillingWSInterceptor implements SOAPHandler<SOAPMessageContext> {
       } else {
         log.info("Billing Response :: \n" + BillingUtils.prettyPrintXML(xmlDoc));
       }
-      System.out.println("\n");
+      log.debug("\n");
     } catch (SOAPException | IOException | DatatypeConfigurationException e) {
       log.error("Exception adding SOAP Header :: " + e.getMessage());
       // throw new Exception(e);

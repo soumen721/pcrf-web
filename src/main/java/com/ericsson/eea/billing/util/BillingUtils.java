@@ -69,7 +69,7 @@ public class BillingUtils {
   public static List<DataPass> getFilteredDataPass(List<DataPass> dataPasses,
       Predicate<? super DataPass> predicate) {
 
-    log.info("Before First Iteration ");
+    log.info("All Data pass from PCRF Service ");
     dataPasses.forEach(BillingUtils::printLog);
 
     Comparator<? super DataPass> dateComparator =
@@ -86,7 +86,7 @@ public class BillingUtils {
       final LocalDateTime billCycleStartDate, final LocalDateTime billCycleEndDate) {
 
     log.info("Bill Cycle Start Date =>\t " + billCycleStartDate.toLocalDate());
-    log.info("Bill Cycle End Date=>\t " + billCycleEndDate.toLocalDate());
+    log.info("Bill Cycle End Date   =>\t " + billCycleEndDate.toLocalDate());
 
     List<DataPass> list = dataPasses.stream().filter(
         pass -> (BillingUtils.toLocalDateTime(pass.getPassStartTime()).isAfter(billCycleStartDate)
@@ -95,7 +95,7 @@ public class BillingUtils {
             || BillingUtils.toLocalDateTime(pass.getPassEndTime()).isEqual(billCycleEndDate))
         .collect(Collectors.toList());
 
-    log.info("After Sorting ON Date\t|\t|");
+    log.info("Passes after filter on BillCycle \t|\t|");
     list.forEach(BillingUtils::printLog);
 
     return list;
@@ -113,20 +113,22 @@ public class BillingUtils {
     return list;
   }
 
-  public static SubscriberBillingInfo populateResponseBasicDetails(SubscriberBillingInfo billingInfo, SubscriberInfo info) {
-    
-    billingInfo.setImsi(Long.valueOf(info.getMsisdn()));
-    billingInfo.setBillingUpdateTime(toLocalDateTime(info.getLastCheckedDate()).toEpochSecond(ZoneOffset.UTC));
-    billingInfo.setBillingPlanCategory(0); //TODO need to populate actual value
+  public static SubscriberBillingInfo populateResponseBasicDetails(
+      SubscriberBillingInfo billingInfo, SubscriberInfo subscriberInfo) {
+
+    billingInfo.setImsi(Long.valueOf(subscriberInfo.getMsisdn()));
+    billingInfo.setBillingUpdateTime(
+        toLocalDateTime(subscriberInfo.getLastCheckedDate()).toEpochSecond(ZoneOffset.UTC));
+    billingInfo.setBillingPlanCategory(0); // TODO need to populate actual value
     Integer subscriberType = 0;
-    if(TariffType.Prepaid.name().equals(info.getTariffType())) {
+    if (TariffType.Prepaid.name().equals(subscriberInfo.getTariffType())) {
       subscriberType = 1;
     }
-    billingInfo.setSubscriberType(subscriberType );
-    
+    billingInfo.setSubscriberType(subscriberType);
+
     return billingInfo;
   }
-  
+
   // Only for Prepaid Customer
   public static CustomrType getCustomerTypeForPrepaid(SubscriberInfo info) {
 
@@ -196,7 +198,7 @@ public class BillingUtils {
         + "\t| Data Avail : " + billingInfo.getPbcDataAvail() + "\t| Data ZeroRated : "
         + billingInfo.getPbcZeroRatedDataUsed());
   }
-  
+
   public static final String prettyPrintXML(Document xml) throws Exception {
     Transformer tf = TransformerFactory.newInstance().newTransformer();
     tf.setOutputProperty(OutputKeys.ENCODING, "UTF-8");

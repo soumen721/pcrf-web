@@ -2,6 +2,7 @@ package com.ericsson.eea.billing.util;
 
 import java.math.BigInteger;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.Arrays;
 import javax.xml.datatype.DatatypeConfigurationException;
 import com.ee.cne.ws.dataproduct.generated.DataPass;
@@ -35,10 +36,10 @@ public class DummyDataGenerator {
     SubscriberInfo info = new SubscriberInfo();
     info.setMsisdn(MSISDN);
     info.setTypeOfAccess("DL");
-    info.setBillCycle(BigInteger.valueOf(LocalDateTime.now().getDayOfMonth()));
+    info.setBillCycle(BigInteger.valueOf(LocalDateTime.now().getDayOfMonth()+1));
     info.setCustomerType("NEXUS");
     info.setTariffType(TariffType.Postpaid.name());
-    info.setLastCheckedDate(BillingUtils.toXMLCalender(LocalDateTime.now()));
+    info.setLastCheckedDate(BillingUtils.toXMLCalender(LocalDateTime.now(ZoneOffset.UTC)));
     Location localtion = new Location();
     localtion.setCountry("UK");
     localtion.setZone("1");

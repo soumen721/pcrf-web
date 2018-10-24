@@ -4,7 +4,7 @@
 	xmlns:xsd="http://www.w3.org/2001/XMLSchema">
 	<javaee:handler-chain>
 		<javaee:handler>
-			<javaee:handler-class>com.ericsson.eea.billing.interceptor.BillingWSInterceptor</javaee:handler-class>
+			<javaee:handler-class>com.ericsson.eea.billing.ws.client.BillingWSInterceptor</javaee:handler-class>
 		</javaee:handler>
 	</javaee:handler-chain>
 </javaee:handler-chains>

@@ -35,33 +35,37 @@ public class PostPaidDataUsageCalculationService implements DataUsageCalculation
       GetCurrentAndAvailableDataProductsResponse response)
       throws SubscriberBillingRetrievalFailedException, SubscriberBillingInfoNotAvailableException {
 
-    SubscriberInfo info = response.getMessage().getSubscriberInfo();
-    log.info("Billing Details for MSISDN ==> " + info.getMsisdn());
+    SubscriberInfo subscriberInfo = response.getMessage().getSubscriberInfo();
+    log.info("Billing Details for MSISDN ==> " + subscriberInfo.getMsisdn());
     List<DataPass> dataPasses = response.getMessage().getDataProducts().getDataProduct();
 
     // Filter for valid pass & Remove passes after FUP_CHANGE pass including FUP change pass
     List<DataPass> filteredDataPasses = filterDataPassOnFUPChange(getFilteredDataPass(dataPasses,
         type -> VALID_INFO_TYPE_POSTPAID.contains(type.getInfoType())));
-    log.info("After applying fup_change filter--------------");
+    log.info("\nAfter applying fup_change filter--------------");
     filteredDataPasses.forEach(BillingUtils::printLog);
 
     log.info(
         "\n************************* Start of Calculation for Postpaid  ****************************");
-    log.info("*************************	Current Period	****************************\n");
-    final LocalDateTime currentBillCycleEndDate = LocalDate.now(ZoneOffset.UTC).atTime(23, 59, 59)
-        .withDayOfMonth(Integer.valueOf(info.getBillCycle() + ""));
+    log.info("*************************	Current Period	****************************");
+    // populate billcycle
+    int currentDate = LocalDate.now(ZoneOffset.UTC).getDayOfMonth();
+    int billingDate = Integer.valueOf(subscriberInfo.getBillCycle() + "");
+    LocalDateTime currentBillCycleEndDate =
+        LocalDate.now(ZoneOffset.UTC).atTime(23, 59, 59).withDayOfMonth(billingDate);
+    if (billingDate < currentDate) {
+      currentBillCycleEndDate = currentBillCycleEndDate.plusMonths(1);
+    }
+
     final LocalDateTime currentBillCycleStartDate =
         currentBillCycleEndDate.withHour(0).withMinute(0).withSecond(01).minusMonths(1).plusDays(1);
     List<DataPass> currentCycleDataPasses = getFilteredDataPassBasedOnBillCycle(filteredDataPasses,
         currentBillCycleStartDate, currentBillCycleEndDate);
 
-    log.info("Final Pass for calculation -- Current Cycle");
-    currentCycleDataPasses.forEach(BillingUtils::printLog);
-
     DataUsageDetails currentCycleDataUsage = calculateDataUsageForCycle(currentCycleDataPasses,
-        info, BillingCycle.CURRENT, currentBillCycleStartDate, currentBillCycleEndDate);
+        subscriberInfo, BillingCycle.CURRENT, currentBillCycleStartDate, currentBillCycleEndDate);
 
-    log.info("*************************	Previous Period	****************************\n");
+    log.info("*************************	Previous Period	****************************");
     final LocalDateTime previousBillCycleEndDate = currentBillCycleEndDate.minusMonths(1);
     final LocalDateTime previousBillCycleStartDate = currentBillCycleStartDate.minusMonths(1);
     List<DataPass> previousCycleDataPasses = getFilteredDataPassBasedOnBillCycle(filteredDataPasses,
@@ -70,10 +74,11 @@ public class PostPaidDataUsageCalculationService implements DataUsageCalculation
     log.info("Final Pass for calculation -- Previous Cycle");
     previousCycleDataPasses.forEach(BillingUtils::printLog);
 
-    DataUsageDetails previousCycleDataUsage = calculateDataUsageForCycle(previousCycleDataPasses,
-        info, BillingCycle.PREVIOUS, previousBillCycleStartDate, previousBillCycleEndDate);
+    DataUsageDetails previousCycleDataUsage =
+        calculateDataUsageForCycle(previousCycleDataPasses, subscriberInfo, BillingCycle.PREVIOUS,
+            previousBillCycleStartDate, previousBillCycleEndDate);
 
-    log.info("*************************	Penultimate Period	****************************\n");
+    log.info("*************************	Penultimate Period	****************************");
     final LocalDateTime penulBillCycleEndDate = previousBillCycleEndDate.minusMonths(1);
     final LocalDateTime penulBillCycleStartDate = previousBillCycleStartDate.minusMonths(1);
 
@@ -84,8 +89,8 @@ public class PostPaidDataUsageCalculationService implements DataUsageCalculation
     penultimateCycleDataPasses.forEach(BillingUtils::printLog);
 
     DataUsageDetails penultimateCycleDataUsage =
-        calculateDataUsageForCycle(penultimateCycleDataPasses, info, BillingCycle.PENULTIMATE,
-            penulBillCycleStartDate, penulBillCycleEndDate);
+        calculateDataUsageForCycle(penultimateCycleDataPasses, subscriberInfo,
+            BillingCycle.PENULTIMATE, penulBillCycleStartDate, penulBillCycleEndDate);
 
     log.info(
         "************************* End of Calculation for Postpaid  ****************************\n");
@@ -142,7 +147,8 @@ public class PostPaidDataUsageCalculationService implements DataUsageCalculation
     double dataUsageCPass = 0D;
     Map<String, Double> zeroRatedDataUsedPerService = null;
 
-    log.info("Calculation begin here=============");
+    log.info(
+        "\n=============  " + billingCycle.name() + " Cycle Calculation begin here  =============");
 
     List<String> passToConsider =
         BillingCycle.CURRENT == billingCycle ? BillingConstant.CURRENT_CYCLE_INFO_TYPE
@@ -191,13 +197,6 @@ public class PostPaidDataUsageCalculationService implements DataUsageCalculation
         getZeroRatedUsage(dataPasses, BillingCycle.CURRENT == billingCycle ? "ZR" : "EZR");
     zeroRatedDataUsedPerService = getZeroRatedDataUsedPerService(dataPasses,
         BillingCycle.CURRENT == billingCycle ? "ZR" : "EZR");
-    /*
-     * if (BillingCycle.CURRENT == billingCycle) { zeroRatedDataUsed = getZeroRatedUsage(dataPasses,
-     * BillingCycle.CURRENT == billingCycle ? "ZR" : "EZR"); zeroRatedDataUsedPerService =
-     * getZeroRatedDataUsedPerService(dataPasses, "ZR"); } else if (BillingCycle.PREVIOUS ==
-     * billingCycle) { zeroRatedDataUsed = getZeroRatedUsage(dataPasses, "EZR");
-     * zeroRatedDataUsedPerService = getZeroRatedDataUsedPerService(dataPasses, "EZR"); }
-     */
 
     dataUsed = (dataUsedUnlimited + dataUsedSharer + dataUsedNonShared);
     dataRemaining = dataAvail - (dataUsedNonShared + dataUsedSharedGrp);
@@ -211,8 +210,8 @@ public class PostPaidDataUsageCalculationService implements DataUsageCalculation
         .billingPeriodStartDate(billingStartDate.toEpochSecond(ZoneOffset.UTC))
         .billingPeriodEndDate(billingEndDate.toEpochSecond(ZoneOffset.UTC))
         .dataUsed(dataUsed != 0D ? dataUsed / 1024 : 0D)
-        .dataAvail(dataAvail != 0D && dataAvail != -1D ? dataAvail / 1024 : 0D)
-        .dataRemaining(dataRemaining != 0D && dataRemaining != -1D ? dataRemaining / 1024 : 0D)
+        .dataAvail(dataAvail != -1D ? dataAvail / 1024 : -1D)
+        .dataRemaining(dataRemaining != -1D ? dataRemaining / 1024 : 0D)
         .zeroRatedDataUsed(zeroRatedDataUsed != 0D ? zeroRatedDataUsed / 1024 : 0D)
         .zeroRatedDataUsedPerService(zeroRatedDataUsedPerService).build();
   }

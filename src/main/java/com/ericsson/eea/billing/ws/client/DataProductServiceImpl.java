@@ -1,4 +1,4 @@
-package com.ericsson.eea.billing.interceptor;
+package com.ericsson.eea.billing.ws.client;
 
 import java.net.URL;
 import javax.jws.HandlerChain;
