@@ -10,7 +10,7 @@
 	<message>
 		<subscriberInfo>
 			<msisdn>447432993987</msisdn>
-			<tariffType>Postpaid</tariffType>
+			<tariffType>Prepaid</tariffType>
 			<location>
 				<zone>1</zone>
 				<country>United Kingdom</country>
@@ -37,10 +37,10 @@
 				<shareDetails>
 					<originatorMsisdn>447432993987</originatorMsisdn>
 					<sharerDataUsage>
-						<dataProduct_-ShareDetails_-SharerDataUsage>
+						<SharerDataUsage>
 							<msisdn>447432993987</msisdn>
 							<usedVolume>0</usedVolume>
-						</dataProduct_-ShareDetails_-SharerDataUsage>
+						</SharerDataUsage>
 					</sharerDataUsage>
 				</shareDetails>
 			</dataProduct>

@@ -48,7 +48,7 @@ public class PostPaidDataUsageCalculationService implements DataUsageCalculation
     log.info(
         "\n************************* Start of Calculation for Postpaid  ****************************");
     log.info("*************************	Current Period	****************************");
-    // populate billcycle
+    // populate bill-cycle
     int currentDate = LocalDate.now(ZoneOffset.UTC).getDayOfMonth();
     int billingDate = Integer.valueOf(subscriberInfo.getBillCycle() + "");
     LocalDateTime currentBillCycleEndDate =
@@ -176,7 +176,6 @@ public class PostPaidDataUsageCalculationService implements DataUsageCalculation
           .map(e -> e.getShareDetails().getSharerDataUsage()).flatMap(Collection::stream)
           .filter(sha -> info.getMsisdn().equals(sha.getMsisdn()))
           .mapToDouble(SharerDataUsage::getUsedVolume).sum();
-
 
       if (BillingCycle.CURRENT == billingCycle) {
         Optional<DataPass> currentDataPass =

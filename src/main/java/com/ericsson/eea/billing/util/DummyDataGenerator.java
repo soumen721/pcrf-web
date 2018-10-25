@@ -38,7 +38,7 @@ public class DummyDataGenerator {
     info.setTypeOfAccess("DL");
     info.setBillCycle(BigInteger.valueOf(LocalDateTime.now().getDayOfMonth()+1));
     info.setCustomerType("NEXUS");
-    info.setTariffType(TariffType.Postpaid.name());
+    info.setTariffType(TariffType.Prepaid.name());
     info.setLastCheckedDate(BillingUtils.toXMLCalender(LocalDateTime.now(ZoneOffset.UTC)));
     Location localtion = new Location();
     localtion.setCountry("UK");
@@ -53,7 +53,7 @@ public class DummyDataGenerator {
         LocalDateTime.now().minusDays(DAY_IN_MNTH * CUR_MONTH_CYCLE + 15),
         LocalDateTime.now().minusDays(DAY_IN_MNTH * CUR_MONTH_CYCLE + 4), 125872138L, 10737418240L,
         "virtual", new Long[] {8667008000L, 2942488576L});
-    DataPass dataPass1 = populateDataPass("E", "Unlimited",
+    DataPass dataPass1 = populateDataPass("S", "Unlimited",
         LocalDateTime.now().minusDays(DAY_IN_MNTH * CUR_MONTH_CYCLE + 20),
         LocalDateTime.now().minusDays(DAY_IN_MNTH * CUR_MONTH_CYCLE + 12), 287161212L, 11811161088L,
         "unlimited", new Long[] {8960598016L, 2852495360L});

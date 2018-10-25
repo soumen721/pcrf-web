@@ -19,7 +19,6 @@ import com.ericsson.eea.billing.model.SubscriberFilter;
 import com.ericsson.eea.billing.model.SubscriberIdType;
 import com.ericsson.eea.billing.util.BillingConstant;
 import com.ericsson.eea.billing.util.BillingUtils;
-import com.ericsson.eea.billing.util.DummyDataGenerator;
 
 public class DataProductsClient {
   private static final Logger log = Logger.getLogger(DataProductsClient.class);

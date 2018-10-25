@@ -119,14 +119,26 @@ public class BillingUtils {
     billingInfo.setImsi(Long.valueOf(subscriberInfo.getMsisdn()));
     billingInfo.setBillingUpdateTime(
         toLocalDateTime(subscriberInfo.getLastCheckedDate()).toEpochSecond(ZoneOffset.UTC));
-    billingInfo.setBillingPlanCategory(0); // TODO need to populate actual value
+    billingInfo.setBillingPlanCategory(getBillingCategory(subscriberInfo));
+
     Integer subscriberType = 0;
     if (TariffType.Prepaid.name().equals(subscriberInfo.getTariffType())) {
-      subscriberType = 1;
+      subscriberType =
+          billingInfo.getSubscriberType() != null ? billingInfo.getSubscriberType() : 1;
     }
     billingInfo.setSubscriberType(subscriberType);
 
     return billingInfo;
+  }
+
+  private static int getBillingCategory(SubscriberInfo subscriberInfo) {
+    int billingCat = 0;
+    if (subscriberInfo.getTariffType().contains("L")) {
+      billingCat = 1;
+    } else if (BillingConstant.BUSINESS_USER.equals(subscriberInfo.getCustomerType())) {
+      billingCat = 2;
+    }
+    return billingCat;
   }
 
   // Only for Prepaid Customer
