@@ -101,6 +101,7 @@ public class PostPaidDataUsageCalculationService implements DataUsageCalculation
         .billingPeriodEndDate(currentCycleDataUsage.getBillingPeriodEndDate())
         .dataAvail(currentCycleDataUsage.getDataAvail())
         .dataUsed(currentCycleDataUsage.getDataUsed())
+        .dataUsedShared(currentCycleDataUsage.getDataUsedShared())
         .zeroRatedDataUsed(currentCycleDataUsage.getZeroRatedDataUsed())
         .zeroRatedDataUsedPerService(currentCycleDataUsage.getZeroRatedDataUsedPerService())
 
@@ -109,6 +110,7 @@ public class PostPaidDataUsageCalculationService implements DataUsageCalculation
         .lbcEndDate(previousCycleDataUsage.getBillingPeriodEndDate())
         .lbcDataAvail(previousCycleDataUsage.getDataAvail())
         .lbcDataUsed(previousCycleDataUsage.getDataUsed())
+        .lbcDataUsedShared(currentCycleDataUsage.getDataUsedShared())
         .lbcZeroRatedDataUsed(previousCycleDataUsage.getZeroRatedDataUsed())
         .lbcZeroRatedDataUsedPerService(previousCycleDataUsage.getZeroRatedDataUsedPerService())
 
@@ -117,6 +119,7 @@ public class PostPaidDataUsageCalculationService implements DataUsageCalculation
         .pbcEndDate(penultimateCycleDataUsage.getBillingPeriodEndDate())
         .pbcDataAvail(penultimateCycleDataUsage.getDataAvail())
         .pbcDataUsed(penultimateCycleDataUsage.getDataUsed())
+        .pbcDataUsedShared(currentCycleDataUsage.getDataUsedShared())
         .pbcZeroRatedDataUsed(penultimateCycleDataUsage.getZeroRatedDataUsed())
         .pbcZeroRatedDataUsedPerService(penultimateCycleDataUsage.getZeroRatedDataUsedPerService())
         .build();
@@ -138,6 +141,7 @@ public class PostPaidDataUsageCalculationService implements DataUsageCalculation
     double dataAvail;
     double dataUsed;
     double dataUsedSharer = 0D;
+    double dataUsedShared = 0D;
     double zeroRatedDataUsed = 0D;
 
     double dataUsedUnlimited = 0D;
@@ -165,8 +169,9 @@ public class PostPaidDataUsageCalculationService implements DataUsageCalculation
       dataAvail = -1D;
       dataRemaining = -1D;
     } else {
-
-      dataUsedSharer = dataPasses.stream().filter(t -> passToConsider.contains(t.getInfoType()))
+      // Sharer Data Usage
+      dataUsedSharer = dataPasses.stream()
+          .filter(t -> BillingConstant.HISTORICAL_CYCLE_INFO_TYPE.contains(t.getInfoType()))
           .filter(p -> BillingUtils.isSharedPass(info, p))
           .map(e -> e.getShareDetails().getSharerDataUsage()).flatMap(Collection::stream)
           .filter(sha -> info.getMsisdn().equals(sha.getMsisdn()))
@@ -182,12 +187,15 @@ public class PostPaidDataUsageCalculationService implements DataUsageCalculation
         }
       }
 
+      // Shared Group Data Usage
       dataUsedSharedGrp =
           dataUsageCPass + getUsageDetails(dataPasses, e -> BillingUtils.isSharedPass(info, e));
 
+      // Non Shared Data Usage
       dataUsedNonShared =
           dataUsageCPass + getUsageDetails(dataPasses, e -> !BillingUtils.isSharedPass(info, e));
 
+      // Available Data for Use
       dataAvail = dataPasses.stream().filter(e -> passToConsider.contains(e.getInfoType()))
           .mapToDouble(DataPass::getFup).sum();
 
@@ -210,7 +218,7 @@ public class PostPaidDataUsageCalculationService implements DataUsageCalculation
         .billingPeriodStartDate(billingStartDate.toEpochSecond(ZoneOffset.UTC))
         .billingPeriodEndDate(billingEndDate.toEpochSecond(ZoneOffset.UTC))
         .dataUsed(dataUsed != 0D ? dataUsed / 1024 : 0D)
-        .dataAvail(dataAvail != -1D ? dataAvail / 1024 : -1D)
+        .dataAvail(dataAvail != -1D ? dataAvail / 1024 : -1D).dataUsedShared(dataUsedShared)
         .dataRemaining(dataRemaining != -1D ? dataRemaining / 1024 : 0D)
         .zeroRatedDataUsed(zeroRatedDataUsed != 0D ? zeroRatedDataUsed / 1024 : 0D)
         .zeroRatedDataUsedPerService(zeroRatedDataUsedPerService).build();

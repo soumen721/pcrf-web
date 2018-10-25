@@ -1,6 +1,6 @@
 package com.ericsson.eea.billing.util;
 
-import static com.ericsson.eea.billing.util.BillingConstant.TYPE_UNLIMITED;
+import static com.ericsson.eea.billing.util.BillingConstant.UNLIMITED_PASS_TYPE;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -95,7 +95,7 @@ public class BillingUtils {
             || BillingUtils.toLocalDateTime(pass.getPassEndTime()).isEqual(billCycleEndDate))
         .collect(Collectors.toList());
 
-    log.info("Passes after filter on BillCycle \t|\t|");
+    log.info("Passes after filter on BillCycle -- ");
     list.forEach(BillingUtils::printLog);
 
     return list;
@@ -153,7 +153,7 @@ public class BillingUtils {
 
   public static boolean isUnlimitedUsage(List<DataPass> dataPasses) {
 
-    return dataPasses.stream().anyMatch(e -> TYPE_UNLIMITED.equals(e.getPassType()));
+    return dataPasses.stream().anyMatch(e -> UNLIMITED_PASS_TYPE.contains(e.getPassType()));
   }
 
   public static boolean isSharedPass(SubscriberInfo info, DataPass dataPasse) {
@@ -177,10 +177,15 @@ public class BillingUtils {
 
   public static void printLog(DataPass dataPass) {
 
-    log.info(dataPass.getInfoType() + " \t| "
-        + dataPass.getPassStartTime().toGregorianCalendar().toZonedDateTime().toLocalDate()
-        + " \t| " + dataPass.getPassEndTime().toGregorianCalendar().toZonedDateTime().toLocalDate()
-        + "  \t|Expiry_Reason \t| " + dataPass.getExpiryReason());
+    log.info("Data Pass Info: " + dataPass.getInfoType() + "\t| "
+        + (dataPass.getPassStartTime() != null
+            ? dataPass.getPassStartTime().toGregorianCalendar().toZonedDateTime().toLocalDate()
+            : "NA")
+        + "| "
+        + (dataPass.getPassEndTime() != null
+            ? dataPass.getPassEndTime().toGregorianCalendar().toZonedDateTime().toLocalDate()
+            : "NA")
+        + "| " + dataPass.getPassType() + "| " + dataPass.getExpiryReason());
   }
 
   public static void printDataUsage(SubscriberBillingInfo billingInfo) {

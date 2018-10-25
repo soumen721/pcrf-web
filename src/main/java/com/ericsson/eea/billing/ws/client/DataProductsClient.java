@@ -31,7 +31,7 @@ public class DataProductsClient {
     GetCurrentAndAvailableDataProductsResponse response = null;
     try {
       // TODO remove once got actual Response
-      response = DummyDataGenerator.populateResponseData();
+      response = GenerateResponse.getDummyResponse();
       if (response == null) {
         URL wsdlURL =
             new URL(BillingUtils.getProperties().getProperty(BillingUtils.PCRF_BILLING_WS_URL));
