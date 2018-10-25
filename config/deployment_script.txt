@@ -1,0 +1,54 @@
+FOR PCRF
+Log Profile:
+
+	/subsystem=logging/logging-profile=cne-web-adaptor:add
+	
+	/subsystem=logging/logging-profile=cne-web-adaptor/console-handler=CONSOLE:add(formatter="%d{HH:mm:ss,SSS} %-5p [%c.%M:%L] (%t) %s%E%n")
+	
+	/subsystem=logging/logging-profile=cne-web-adaptor/periodic-rotating-file-handler=ericsson_billing:add(autoflush="true", formatter="%d{HH:mm:ss,SSS} %-5p [%c.%M:%L] (%t) %s%E%n", file={"relative-to"=>"jboss.server.log.dir","path"=>"ericsson_billing.log"}, suffix=".yyyy-MM-dd", append=true)
+	
+	/subsystem=logging/logging-profile=cne-web-adaptor/logger=com.ericsson.eea:add(use-parent-handlers=false, handlers=["ericsson_billing", "CONSOLE"], level=INFO)
+	
+	/subsystem=logging/logging-profile=cne-web-adaptor/root-logger=ROOT:add(handlers=["ericsson_billing", "CONSOLE"], level=INFO)
+ 
+ 
+ Extra:	
+ To change Log level in runtime 
+ 	/subsystem=logging/logging-profile=cne-web-adaptor/logger=com.ericsson.eea:write-attribute(name="level", value="INFO")
+ 
+ OUTPUT::
+ 
+		<logging-profile name="cne-web-adaptor">
+            <console-handler name="CONSOLE"/>
+            <periodic-rotating-file-handler name="ericsson_billing" autoflush="true">
+                <formatter>
+                    <pattern-formatter pattern="%d{dd-MM-yyyy HH:mm:ss,SSS}|%-5p|%m%n"/>
+                </formatter>
+                <file relative-to="jboss.server.log.dir" path="ericsson_billing.log"/>
+                <suffix value=".yyyy-MM-dd"/>
+                <append value="true"/>
+            </periodic-rotating-file-handler>
+            <logger category="com.ericsson.eea" use-parent-handlers="false">
+                <level name="INFO"/>
+                <handlers>
+                    <handler name="ericsson_billing"/>
+                    <handler name="CONSOLE"/>
+                </handlers>
+            </logger>
+            <root-logger>
+                <level name="INFO"/>
+                <handlers>
+                    <handler name="ericsson_billing"/>
+                    <handler name="CONSOLE"/>
+                </handlers>
+            </root-logger>
+        </logging-profile>
+        
+---------------	For Certificates for Testing	---------------------------
+
+-Djavax.net.ssl.keyStore=C:\Software\mock.keystore -Djavax.net.ssl.keyStorePassword=changeit 
+-Djavax.net.debug=ssl:handshake:verbose:keymanager:trustmanager -Djava.security.debug=access:stack 
+-Djavax.net.ssl.trustStore=C:\Project_Details\EEA\custom-login-module\EEA-Webclient\config\mock.keystore -Djavax.net.ssl.trustStorePassword=changeit 
+-Dorg.jboss.security.ignoreHttpsHost=true  
+
+---------------------------------------------------------------------------------------------------------------------------------------	
