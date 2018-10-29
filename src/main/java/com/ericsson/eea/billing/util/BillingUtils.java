@@ -1,12 +1,16 @@
 package com.ericsson.eea.billing.util;
 
 import static com.ericsson.eea.billing.util.BillingConstant.UNLIMITED_PASS_TYPE;
+import static com.ericsson.eea.billing.util.BillingConstant.BYTE_TO_MB;
+import static com.ericsson.eea.billing.util.BillingConstant.CUST_TYPE_NEXUS;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
@@ -147,14 +151,14 @@ public class BillingUtils {
     CustomrType customerType = CustomrType.P12;
     if (info != null && TariffType.Prepaid.name().equals(info.getCustomerType())) {
       if (info.getTypeOfAccess() != null && info.getTypeOfAccess().contains("R")) {
-        if (info.getCustomerType() != null && "NEXUS".contains(info.getCustomerType())) {
+        if (info.getCustomerType() != null && CUST_TYPE_NEXUS.contains(info.getCustomerType())) {
           customerType = CustomrType.P14;
         }
       } else {
         if (info.getTypeOfAccess() != null && info.getTypeOfAccess().contains("U")) {
           customerType = CustomrType.P14;
         } else {
-          if (info.getCustomerType() != null && "NEXUS".contains(info.getCustomerType())) {
+          if (info.getCustomerType() != null && CUST_TYPE_NEXUS.contains(info.getCustomerType())) {
             customerType = CustomrType.P14;
           }
         }
@@ -257,5 +261,14 @@ public class BillingUtils {
       }
     }
     return result;
+  }
+  
+  public static Double getDataUsageInMB(Double data) {
+    
+    final Double dataNew = data!= -1D ? data / BYTE_TO_MB : -1D;
+    
+    return BigDecimal.valueOf(dataNew)
+    .setScale(3, RoundingMode.HALF_UP)
+    .doubleValue();
   }
 }

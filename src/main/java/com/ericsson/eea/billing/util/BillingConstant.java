@@ -22,6 +22,10 @@ public class BillingConstant {
   public final static List<String> HISTORICAL_CYCLE_INFO_TYPE = Arrays.asList("E");
 
   public final static String BUSINESS_USER = "BUS_SHARE";
+
+  public static final String CUST_TYPE_NEXUS = "NEXUS";
+
+  public static final long BYTE_TO_MB = 1024 * 1024;
   
   public final static String EEA_SENDER_ID = "ee_cs_toolkit";
 }

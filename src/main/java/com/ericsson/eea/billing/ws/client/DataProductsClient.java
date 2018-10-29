@@ -19,6 +19,7 @@ import com.ericsson.eea.billing.model.SubscriberFilter;
 import com.ericsson.eea.billing.model.SubscriberIdType;
 import com.ericsson.eea.billing.util.BillingConstant;
 import com.ericsson.eea.billing.util.BillingUtils;
+import com.ericsson.eea.billing.util.DummyDataGenerator;
 
 public class DataProductsClient {
   private static final Logger log = Logger.getLogger(DataProductsClient.class);
@@ -30,7 +31,7 @@ public class DataProductsClient {
     GetCurrentAndAvailableDataProductsResponse response = null;
     try {
       // TODO remove once got actual Response
-      response = GenerateResponse.getDummyResponse();
+      response = DummyDataGenerator.populateResponseData();
       if (response == null) {
         URL wsdlURL =
             new URL(BillingUtils.getProperties().getProperty(BillingUtils.PCRF_BILLING_WS_URL));

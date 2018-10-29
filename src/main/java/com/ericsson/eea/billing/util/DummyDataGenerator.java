@@ -36,7 +36,7 @@ public class DummyDataGenerator {
     SubscriberInfo info = new SubscriberInfo();
     info.setMsisdn(MSISDN);
     info.setTypeOfAccess("DL");
-    info.setBillCycle(BigInteger.valueOf(LocalDateTime.now().getDayOfMonth()+1));
+    info.setBillCycle(BigInteger.valueOf(LocalDateTime.now().getDayOfMonth() + 1));
     info.setCustomerType("NEXUS");
     info.setTariffType(TariffType.Prepaid.name());
     info.setLastCheckedDate(BillingUtils.toXMLCalender(LocalDateTime.now(ZoneOffset.UTC)));
@@ -51,7 +51,7 @@ public class DummyDataGenerator {
 
     DataPass dataPass = populateDataPass("C", "10GB Data EE HS EOBC",
         LocalDateTime.now().minusDays(DAY_IN_MNTH * CUR_MONTH_CYCLE + 15),
-        LocalDateTime.now().minusDays(DAY_IN_MNTH * CUR_MONTH_CYCLE + 4), 125872138L, 10737418240L,
+        LocalDateTime.now().minusDays(DAY_IN_MNTH * CUR_MONTH_CYCLE + 4), 8667008000L, 8960598016L,
         "virtual", new Long[] {8667008000L, 2942488576L});
     DataPass dataPass1 = populateDataPass("S", "Unlimited",
         LocalDateTime.now().minusDays(DAY_IN_MNTH * CUR_MONTH_CYCLE + 20),

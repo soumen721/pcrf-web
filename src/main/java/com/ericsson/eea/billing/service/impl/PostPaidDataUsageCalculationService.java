@@ -36,7 +36,7 @@ public class PostPaidDataUsageCalculationService implements DataUsageCalculation
       throws SubscriberBillingRetrievalFailedException, SubscriberBillingInfoNotAvailableException {
 
     SubscriberInfo subscriberInfo = response.getMessage().getSubscriberInfo();
-    log.info("Billing Details for MSISDN ==> " + subscriberInfo.getMsisdn());
+    log.info("PostPaid Billing Details for MSISDN ==> " + subscriberInfo.getMsisdn());
     List<DataPass> dataPasses = response.getMessage().getDataProducts().getDataProduct();
 
     // Filter for valid pass & Remove passes after FUP_CHANGE pass including FUP change pass
@@ -59,22 +59,23 @@ public class PostPaidDataUsageCalculationService implements DataUsageCalculation
 
     final LocalDateTime currentBillCycleStartDate =
         currentBillCycleEndDate.withHour(0).withMinute(0).withSecond(01).minusMonths(1).plusDays(1);
-    List<DataPass> currentCycleDataPasses = getFilteredDataPassBasedOnBillCycle(filteredDataPasses,
-        currentBillCycleStartDate, currentBillCycleEndDate);
+    final List<DataPass> currentCycleDataPasses = getFilteredDataPassBasedOnBillCycle(
+        filteredDataPasses, currentBillCycleStartDate, currentBillCycleEndDate);
 
-    DataUsageDetails currentCycleDataUsage = calculateDataUsageForCycle(currentCycleDataPasses,
-        subscriberInfo, BillingCycle.CURRENT, currentBillCycleStartDate, currentBillCycleEndDate);
+    final DataUsageDetails currentCycleDataUsage =
+        calculateDataUsageForCycle(currentCycleDataPasses, subscriberInfo, BillingCycle.CURRENT,
+            currentBillCycleStartDate, currentBillCycleEndDate);
 
     log.info("*************************	Previous Period	****************************");
     final LocalDateTime previousBillCycleEndDate = currentBillCycleEndDate.minusMonths(1);
     final LocalDateTime previousBillCycleStartDate = currentBillCycleStartDate.minusMonths(1);
-    List<DataPass> previousCycleDataPasses = getFilteredDataPassBasedOnBillCycle(filteredDataPasses,
-        previousBillCycleStartDate, previousBillCycleEndDate);
+    final List<DataPass> previousCycleDataPasses = getFilteredDataPassBasedOnBillCycle(
+        filteredDataPasses, previousBillCycleStartDate, previousBillCycleEndDate);
 
     log.info("Final Pass for calculation -- Previous Cycle");
     previousCycleDataPasses.forEach(BillingUtils::printLog);
 
-    DataUsageDetails previousCycleDataUsage =
+    final DataUsageDetails previousCycleDataUsage =
         calculateDataUsageForCycle(previousCycleDataPasses, subscriberInfo, BillingCycle.PREVIOUS,
             previousBillCycleStartDate, previousBillCycleEndDate);
 
@@ -82,19 +83,19 @@ public class PostPaidDataUsageCalculationService implements DataUsageCalculation
     final LocalDateTime penulBillCycleEndDate = previousBillCycleEndDate.minusMonths(1);
     final LocalDateTime penulBillCycleStartDate = previousBillCycleStartDate.minusMonths(1);
 
-    List<DataPass> penultimateCycleDataPasses = getFilteredDataPassBasedOnBillCycle(
+    final List<DataPass> penultimateCycleDataPasses = getFilteredDataPassBasedOnBillCycle(
         filteredDataPasses, penulBillCycleStartDate, penulBillCycleEndDate);
 
     log.info("Final Pass for calculation -- Previous Cycle");
     penultimateCycleDataPasses.forEach(BillingUtils::printLog);
 
-    DataUsageDetails penultimateCycleDataUsage =
+    final DataUsageDetails penultimateCycleDataUsage =
         calculateDataUsageForCycle(penultimateCycleDataPasses, subscriberInfo,
             BillingCycle.PENULTIMATE, penulBillCycleStartDate, penulBillCycleEndDate);
 
     log.info(
         "************************* End of Calculation for Postpaid  ****************************\n");
-    SubscriberBillingInfo billingInfo = SubscriberBillingInfo.builder()
+    final SubscriberBillingInfo billingInfo = SubscriberBillingInfo.builder()
 
         // Current Period
         .billingPeriodStartDate(currentCycleDataUsage.getBillingPeriodStartDate())
@@ -134,9 +135,9 @@ public class PostPaidDataUsageCalculationService implements DataUsageCalculation
     return billingInfo;
   }
 
-  private DataUsageDetails calculateDataUsageForCycle(List<DataPass> dataPasses,
-      final SubscriberInfo info, BillingCycle billingCycle, LocalDateTime billingStartDate,
-      LocalDateTime billingEndDate) {
+  private DataUsageDetails calculateDataUsageForCycle(final List<DataPass> dataPasses,
+      final SubscriberInfo info, final BillingCycle billingCycle,
+      final LocalDateTime billingStartDate, final LocalDateTime billingEndDate) {
 
     double dataAvail;
     double dataUsed;
@@ -216,28 +217,31 @@ public class PostPaidDataUsageCalculationService implements DataUsageCalculation
     return DataUsageDetails.builder()
         .billingPeriodStartDate(billingStartDate.toEpochSecond(ZoneOffset.UTC))
         .billingPeriodEndDate(billingEndDate.toEpochSecond(ZoneOffset.UTC))
-        .dataUsed(dataUsed != 0D ? dataUsed / 1024 : 0D)
-        .dataAvail(dataAvail != -1D ? dataAvail / 1024 : -1D).dataUsedShared(dataUsedShared)
-        .dataRemaining(dataRemaining != -1D ? dataRemaining / 1024 : 0D)
-        .zeroRatedDataUsed(zeroRatedDataUsed != 0D ? zeroRatedDataUsed / 1024 : 0D)
+        .dataUsed(BillingUtils.getDataUsageInMB(dataUsed))
+        .dataAvail(BillingUtils.getDataUsageInMB(dataAvail))
+        .dataUsedShared(BillingUtils.getDataUsageInMB(dataUsedShared))
+        .dataRemaining(BillingUtils.getDataUsageInMB(dataRemaining))
+        .zeroRatedDataUsed(BillingUtils.getDataUsageInMB(zeroRatedDataUsed))
         .zeroRatedDataUsedPerService(zeroRatedDataUsedPerService).build();
   }
 
-  private double getUsageDetails(List<DataPass> dataPasses, Predicate<? super DataPass> predicate) {
+  private double getUsageDetails(final List<DataPass> dataPasses,
+      final Predicate<? super DataPass> predicate) {
 
     return dataPasses.stream()
         .filter(e -> BillingConstant.HISTORICAL_CYCLE_INFO_TYPE.contains(e.getInfoType()))
         .filter(predicate).mapToDouble(DataPass::getVolume).sum();
   }
 
-  private Map<String, Double> getZeroRatedDataUsedPerService(List<DataPass> dataPasses,
-      String infoType) {
+  private Map<String, Double> getZeroRatedDataUsedPerService(final List<DataPass> dataPasses,
+      final String infoType) {
 
-    return dataPasses.stream().filter(e -> infoType.equals(e.getInfoType())).collect(Collectors
-        .groupingBy(DataPass::getPassType, Collectors.summingDouble(DataPass::getVolume)));
+    return dataPasses.stream().filter(e -> infoType.equals(e.getInfoType()))
+        .collect(Collectors.groupingBy(DataPass::getPassType,
+            Collectors.summingDouble(e -> BillingUtils.getDataUsageInMB((double) e.getVolume()))));
   }
 
-  private Double getZeroRatedUsage(List<DataPass> dataPasses, String infoType) {
+  private Double getZeroRatedUsage(final List<DataPass> dataPasses, final String infoType) {
 
     return dataPasses.stream().filter(e -> infoType.equals(e.getInfoType()))
         .mapToDouble(DataPass::getVolume).sum();
