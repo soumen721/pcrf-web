@@ -36,7 +36,7 @@ public class DummyDataGenerator {
     SubscriberInfo info = new SubscriberInfo();
     info.setMsisdn(MSISDN);
     info.setTypeOfAccess("DL");
-    info.setBillCycle(BigInteger.valueOf(LocalDateTime.now().getDayOfMonth() + 1));
+    info.setBillCycle(BigInteger.valueOf(LocalDateTime.now().getDayOfMonth()+3));
     info.setCustomerType("NEXUS");
     info.setTariffType(TariffType.Prepaid.name());
     info.setLastCheckedDate(BillingUtils.toXMLCalender(LocalDateTime.now(ZoneOffset.UTC)));

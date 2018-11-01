@@ -12,6 +12,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.codehaus.jackson.map.ObjectMapper;
 
 @WebServlet("/billingServlet")
 public class BillingServlet extends HttpServlet {
@@ -35,18 +36,23 @@ public class BillingServlet extends HttpServlet {
       SubscriberId id = new SubscriberId();
       id.setId("447432993984");
       id.setIdType(SubscriberIdType.msisdn);
-      filter.setId(id );
-      resp = bean.getBillingCycleInfo(filter).toString();
+      filter.setId(id);
+      // resp = bean.getBillingCycleInfo(filter).toString();
+      ObjectMapper mapper = new ObjectMapper();
+      resp = mapper.writerWithDefaultPrettyPrinter()
+          .writeValueAsString(bean.getBillingCycleInfo(filter));
+
     } catch (Exception e) {
-      // TODO: handle exception
+      
     }
 
-    String htmlRespone = "<html>";
-    htmlRespone += "<h2> Billing Response <br></h2>";
-    htmlRespone += "<h4> " + resp + "</h4>";
-    htmlRespone += "</html>";
+    /*
+     * String htmlRespone = "<html>"; htmlRespone += "<h2> Billing Response <br></h2>"; htmlRespone
+     * += "<div> " + resp + "</div"; htmlRespone += "</html>";
+     */
 
-    writer.println(htmlRespone);
+    response.setContentType("application/json");
+    writer.println("Billing Response :" + resp);
   }
 
 }
