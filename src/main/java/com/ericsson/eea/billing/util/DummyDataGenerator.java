@@ -58,7 +58,7 @@ public class DummyDataGenerator {
         LocalDateTime.now().minusDays(DAY_IN_MNTH * CUR_MONTH_CYCLE + 12), 287161212L, 11811161088L,
         "unlimited", new Long[] {8960598016L, 2852495360L});
     DataPass dataPass2 = populateDataPass("ZR", "Apple app",
-        LocalDateTime.now().minusDays(DAY_IN_MNTH * CUR_MONTH_CYCLE + 28),
+        LocalDateTime.now().minusDays(DAY_IN_MNTH * CUR_MONTH_CYCLE + 27),
         LocalDateTime.now().minusDays(DAY_IN_MNTH * CUR_MONTH_CYCLE + 14), 28711212L, 10737418240L,
         "virtual", new Long[] {7904909312L, 7904932423L});
     DataPass dataPass3 = populateDataPass("E", "EE AutoFUP HS_100GB",
@@ -82,10 +82,10 @@ public class DummyDataGenerator {
     DataPass dataPass20 = populateDataPass("E", "10GB Data EE HS EOBC",
         LocalDateTime.now().minusDays(DAY_IN_MNTH * PENLTY_MONTH_CYCLE + 15),
         LocalDateTime.now().minusDays(DAY_IN_MNTH * PENLTY_MONTH_CYCLE + 4), 125823338L,
-        1073742330L, "fup_change", new Long[] {866721321L, 2942488576L});
-    DataPass dataPass21 = populateDataPass("E", "AFUP_CON_HS_UKEU_DCC",
-        LocalDateTime.now().minusDays(DAY_IN_MNTH * PENLTY_MONTH_CYCLE + 31),
-        LocalDateTime.now().minusDays(DAY_IN_MNTH * PENLTY_MONTH_CYCLE + 12), 287161232L,
+        1073742330L, "virtual", new Long[] {866721321L, 2942488576L});
+    DataPass dataPass21 = populateDataPass("EZR", "AFUP_CON_HS_UKEU_DCC",
+        LocalDateTime.now().minusDays(DAY_IN_MNTH * PENLTY_MONTH_CYCLE + 20),
+        LocalDateTime.now().minusDays(DAY_IN_MNTH * PENLTY_MONTH_CYCLE + 5), 287161232L,
         118322228L, "virtual", new Long[] {896023286L, 2852495360L});
 
     dataProduct.getDataProduct().addAll(Arrays.asList(dataPass, dataPass1, dataPass2, dataPass3,

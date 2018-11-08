@@ -268,7 +268,7 @@ public class BillingUtils {
     final Double dataNew = data!= -1D ? data / BYTE_TO_MB : -1D;
     
     return BigDecimal.valueOf(dataNew)
-    .setScale(3, RoundingMode.HALF_UP)
+    .setScale(2, RoundingMode.HALF_UP)
     .doubleValue();
   }
 }
