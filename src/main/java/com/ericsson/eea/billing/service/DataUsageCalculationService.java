@@ -7,7 +7,7 @@ import com.ericsson.eea.billing.model.SubscriberBillingRetrievalFailedException;
 
 public interface DataUsageCalculationService {
 
-    SubscriberBillingInfo calculateDataUsage(GetCurrentAndAvailableDataProductsResponse response)
-            throws SubscriberBillingRetrievalFailedException, SubscriberBillingInfoNotAvailableException;
+	SubscriberBillingInfo calculateDataUsage(GetCurrentAndAvailableDataProductsResponse response)
+			throws SubscriberBillingRetrievalFailedException, SubscriberBillingInfoNotAvailableException;
 
 }

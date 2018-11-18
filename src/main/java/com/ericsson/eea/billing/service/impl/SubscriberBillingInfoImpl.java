@@ -1,9 +1,12 @@
 package com.ericsson.eea.billing.service.impl;
 
 import java.util.Collections;
+
 import javax.ejb.Remote;
 import javax.ejb.Stateless;
+
 import org.jboss.logging.Logger;
+
 import com.ee.cne.ws.dataproduct.generated.GetCurrentAndAvailableDataProductsResponse;
 import com.ericsson.eea.billing.model.MessageEnvelope;
 import com.ericsson.eea.billing.model.SubscriberBillingInfo;
@@ -21,54 +24,53 @@ import com.ericsson.eea.billing.ws.client.DataProductsClient;
 @Stateless
 @Remote(SubscriberBillingRemote.class)
 public class SubscriberBillingInfoImpl implements SubscriberBillingRemote {
-  private static final Logger log = Logger.getLogger(SubscriberBillingInfoImpl.class);
+	private static final Logger log = Logger.getLogger(SubscriberBillingInfoImpl.class);
 
-  @Override
-  public MessageEnvelope<SubscriberBillingInfo> getBillingCycleInfo(SubscriberFilter filter)
-      throws SubscriberBillingInfoNotAvailableException, SubscriberBillingRetrievalFailedException {
+	@Override
+	public MessageEnvelope<SubscriberBillingInfo> getBillingCycleInfo(SubscriberFilter filter)
+			throws SubscriberBillingInfoNotAvailableException, SubscriberBillingRetrievalFailedException {
 
-    GetCurrentAndAvailableDataProductsResponse response =
-        DataProductsClient.getDataProductsWebServiceResponse(filter);
+		GetCurrentAndAvailableDataProductsResponse response = DataProductsClient
+				.getDataProductsWebServiceResponse(filter);
 
-    if (response != null && response.getMessage() != null
-        && response.getMessage().getSubscriberInfo() != null) {
+		if (response != null && response.getMessage() != null && response.getMessage().getSubscriberInfo() != null) {
 
-      GetCurrentAndAvailableDataProductsResponse.Message.SubscriberInfo subscriberInfo =
-          response.getMessage().getSubscriberInfo();
-      DataUsageCalculationService usageCalculationService;
+			GetCurrentAndAvailableDataProductsResponse.Message.SubscriberInfo subscriberInfo = response.getMessage()
+					.getSubscriberInfo();
+			DataUsageCalculationService usageCalculationService;
 
-      if (TariffType.Prepaid.name().equals(subscriberInfo.getTariffType())) {
+			if (TariffType.Prepaid.name().equals(subscriberInfo.getTariffType())) {
 
-        usageCalculationService = new PrePaidDataUsageCalculationService();
-      } else if (TariffType.Postpaid.name().equals(subscriberInfo.getTariffType())) {
+				usageCalculationService = new PrePaidDataUsageCalculationService();
+			} else if (TariffType.Postpaid.name().equals(subscriberInfo.getTariffType())) {
 
-        usageCalculationService = new PostPaidDataUsageCalculationService();
-      } else {
-        throw new SubscriberBillingInfoNotAvailableException();
-      }
+				usageCalculationService = new PostPaidDataUsageCalculationService();
+			} else {
+				throw new SubscriberBillingInfoNotAvailableException();
+			}
 
-      SubscriberBillingInfo billingInfo = usageCalculationService.calculateDataUsage(response);
-      billingInfo = BillingUtils.populateResponseBasicDetails(billingInfo, subscriberInfo);
-      MessageEnvelope<SubscriberBillingInfo> envelope = new MessageEnvelope<>();
-      envelope.setData(Collections.singletonList(billingInfo));
+			SubscriberBillingInfo billingInfo = usageCalculationService.calculateDataUsage(response);
+			billingInfo = BillingUtils.populateResponseBasicDetails(billingInfo, subscriberInfo);
+			MessageEnvelope<SubscriberBillingInfo> envelope = new MessageEnvelope<>();
+			envelope.setData(Collections.singletonList(billingInfo));
 
-      return envelope;
-    } else {
-      log.error("Error in retriving Reposne");
-      throw new SubscriberBillingInfoNotAvailableException();
-    }
+			return envelope;
+		} else {
+			log.error("Error in retriving Reposne");
+			throw new SubscriberBillingInfoNotAvailableException();
+		}
 
-  }
+	}
 
-  public static void main(String arg[])
-      throws SubscriberBillingInfoNotAvailableException, SubscriberBillingRetrievalFailedException {
+	public static void main(String arg[])
+			throws SubscriberBillingInfoNotAvailableException, SubscriberBillingRetrievalFailedException {
 
-    SubscriberFilter filter = new SubscriberFilter();
-    SubscriberId id = new SubscriberId();
-    id.setId("447432993984");
-    id.setIdType(SubscriberIdType.msisdn);
-    filter.setId(id);
-    new SubscriberBillingInfoImpl().getBillingCycleInfo(filter);
-  }
+		SubscriberFilter filter = new SubscriberFilter();
+		SubscriberId id = new SubscriberId();
+		id.setId("447432993984");
+		id.setIdType(SubscriberIdType.msisdn);
+		filter.setId(id);
+		new SubscriberBillingInfoImpl().getBillingCycleInfo(filter);
+	}
 
 }

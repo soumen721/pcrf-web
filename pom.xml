@@ -110,10 +110,14 @@
 										<extraarg>-xjc-Xfluent-api</extraarg>
 										<extraarg>-xjc-Xvalue-constructor</extraarg>
 									</extraargs>
+									<bindingFiles>
+										<bindingFile>${basedir}/src/main/resources/wsdl/binding.xml</bindingFile>
+									</bindingFiles>
 									<wsdl>${basedir}/src/main/resources/wsdl/network/pdf/service/DataProduct/1.0/DataProduct.wsdl</wsdl>
 									<extraargs>
 										<extraarg>-p</extraarg>
 										<extraarg>com.ee.cne.ws.dataproduct.generated</extraarg>
+
 									</extraargs>
 								</wsdlOption>
 							</wsdlOptions>
