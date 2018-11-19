@@ -32,9 +32,10 @@ public class BillingServlet extends HttpServlet {
     String resp = null;
     PrintWriter writer = response.getWriter();
     try {
+      String msisdn = request.getParameter("msisdn");
       SubscriberFilter filter = new SubscriberFilter();
       SubscriberId id = new SubscriberId();
-      id.setId("447432993984");
+      id.setId(msisdn != null ? msisdn : "123123123123");
       id.setIdType(SubscriberIdType.msisdn);
       filter.setId(id);
       // resp = bean.getBillingCycleInfo(filter).toString();
