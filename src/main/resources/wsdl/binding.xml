@@ -12,7 +12,7 @@
 	<jaxb:globalBindings>
 		<xjc:serializable uid="7702" />
 		<xjc:javaType
-			adapter="com.ericsson.eea.billing.util.LocalDateAdapter"
+			adapter="com.ericsson.eea.billing.adapter.LocalDateAdapter"
 			name="java.time.LocalDateTime" xmlType="xs:dateTime" />
 	</jaxb:globalBindings>
 

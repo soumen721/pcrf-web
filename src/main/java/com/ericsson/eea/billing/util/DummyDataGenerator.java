@@ -4,7 +4,9 @@ import java.math.BigInteger;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.Arrays;
-
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
 import javax.xml.datatype.DatatypeConfigurationException;
 
 import com.ee.cne.ws.dataproduct.generated.DataPass;
@@ -94,7 +96,18 @@ public class DummyDataGenerator {
 
 		message.setDataProducts(dataProduct);
 		response.setMessage(message);
-
+		
+        try {
+          JAXBContext jaxbContext = JAXBContext.newInstance(GetCurrentAndAvailableDataProductsResponse.class);
+          Marshaller marshaller = jaxbContext.createMarshaller();
+          marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+          marshaller.marshal(response, System.out);
+        } catch (JAXBException e) {
+          // TODO Auto-generated catch block
+          e.printStackTrace();
+        }
+        
+        
 		return response;
 	}
 

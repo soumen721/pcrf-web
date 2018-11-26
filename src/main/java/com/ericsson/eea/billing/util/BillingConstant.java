@@ -25,5 +25,5 @@ public class BillingConstant {
 
 	public static final long BYTE_TO_MB = 1024 * 1024;
 
-	public final static String EEA_SENDER_ID = "ee_cs_toolkit";
+	public final static String EEA_SENDER_ID = "ee_ebdc_portal";
 }
