@@ -26,13 +26,19 @@ import com.ericsson.eea.billing.util.DummyDataGenerator;
 public class DataProductsClient {
 	private static final Logger log = Logger.getLogger(DataProductsClient.class);
 
+	/**
+	 * @param filter
+	 * @return
+	 * @throws SubscriberBillingInfoNotAvailableException
+	 * @throws SubscriberBillingRetrievalFailedException
+	 */
 	public static GetCurrentAndAvailableDataProductsResponse getDataProductsWebServiceResponse(SubscriberFilter filter)
 			throws SubscriberBillingInfoNotAvailableException, SubscriberBillingRetrievalFailedException {
 
 		GetCurrentAndAvailableDataProductsResponse response = null;
 		try {
 			// TODO remove once got actual Response
-			response = DummyDataGenerator.populateResponseData();
+			response = null; //DummyDataGenerator.populateResponseData();
 			if (response == null) {
 				URL wsdlURL = new URL(BillingUtils.getProperties().getProperty(BillingUtils.PCRF_BILLING_WS_URL));
 				log.info("BIlling WebService URL :: " + wsdlURL.toURI().toString());

@@ -47,6 +47,9 @@ public class BillingUtils {
   private static final Logger log = Logger.getLogger(BillingUtils.class);
   public static final String PCRF_BILLING_WS_URL = "pcrf.billing.ws.url";
 
+  /**
+   * @return Properties
+   */
   public static Properties getProperties() {
     Properties prop = new Properties();
     InputStream input = null;
@@ -56,7 +59,7 @@ public class BillingUtils {
         propertyHome = System.getProperty("CONFIG_HOME");
       }
 
-      log.info("Config File Path :: " + propertyHome);
+      log.info("Config File Path :: "+ propertyHome);
       prop.load(new FileInputStream(propertyHome + "/pcrf_config.properties"));
     } catch (IOException ex) {
       log.error("Exception in retriving value from property file ::" + ex.getMessage());
