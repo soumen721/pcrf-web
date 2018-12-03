@@ -4,7 +4,6 @@ import static com.ericsson.eea.billing.util.BillingConstant.BYTE_TO_MB;
 import static com.ericsson.eea.billing.util.BillingConstant.CUST_TYPE_NEXUS;
 import static com.ericsson.eea.billing.util.BillingConstant.UNLIMITED_PASS_TYPE;
 import java.io.ByteArrayOutputStream;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
@@ -46,21 +45,20 @@ public class BillingUtils {
 
   private static final Logger log = Logger.getLogger(BillingUtils.class);
   public static final String PCRF_BILLING_WS_URL = "pcrf.billing.ws.url";
+  private static Properties properties;
 
-  /**
-   * @return Properties
-   */
-  public static Properties getProperties() {
-    Properties prop = new Properties();
+  public static synchronized Properties getProperties() {
     InputStream input = null;
     try {
-      String propertyHome = System.getenv("CONFIG_HOME");
-      if (null == propertyHome) {
-        propertyHome = System.getProperty("CONFIG_HOME");
+      if (properties != null) {
+        log.info("Config serve form previously loaded instance");
+        return properties;
       }
-
-      log.info("Config File Path :: "+ propertyHome);
-      prop.load(new FileInputStream(propertyHome + "/pcrf_config.properties"));
+      properties = new Properties();
+      properties.load(BillingUtils.class.getClassLoader().getResourceAsStream("pcrf_config.properties"));
+      //properties.load(new FileInputStream(propertyHome + "/pcrf_config.properties"));
+      log.info("PCRF web-service URL:: " + properties.getProperty(PCRF_BILLING_WS_URL));
+      log.info("Config File loaded successfully");
     } catch (IOException ex) {
       log.error("Exception in retriving value from property file ::" + ex.getMessage());
       ex.printStackTrace();
@@ -73,7 +71,7 @@ public class BillingUtils {
         }
       }
     }
-    return prop;
+    return properties;
   }
 
   // Get Filtered invalid PassType, InfoType, Zone along and then sort based on
