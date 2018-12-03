@@ -1,16 +1,7 @@
 package com.ericsson.eea.billing.service.impl;
 
-import com.ee.cne.ws.dataproduct.generated.DataPass;
 import static com.ericsson.eea.billing.util.BillingConstant.BYTE_TO_MB;
-import com.ee.cne.ws.dataproduct.generated.GetCurrentAndAvailableDataProductsResponse;
-import com.ericsson.eea.billing.model.SubscriberBillingInfo;
-import com.ericsson.eea.billing.model.SubscriberBillingInfoNotAvailableException;
-import com.ericsson.eea.billing.service.DataUsageCalculationService;
-import com.ericsson.eea.billing.util.BillingCycle;
-import com.ericsson.eea.billing.util.BillingUtils;
-import com.ericsson.eea.billing.util.ChainCycle;
-import com.ericsson.eea.billing.util.CustomrType;
-import org.jboss.logging.Logger;
+import static com.ericsson.eea.billing.util.BillingConstant.VALID_INFO_TYPE_PREPAID;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -19,16 +10,31 @@ import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.util.List;
 import java.util.stream.Collectors;
-import static com.ericsson.eea.billing.util.BillingConstant.VALID_INFO_TYPE_PREPAID;
-import static com.ericsson.eea.billing.util.BillingUtils.toLocalDateTime;
+import org.jboss.logging.Logger;
+import com.ee.cne.ws.dataproduct.generated.DataPass;
+import com.ee.cne.ws.dataproduct.generated.GetCurrentAndAvailableDataProductsResponse;
+import com.ericsson.eea.billing.model.SubscriberBillingInfo;
+import com.ericsson.eea.billing.model.SubscriberBillingInfoNotAvailableException;
+import com.ericsson.eea.billing.model.SubscriberBillingRetrievalFailedException;
+import com.ericsson.eea.billing.service.DataUsageCalculationService;
+import com.ericsson.eea.billing.util.BillingCycle;
+import com.ericsson.eea.billing.util.BillingUtils;
+import com.ericsson.eea.billing.util.ChainCycle;
+import com.ericsson.eea.billing.util.CustomrType;
 
 public class PrePaidDataUsageCalculationService implements DataUsageCalculationService {
   private static final Logger log = Logger.getLogger(PrePaidDataUsageCalculationService.class);
 
+  /**
+   * @param response
+   * @return SubscriberBillingInfo
+   * @throws SubscriberBillingInfoNotAvailableException
+   * @throws SubscriberBillingRetrievalFailedException
+   */
   @Override
   public SubscriberBillingInfo calculateDataUsage(
       GetCurrentAndAvailableDataProductsResponse response)
-      throws SubscriberBillingInfoNotAvailableException {
+      throws SubscriberBillingRetrievalFailedException, SubscriberBillingInfoNotAvailableException {
 
     final GetCurrentAndAvailableDataProductsResponse.Message.SubscriberInfo subscriberInfo =
         response.getMessage().getSubscriberInfo();
@@ -55,10 +61,11 @@ public class PrePaidDataUsageCalculationService implements DataUsageCalculationS
       LocalDateTime now = LocalDateTime.now(Clock.systemUTC());
       LocalDateTime billingStardDate;
       LocalDateTime billingEndDate;
-      final List<DataPass> calPasses = filteredDataPasses.stream()
-          .filter(pass -> (toLocalDateTime(pass.getPassStartTime()).isAfter(now.minusDays(90))
-              || toLocalDateTime(pass.getPassStartTime()).isEqual(now.minusDays(90))))
-          .collect(Collectors.toList());
+      final List<DataPass> calPasses =
+          filteredDataPasses.stream()
+              .filter(pass -> (pass.getPassStartTime().isAfter(now.minusDays(90))
+                  || pass.getPassStartTime().isEqual(now.minusDays(90))))
+              .collect(Collectors.toList());
 
       log.info("After applied filter---------------");
       calPasses.forEach(BillingUtils::printLog);
@@ -94,10 +101,8 @@ public class PrePaidDataUsageCalculationService implements DataUsageCalculationS
           log.info("*************** Data Pass for " + billCycle.getCurrentCycle()
               + " Bill Cycle ***************");
           BillingUtils.printLog(dataPass);
-          log.info("Bill Cycle Start Date\t"
-              + toLocalDateTime(dataPass.getPassStartTime()).toLocalDate());
-          log.info(
-              "Bill Cycle End Date\t" + toLocalDateTime(dataPass.getPassEndTime()).toLocalDate());
+          log.info("Bill Cycle Start Date\t" + dataPass.getPassStartTime().toLocalDate());
+          log.info("Bill Cycle End Date\t" + dataPass.getPassEndTime().toLocalDate());
 
           if (BillingCycle.CURRENT == billCycle.getCurrentCycle()) {
             if ("S".equals(dataPass.getInfoType())) {
@@ -114,9 +119,9 @@ public class PrePaidDataUsageCalculationService implements DataUsageCalculationS
                       .atZone(ZoneId.systemDefault()).toLocalDate());
             } else {
               billingInfo.setBillingPeriodStartDate(
-                  toLocalDateTime(dataPass.getPassStartTime()).toEpochSecond(ZoneOffset.UTC));
-              billingInfo.setBillingPeriodEndDate(
-                  toLocalDateTime(dataPass.getPassEndTime()).toEpochSecond(ZoneOffset.UTC));
+                  dataPass.getPassStartTime().toEpochSecond(ZoneOffset.UTC));
+              billingInfo
+                  .setBillingPeriodEndDate(dataPass.getPassEndTime().toEpochSecond(ZoneOffset.UTC));
 
               if ("C".equals(dataPass.getInfoType())) {
                 billingInfo.setDataUsed(BillingUtils
@@ -128,20 +133,16 @@ public class PrePaidDataUsageCalculationService implements DataUsageCalculationS
               billingInfo.setDataAvail(BillingUtils.getDataUsageInMB((double) (dataPass.getFup())));
             }
           } else if (BillingCycle.PREVIOUS == billCycle.getCurrentCycle()) {
-            billingInfo.setLbcStartDate(
-                toLocalDateTime(dataPass.getPassStartTime()).toEpochSecond(ZoneOffset.UTC));
-            billingInfo.setLbcEndDate(
-                toLocalDateTime(dataPass.getPassEndTime()).toEpochSecond(ZoneOffset.UTC));
+            billingInfo.setLbcStartDate(dataPass.getPassStartTime().toEpochSecond(ZoneOffset.UTC));
+            billingInfo.setLbcEndDate(dataPass.getPassEndTime().toEpochSecond(ZoneOffset.UTC));
 
             billingInfo
                 .setLbcDataUsed(BillingUtils.getDataUsageInMB((double) (dataPass.getVolume())));
             billingInfo
                 .setLbcDataAvail(BillingUtils.getDataUsageInMB((double) (dataPass.getFup())));
           } else if (BillingCycle.PENULTIMATE == billCycle.getCurrentCycle()) {
-            billingInfo.setPbcStartDate(
-                toLocalDateTime(dataPass.getPassStartTime()).toEpochSecond(ZoneOffset.UTC));
-            billingInfo.setPbcEndDate(
-                toLocalDateTime(dataPass.getPassEndTime()).toEpochSecond(ZoneOffset.UTC));
+            billingInfo.setPbcStartDate(dataPass.getPassStartTime().toEpochSecond(ZoneOffset.UTC));
+            billingInfo.setPbcEndDate(dataPass.getPassEndTime().toEpochSecond(ZoneOffset.UTC));
 
             billingInfo
                 .setPbcDataUsed(BillingUtils.getDataUsageInMB((double) (dataPass.getVolume())));
@@ -160,7 +161,6 @@ public class PrePaidDataUsageCalculationService implements DataUsageCalculationS
 
       return billingInfo;
     }
-
 
   }
 

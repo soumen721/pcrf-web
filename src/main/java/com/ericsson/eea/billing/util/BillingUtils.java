@@ -1,8 +1,8 @@
 package com.ericsson.eea.billing.util;
 
-import static com.ericsson.eea.billing.util.BillingConstant.UNLIMITED_PASS_TYPE;
 import static com.ericsson.eea.billing.util.BillingConstant.BYTE_TO_MB;
 import static com.ericsson.eea.billing.util.BillingConstant.CUST_TYPE_NEXUS;
+import static com.ericsson.eea.billing.util.BillingConstant.UNLIMITED_PASS_TYPE;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -45,14 +45,20 @@ public class BillingUtils {
 
   private static final Logger log = Logger.getLogger(BillingUtils.class);
   public static final String PCRF_BILLING_WS_URL = "pcrf.billing.ws.url";
+  private static Properties properties;
 
-  public static Properties getProperties() {
-    Properties prop = new Properties();
+  public static synchronized Properties getProperties() {
     InputStream input = null;
     try {
-
-      input = BillingUtils.class.getClassLoader().getResourceAsStream("config.properties");
-      prop.load(input);
+      if (properties != null) {
+        log.info("Config serve form previously loaded instance");
+        return properties;
+      }
+      properties = new Properties();
+      properties.load(BillingUtils.class.getClassLoader().getResourceAsStream("pcrf_config.properties"));
+      //properties.load(new FileInputStream(propertyHome + "/pcrf_config.properties"));
+      log.info("PCRF web-service URL:: " + properties.getProperty(PCRF_BILLING_WS_URL));
+      log.info("Config File loaded successfully");
     } catch (IOException ex) {
       log.error("Exception in retriving value from property file ::" + ex.getMessage());
       ex.printStackTrace();
@@ -65,7 +71,7 @@ public class BillingUtils {
         }
       }
     }
-    return prop;
+    return properties;
   }
 
   // Get Filtered invalid PassType, InfoType, Zone along and then sort based on
@@ -77,7 +83,7 @@ public class BillingUtils {
     dataPasses.forEach(BillingUtils::printLog);
 
     Comparator<? super DataPass> dateComparator =
-        (e1, e2) -> e1.getPassStartTime().compare(e2.getPassStartTime());
+        (e1, e2) -> e1.getPassStartTime().compareTo(e2.getPassStartTime());
 
     return dataPasses.stream()
         .filter(pass -> !BillingConstant.INVALID_PASS_TYPE.contains(pass.getPassType()))
@@ -89,14 +95,14 @@ public class BillingUtils {
   public static List<DataPass> getFilteredDataPassBasedOnBillCycle(final List<DataPass> dataPasses,
       final LocalDateTime billCycleStartDate, final LocalDateTime billCycleEndDate) {
 
-    log.info("Bill Cycle Start Date =>\t " + billCycleStartDate.toLocalDate());
-    log.info("Bill Cycle End Date   =>\t " + billCycleEndDate.toLocalDate());
+    log.info("Bill Cycle Start Date =>\t " + billCycleStartDate);
+    log.info("Bill Cycle End Date   =>\t " + billCycleEndDate);
 
-    List<DataPass> list = dataPasses.stream().filter(
-        pass -> (BillingUtils.toLocalDateTime(pass.getPassStartTime()).isAfter(billCycleStartDate)
-            || BillingUtils.toLocalDateTime(pass.getPassStartTime()).isEqual(billCycleStartDate))
-            && (BillingUtils.toLocalDateTime(pass.getPassEndTime()).isBefore(billCycleEndDate))
-            || BillingUtils.toLocalDateTime(pass.getPassEndTime()).isEqual(billCycleEndDate))
+    List<DataPass> list = dataPasses.stream()
+        .filter(pass -> (pass.getPassStartTime().isAfter(billCycleStartDate)
+            || pass.getPassStartTime().isEqual(billCycleStartDate))
+            && (pass.getPassEndTime().isBefore(billCycleEndDate))
+            || pass.getPassEndTime().isEqual(billCycleEndDate))
         .collect(Collectors.toList());
 
     log.info("Passes after filter on BillCycle -- ");
@@ -121,8 +127,8 @@ public class BillingUtils {
       SubscriberBillingInfo billingInfo, SubscriberInfo subscriberInfo) {
 
     billingInfo.setImsi(Long.valueOf(subscriberInfo.getMsisdn()));
-    billingInfo.setBillingUpdateTime(
-        toLocalDateTime(subscriberInfo.getLastCheckedDate()).toEpochSecond(ZoneOffset.UTC));
+    billingInfo
+        .setBillingUpdateTime(subscriberInfo.getLastCheckedDate().toEpochSecond(ZoneOffset.UTC));
     billingInfo.setBillingPlanCategory(getBillingCategory(subscriberInfo));
 
     Integer subscriberType = 0;
@@ -194,14 +200,9 @@ public class BillingUtils {
   public static void printLog(DataPass dataPass) {
 
     log.info("Data Pass Info: " + dataPass.getInfoType() + "\t| "
-        + (dataPass.getPassStartTime() != null
-            ? dataPass.getPassStartTime().toGregorianCalendar().toZonedDateTime().toLocalDate()
-            : "NA")
-        + "| "
-        + (dataPass.getPassEndTime() != null
-            ? dataPass.getPassEndTime().toGregorianCalendar().toZonedDateTime().toLocalDate()
-            : "NA")
-        + "| " + dataPass.getPassType() + "| " + dataPass.getExpiryReason());
+        + (dataPass.getPassStartTime() != null ? dataPass.getPassStartTime() : "NA") + "| "
+        + (dataPass.getPassEndTime() != null ? dataPass.getPassEndTime() : "NA") + "| "
+        + dataPass.getPassType() + "| " + dataPass.getExpiryReason());
   }
 
   public static void printDataUsage(SubscriberBillingInfo billingInfo) {
@@ -262,13 +263,11 @@ public class BillingUtils {
     }
     return result;
   }
-  
+
   public static Double getDataUsageInMB(Double data) {
-    
-    final Double dataNew = data!= -1D ? data / BYTE_TO_MB : -1D;
-    
-    return BigDecimal.valueOf(dataNew)
-    .setScale(2, RoundingMode.HALF_UP)
-    .doubleValue();
+
+    final Double dataNew = data != -1D ? data / BYTE_TO_MB : -1D;
+
+    return BigDecimal.valueOf(dataNew).setScale(2, RoundingMode.HALF_UP).doubleValue();
   }
 }

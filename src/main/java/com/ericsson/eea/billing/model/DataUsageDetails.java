@@ -2,6 +2,7 @@ package com.ericsson.eea.billing.model;
 
 import java.io.Serializable;
 import java.util.Map;
+
 import lombok.Builder;
 import lombok.Data;
 
@@ -9,20 +10,20 @@ import lombok.Data;
 @Builder
 public class DataUsageDetails implements Serializable {
 
-  private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 1L;
 
-  private Long billingPeriodStartDate;
-  private Long billingPeriodEndDate;
+	private Long billingPeriodStartDate;
+	private Long billingPeriodEndDate;
 
-  private Double dataUsed;
+	private Double dataUsed;
 
-  private Double dataAvail;
+	private Double dataAvail;
 
-  private Double dataRemaining;
+	private Double dataRemaining;
 
-  private Double dataUsedShared;
+	private Double dataUsedShared;
 
-  private Double zeroRatedDataUsed;
-  
-  private Map<String, Double> zeroRatedDataUsedPerService;
+	private Double zeroRatedDataUsed;
+
+	private Map<String, Double> zeroRatedDataUsedPerService;
 }

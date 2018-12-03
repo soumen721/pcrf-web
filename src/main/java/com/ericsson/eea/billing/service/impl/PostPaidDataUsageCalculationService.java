@@ -30,6 +30,12 @@ import com.ericsson.eea.billing.util.BillingUtils;
 public class PostPaidDataUsageCalculationService implements DataUsageCalculationService {
   private static final Logger log = Logger.getLogger(PostPaidDataUsageCalculationService.class);
 
+  /**
+   * @param response
+   * @return SubscriberBillingInfo
+   * @throws SubscriberBillingInfoNotAvailableException
+   * @throws SubscriberBillingRetrievalFailedException
+   */
   @Override
   public SubscriberBillingInfo calculateDataUsage(
       GetCurrentAndAvailableDataProductsResponse response)
@@ -39,7 +45,8 @@ public class PostPaidDataUsageCalculationService implements DataUsageCalculation
     log.info("PostPaid Billing Details for MSISDN ==> " + subscriberInfo.getMsisdn());
     List<DataPass> dataPasses = response.getMessage().getDataProducts().getDataProduct();
 
-    // Filter for valid pass & Remove passes after FUP_CHANGE pass including FUP change pass
+    // Filter for valid pass & Remove passes after FUP_CHANGE pass including FUP
+    // change pass
     List<DataPass> filteredDataPasses = filterDataPassOnFUPChange(getFilteredDataPass(dataPasses,
         type -> VALID_INFO_TYPE_POSTPAID.contains(type.getInfoType())));
     log.info("\nAfter applying fup_change filter--------------");
@@ -135,6 +142,14 @@ public class PostPaidDataUsageCalculationService implements DataUsageCalculation
     return billingInfo;
   }
 
+  /**
+   * @param dataPasses
+   * @param info
+   * @param billingCycle
+   * @param billingStartDate
+   * @param billingEndDate
+   * @return
+   */
   private DataUsageDetails calculateDataUsageForCycle(final List<DataPass> dataPasses,
       final SubscriberInfo info, final BillingCycle billingCycle,
       final LocalDateTime billingStartDate, final LocalDateTime billingEndDate) {
