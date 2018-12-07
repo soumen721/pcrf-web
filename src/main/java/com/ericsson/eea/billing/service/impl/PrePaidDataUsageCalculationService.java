@@ -22,6 +22,10 @@ import com.ericsson.eea.billing.util.BillingUtils;
 import com.ericsson.eea.billing.util.ChainCycle;
 import com.ericsson.eea.billing.util.CustomrType;
 
+/**
+ * @author esonchy
+ *
+ */
 public class PrePaidDataUsageCalculationService implements DataUsageCalculationService {
   private static final Logger log = Logger.getLogger(PrePaidDataUsageCalculationService.class);
 

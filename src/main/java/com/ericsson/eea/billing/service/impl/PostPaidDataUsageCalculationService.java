@@ -27,6 +27,10 @@ import com.ericsson.eea.billing.util.BillingConstant;
 import com.ericsson.eea.billing.util.BillingCycle;
 import com.ericsson.eea.billing.util.BillingUtils;
 
+/**
+ * @author esonchy
+ *
+ */
 public class PostPaidDataUsageCalculationService implements DataUsageCalculationService {
   private static final Logger log = Logger.getLogger(PostPaidDataUsageCalculationService.class);
 
@@ -57,7 +61,7 @@ public class PostPaidDataUsageCalculationService implements DataUsageCalculation
     log.info("*************************	Current Period	****************************");
     // populate bill-cycle
     int currentDate = LocalDate.now(ZoneOffset.UTC).getDayOfMonth();
-    int billingDate = Integer.valueOf(subscriberInfo.getBillCycle() + "");
+    int billingDate = Integer.parseInt(subscriberInfo.getBillCycle()+"");
     LocalDateTime currentBillCycleEndDate =
         LocalDate.now(ZoneOffset.UTC).atTime(23, 59, 59).withDayOfMonth(billingDate);
     if (billingDate < currentDate) {
@@ -118,7 +122,7 @@ public class PostPaidDataUsageCalculationService implements DataUsageCalculation
         .lbcEndDate(previousCycleDataUsage.getBillingPeriodEndDate())
         .lbcDataAvail(previousCycleDataUsage.getDataAvail())
         .lbcDataUsed(previousCycleDataUsage.getDataUsed())
-        .lbcDataUsedShared(currentCycleDataUsage.getDataUsedShared())
+        .lbcDataUsedShared(previousCycleDataUsage.getDataUsedShared())
         .lbcZeroRatedDataUsed(previousCycleDataUsage.getZeroRatedDataUsed())
         .lbcZeroRatedDataUsedPerService(previousCycleDataUsage.getZeroRatedDataUsedPerService())
 
@@ -127,7 +131,7 @@ public class PostPaidDataUsageCalculationService implements DataUsageCalculation
         .pbcEndDate(penultimateCycleDataUsage.getBillingPeriodEndDate())
         .pbcDataAvail(penultimateCycleDataUsage.getDataAvail())
         .pbcDataUsed(penultimateCycleDataUsage.getDataUsed())
-        .pbcDataUsedShared(currentCycleDataUsage.getDataUsedShared())
+        .pbcDataUsedShared(penultimateCycleDataUsage.getDataUsedShared())
         .pbcZeroRatedDataUsed(penultimateCycleDataUsage.getZeroRatedDataUsed())
         .pbcZeroRatedDataUsedPerService(penultimateCycleDataUsage.getZeroRatedDataUsedPerService())
         .build();
@@ -158,7 +162,7 @@ public class PostPaidDataUsageCalculationService implements DataUsageCalculation
     double dataUsed;
     double dataUsedSharer = 0D;
     double dataUsedShared = 0D;
-    double zeroRatedDataUsed = 0D;
+    double zeroRatedDataUsed;
 
     double dataUsedUnlimited = 0D;
     double dataUsedSharedGrp = 0D;
@@ -187,7 +191,7 @@ public class PostPaidDataUsageCalculationService implements DataUsageCalculation
     } else {
       // Sharer Data Usage
       dataUsedSharer = dataPasses.stream()
-          .filter(t -> BillingConstant.HISTORICAL_CYCLE_INFO_TYPE.contains(t.getInfoType()))
+          .filter(t -> passToConsider.contains(t.getInfoType()))
           .filter(p -> BillingUtils.isSharedPass(info, p))
           .map(e -> e.getShareDetails().getSharerDataUsage()).flatMap(Collection::stream)
           .filter(sha -> info.getMsisdn().equals(sha.getMsisdn()))
@@ -234,12 +238,17 @@ public class PostPaidDataUsageCalculationService implements DataUsageCalculation
         .billingPeriodEndDate(billingEndDate.toEpochSecond(ZoneOffset.UTC))
         .dataUsed(BillingUtils.getDataUsageInMB(dataUsed))
         .dataAvail(BillingUtils.getDataUsageInMB(dataAvail))
-        .dataUsedShared(BillingUtils.getDataUsageInMB(dataUsedShared))
-        .dataRemaining(BillingUtils.getDataUsageInMB(dataRemaining))
+        .dataUsedShared(BillingUtils.getDataUsageInMB(dataUsedShared))  //Not in Use
+        .dataRemaining(BillingUtils.getDataUsageInMB(dataRemaining))    //Not in Use
         .zeroRatedDataUsed(BillingUtils.getDataUsageInMB(zeroRatedDataUsed))
         .zeroRatedDataUsedPerService(zeroRatedDataUsedPerService).build();
   }
 
+  /**
+   * @param dataPasses
+   * @param predicate
+   * @return
+   */
   private double getUsageDetails(final List<DataPass> dataPasses,
       final Predicate<? super DataPass> predicate) {
 
@@ -248,6 +257,11 @@ public class PostPaidDataUsageCalculationService implements DataUsageCalculation
         .filter(predicate).mapToDouble(DataPass::getVolume).sum();
   }
 
+  /**
+   * @param dataPasses
+   * @param infoType
+   * @return
+   */
   private Map<String, Double> getZeroRatedDataUsedPerService(final List<DataPass> dataPasses,
       final String infoType) {
 
@@ -256,6 +270,11 @@ public class PostPaidDataUsageCalculationService implements DataUsageCalculation
             Collectors.summingDouble(e -> BillingUtils.getDataUsageInMB((double) e.getVolume()))));
   }
 
+  /**
+   * @param dataPasses
+   * @param infoType
+   * @return
+   */
   private Double getZeroRatedUsage(final List<DataPass> dataPasses, final String infoType) {
 
     return dataPasses.stream().filter(e -> infoType.equals(e.getInfoType()))

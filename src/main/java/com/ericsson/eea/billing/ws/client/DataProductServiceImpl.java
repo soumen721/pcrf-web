@@ -8,10 +8,17 @@ import org.jboss.logging.Logger;
 
 import com.ee.cne.ws.dataproduct.generated.DataProductService;
 
+/**
+ * @author esonchy
+ *
+ */
 @HandlerChain(file = "handler-chain.xml")
 public class DataProductServiceImpl extends DataProductService {
 	private static final Logger log = Logger.getLogger(DataProductServiceImpl.class);
 
+	/**
+	 * @param wsdlLocation
+	 */
 	public DataProductServiceImpl(URL wsdlLocation) {
 		super(wsdlLocation, SERVICE);
 		log.info("In DataProductServiceImpl");

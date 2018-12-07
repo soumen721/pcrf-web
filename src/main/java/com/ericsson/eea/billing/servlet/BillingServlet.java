@@ -26,6 +26,7 @@ public class BillingServlet extends HttpServlet {
     super();
   }
 
+  @Override
   protected void doGet(HttpServletRequest request, HttpServletResponse response)
       throws ServletException, IOException {
 
@@ -38,7 +39,6 @@ public class BillingServlet extends HttpServlet {
       id.setId(msisdn != null ? msisdn : "123123123123");
       id.setIdType(SubscriberIdType.msisdn);
       filter.setId(id);
-      // resp = bean.getBillingCycleInfo(filter).toString();
       ObjectMapper mapper = new ObjectMapper();
       resp = mapper.writerWithDefaultPrettyPrinter()
           .writeValueAsString(bean.getBillingCycleInfo(filter));

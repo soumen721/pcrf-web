@@ -6,6 +6,10 @@ import java.util.Map;
 import lombok.Builder;
 import lombok.Data;
 
+/**
+ * @author esonchy
+ *
+ */
 @Data
 @Builder
 public class DataUsageDetails implements Serializable {

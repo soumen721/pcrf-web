@@ -21,11 +21,18 @@ import com.ericsson.eea.billing.util.BillingUtils;
 import com.ericsson.eea.billing.util.TariffType;
 import com.ericsson.eea.billing.ws.client.DataProductsClient;
 
+/**
+ * @author esonchy
+ *
+ */
 @Stateless
 @Remote(SubscriberBillingRemote.class)
 public class SubscriberBillingInfoImpl implements SubscriberBillingRemote {
 	private static final Logger log = Logger.getLogger(SubscriberBillingInfoImpl.class);
 
+	/* (non-Javadoc)
+	 * @see com.ericsson.eea.billing.service.SubscriberBillingRemote#getBillingCycleInfo(com.ericsson.eea.billing.model.SubscriberFilter)
+	 */
 	@Override
 	public MessageEnvelope<SubscriberBillingInfo> getBillingCycleInfo(SubscriberFilter filter)
 			throws SubscriberBillingInfoNotAvailableException, SubscriberBillingRetrievalFailedException {
@@ -39,10 +46,10 @@ public class SubscriberBillingInfoImpl implements SubscriberBillingRemote {
 					.getSubscriberInfo();
 			DataUsageCalculationService usageCalculationService;
 
-			if (TariffType.Prepaid.name().equals(subscriberInfo.getTariffType())) {
+			if (TariffType.PREPAID.getType().equals(subscriberInfo.getTariffType())) {
 
 				usageCalculationService = new PrePaidDataUsageCalculationService();
-			} else if (TariffType.Postpaid.name().equals(subscriberInfo.getTariffType())) {
+			} else if (TariffType.POSTPAID.getType().equals(subscriberInfo.getTariffType())) {
 
 				usageCalculationService = new PostPaidDataUsageCalculationService();
 			} else {

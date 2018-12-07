@@ -1,5 +1,15 @@
 package com.ericsson.eea.billing.util;
 
 public enum TariffType {
-	Postpaid, Prepaid
+  POSTPAID("Postpaid"), PREPAID("Prepaid");
+
+  private String type;
+
+  TariffType(String type) {
+    this.type = type;
+  }
+
+  public String getType() {
+    return type;
+  }
 }

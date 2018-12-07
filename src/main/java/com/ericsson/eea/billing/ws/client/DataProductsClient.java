@@ -4,9 +4,7 @@ import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.UUID;
-
 import org.jboss.logging.Logger;
-
 import com.ee.cne.ws.dataproduct.generated.DataProduct;
 import com.ee.cne.ws.dataproduct.generated.DataProductBasicRequest.KeyIdentifier;
 import com.ee.cne.ws.dataproduct.generated.DataProductService;
@@ -21,80 +19,85 @@ import com.ericsson.eea.billing.model.SubscriberFilter;
 import com.ericsson.eea.billing.model.SubscriberIdType;
 import com.ericsson.eea.billing.util.BillingConstant;
 import com.ericsson.eea.billing.util.BillingUtils;
-import com.ericsson.eea.billing.util.DummyDataGenerator;
 
+/**
+ * @author esonchy
+ *
+ */
 public class DataProductsClient {
-	private static final Logger log = Logger.getLogger(DataProductsClient.class);
+  private static final Logger log = Logger.getLogger(DataProductsClient.class);
 
-	/**
-	 * @param filter
-	 * @return
-	 * @throws SubscriberBillingInfoNotAvailableException
-	 * @throws SubscriberBillingRetrievalFailedException
-	 */
-	public static GetCurrentAndAvailableDataProductsResponse getDataProductsWebServiceResponse(SubscriberFilter filter)
-			throws SubscriberBillingInfoNotAvailableException, SubscriberBillingRetrievalFailedException {
+  private DataProductsClient() {
 
-		GetCurrentAndAvailableDataProductsResponse response = null;
-		try {
-			// TODO remove once got actual Response
-			response = null; //DummyDataGenerator.populateResponseData();
-			if (response == null) {
-				URL wsdlURL = new URL(BillingUtils.getProperties().getProperty(BillingUtils.PCRF_BILLING_WS_URL));
-				log.info("BIlling WebService URL :: " + wsdlURL.toURI().toString());
+  }
 
-				GetCurrentAndAvailableDataProductsRequest request = new ObjectFactory()
-						.createGetCurrentAndAvailableDataProductsRequest();
+  /**
+   * @param filter
+   * @return
+   * @throws SubscriberBillingInfoNotAvailableException
+   * @throws SubscriberBillingRetrievalFailedException
+   */
+  public static GetCurrentAndAvailableDataProductsResponse getDataProductsWebServiceResponse(
+      SubscriberFilter filter)
+      throws SubscriberBillingInfoNotAvailableException, SubscriberBillingRetrievalFailedException {
 
-				if (filter != null && filter.getId() != null) {
-					EIMessageContext2 messageContext = new EIMessageContext2();
-					messageContext.setTarget("pdf");
-					messageContext.setTimeLeft(200L);
-					messageContext.setSender(BillingConstant.EEA_SENDER_ID);
-					messageContext.setCorrelationId(UUID.randomUUID().toString());
-					request.setEiMessageContext2(messageContext);
+    GetCurrentAndAvailableDataProductsResponse response = null;
+    try {
+      response = null; // DummyDataGenerator.populateResponseData();
+      if (response == null) {
+        URL wsdlURL =
+            new URL(BillingUtils.getProperties().getProperty(BillingUtils.PCRF_BILLING_WS_URL));
+        log.info("BIlling WebService URL :: " + wsdlURL.toURI().toString());
 
-					String msisdn = null;
-					if (SubscriberIdType.msisdn == filter.getId().getIdType()) {
-						msisdn = filter.getId().getId();
-					} else {
-						log.error("No MSISDN subscriberType found");
-						throw new SubscriberBillingRetrievalFailedException();
-					}
+        GetCurrentAndAvailableDataProductsRequest request =
+            new ObjectFactory().createGetCurrentAndAvailableDataProductsRequest();
 
-					Message message = new Message();
-					KeyIdentifier identifier = new KeyIdentifier();
-					identifier.setMsisdn(msisdn);
-					message.setKeyIdentifier(identifier);
-					message.setRequestOrigin(BillingConstant.EEA_SENDER_ID);
-					request.setMessage(message);
-				} else {
-					log.error("NO Id found for retriveing Billing");
-					throw new SubscriberBillingRetrievalFailedException();
-				}
+        if (filter != null && filter.getId() != null) {
+          EIMessageContext2 messageContext = new EIMessageContext2();
+          messageContext.setTarget("pdf");
+          messageContext.setTimeLeft(200L);
+          messageContext.setSender(BillingConstant.EEA_SENDER_ID);
+          messageContext.setCorrelationId(UUID.randomUUID().toString());
+          request.setEiMessageContext2(messageContext);
 
-				DataProductService dataService = new DataProductServiceImpl(wsdlURL);
-				DataProduct port = dataService.getDataProduct10();
-				response = port.getCurrentAndAvailableDataProducts(request);
-			}
+          String msisdn = null;
+          if (SubscriberIdType.msisdn == filter.getId().getIdType()) {
+            msisdn = filter.getId().getId();
+          } else {
+            log.error("No MSISDN subscriberType found");
+            throw new SubscriberBillingRetrievalFailedException();
+          }
 
-		} catch (MalformedURLException e) {
+          Message message = new Message();
+          KeyIdentifier identifier = new KeyIdentifier();
+          identifier.setMsisdn(msisdn);
+          message.setKeyIdentifier(identifier);
+          message.setRequestOrigin(BillingConstant.EEA_SENDER_ID);
+          request.setMessage(message);
+        } else {
+          log.error("NO Id found for retriveing Billing");
+          throw new SubscriberBillingRetrievalFailedException();
+        }
 
-			log.error("Exception Occured :: " + e.getMessage());
-			throw new SubscriberBillingInfoNotAvailableException();
-		} catch (URISyntaxException e) {
-			log.error("Exception Occured :: " + e.getMessage());
-			throw new SubscriberBillingRetrievalFailedException();
-		} catch (Exception e) {
+        DataProductService dataService = new DataProductServiceImpl(wsdlURL);
+        DataProduct port = dataService.getDataProduct10();
+        response = port.getCurrentAndAvailableDataProducts(request);
+      }
 
-			log.error("Exception Occured :: " + e.getMessage());
-			throw new SubscriberBillingRetrievalFailedException();
-		}
+    } catch (MalformedURLException | URISyntaxException e) {
+      log.error("In getDataProductsWebServiceResponse Exception Occured :: " + e);
+      throw new SubscriberBillingRetrievalFailedException();
+    } catch (Exception e) {
 
-		if (response == null || response.getMessage() == null || response.getMessage().getSubscriberInfo() == null) {
-			throw new SubscriberBillingInfoNotAvailableException();
-		}
+      log.error("Exception Occured :: " + e.getMessage());
+      throw new SubscriberBillingRetrievalFailedException();
+    }
 
-		return response;
-	}
+    if (response == null || response.getMessage() == null
+        || response.getMessage().getSubscriberInfo() == null) {
+      throw new SubscriberBillingInfoNotAvailableException();
+    }
+
+    return response;
+  }
 }

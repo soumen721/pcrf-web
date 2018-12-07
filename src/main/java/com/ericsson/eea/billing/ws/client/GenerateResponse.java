@@ -18,6 +18,10 @@ import com.ee.cne.ws.dataproduct.generated.GetCurrentAndAvailableDataProductsRes
 import com.ericsson.eea.billing.model.SubscriberBillingInfoNotAvailableException;
 import com.ericsson.eea.billing.model.SubscriberBillingRetrievalFailedException;
 
+/**
+ * @author esonchy
+ *  TO be removed this class in future , just for testing
+ */
 public class GenerateResponse {
 
 	final static int ADD_DAY = 4;
