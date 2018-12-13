@@ -61,8 +61,8 @@ public class DummyDataGenerator {
     DataPass dataPass = populateDataPass("C", "10GB Data EE HS EOBC",
         LocalDateTime.now().minusDays(DAY_IN_MNTH * CUR_MONTH_CYCLE + 15),
         LocalDateTime.now().minusDays(DAY_IN_MNTH * CUR_MONTH_CYCLE + 4), 8667008000L, 8960598016L,
-        "virtual", new Long[] {8667008000L, 2942488576L});
-    DataPass dataPass1 = populateDataPass("S", "Unlimited",
+        "unlimited", new Long[] {8667008000L, 2942488576L});
+    DataPass dataPass1 = populateDataPass("S", "ROW5TMAFUPunlimited1",
         LocalDateTime.now().minusDays(DAY_IN_MNTH * CUR_MONTH_CYCLE + 20),
         LocalDateTime.now().minusDays(DAY_IN_MNTH * CUR_MONTH_CYCLE + 12), 287161212L, 11811161088L,
         "unlimited", new Long[] {8960598016L, 2852495360L});
@@ -78,7 +78,11 @@ public class DummyDataGenerator {
         LocalDateTime.now().minusDays(DAY_IN_MNTH * CUR_MONTH_CYCLE + 23),
         LocalDateTime.now().minusDays(DAY_IN_MNTH * CUR_MONTH_CYCLE + 18), 2871612L, 213123123L,
         "virtual", new Long[] {241242414L, 79543559312L});
-
+    DataPass dataPass5 = populateDataPass("ZR", "Video2",
+        LocalDateTime.now().minusDays(DAY_IN_MNTH * CUR_MONTH_CYCLE + 23),
+        LocalDateTime.now().minusDays(DAY_IN_MNTH * CUR_MONTH_CYCLE + 18), 2871612L, 213123123L,
+        "virtual", new Long[] {241242414L, 79543559312L});
+    
     DataPass dataPass10 = populateDataPass("EZR", "10GB Data EE HS EOBC",
         LocalDateTime.now().minusDays(DAY_IN_MNTH * PREV_MONTH_CYCLE + 15),
         LocalDateTime.now().minusDays(DAY_IN_MNTH * PREV_MONTH_CYCLE + 4), 125872138L, 10737418240L,
@@ -97,7 +101,7 @@ public class DummyDataGenerator {
         LocalDateTime.now().minusDays(DAY_IN_MNTH * PENLTY_MONTH_CYCLE + 5), 287161232L, 118322228L,
         "virtual", new Long[] {896023286L, 2852495360L});
 
-    dataProduct.getDataProduct().addAll(Arrays.asList(dataPass, dataPass1, dataPass2, dataPass3,
+    dataProduct.getDataProduct().addAll(Arrays.asList(dataPass, dataPass1, dataPass2, dataPass3, dataPass5,
         dataPass4, dataPass10, dataPass11, dataPass20, dataPass21));
 
     message.setDataProducts(dataProduct);
