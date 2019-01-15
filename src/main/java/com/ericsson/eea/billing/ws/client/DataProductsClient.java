@@ -5,6 +5,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.UUID;
 import org.jboss.logging.Logger;
+import com.ee.cne.ws.dataproduct.generated.BusinessFault;
 import com.ee.cne.ws.dataproduct.generated.DataProduct;
 import com.ee.cne.ws.dataproduct.generated.DataProductBasicRequest.KeyIdentifier;
 import com.ee.cne.ws.dataproduct.generated.DataProductService;
@@ -13,6 +14,7 @@ import com.ee.cne.ws.dataproduct.generated.GetCurrentAndAvailableDataProductsReq
 import com.ee.cne.ws.dataproduct.generated.GetCurrentAndAvailableDataProductsRequest.Message;
 import com.ee.cne.ws.dataproduct.generated.GetCurrentAndAvailableDataProductsResponse;
 import com.ee.cne.ws.dataproduct.generated.ObjectFactory;
+import com.ee.cne.ws.dataproduct.generated.TechnicalFault;
 import com.ericsson.eea.billing.model.SubscriberBillingInfoNotAvailableException;
 import com.ericsson.eea.billing.model.SubscriberBillingRetrievalFailedException;
 import com.ericsson.eea.billing.model.SubscriberFilter;
@@ -84,6 +86,14 @@ public class DataProductsClient {
 
     } catch (MalformedURLException | URISyntaxException e) {
       log.error("In getDataProductsWebServiceResponse Exception Occured :: " + e);
+      throw new SubscriberBillingRetrievalFailedException();
+    } catch (BusinessFault e) {
+
+      log.error("Business Exception Occured :: " + e.getFaultInfo().getFaultDescription());
+      throw new SubscriberBillingInfoNotAvailableException();
+    } catch (TechnicalFault e) {
+
+      log.error("Technical Exception Occured :: " + e.getFaultInfo().getFaultDescription());
       throw new SubscriberBillingRetrievalFailedException();
     } catch (Exception e) {
 

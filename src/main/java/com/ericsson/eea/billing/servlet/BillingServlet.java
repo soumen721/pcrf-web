@@ -44,7 +44,7 @@ public class BillingServlet extends HttpServlet {
           .writeValueAsString(bean.getBillingCycleInfo(filter));
 
     } catch (Exception e) {
-
+      resp = e.toString();
     }
 
     response.setContentType("application/json");
