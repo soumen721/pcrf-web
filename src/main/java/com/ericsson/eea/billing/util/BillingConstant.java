@@ -38,5 +38,6 @@ public class BillingConstant {
 
   public static final long BYTE_TO_MB = (long)1024 * 1024;
 
-  public static final String EEA_SENDER_ID = "eea";
+  public static final String EEA_SENDER_ID = "SOA";
+  public static final String EEA_REQUESTOR_ID = "ee_ebdc_portal";
 }

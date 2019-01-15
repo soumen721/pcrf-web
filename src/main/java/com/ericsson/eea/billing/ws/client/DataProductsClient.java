@@ -54,8 +54,6 @@ public class DataProductsClient {
 
         if (filter != null && filter.getId() != null) {
           EIMessageContext2 messageContext = new EIMessageContext2();
-          messageContext.setTarget("pdf");
-          messageContext.setTimeLeft(200L);
           messageContext.setSender(BillingConstant.EEA_SENDER_ID);
           messageContext.setCorrelationId(UUID.randomUUID().toString());
           request.setEiMessageContext2(messageContext);
@@ -72,7 +70,7 @@ public class DataProductsClient {
           KeyIdentifier identifier = new KeyIdentifier();
           identifier.setMsisdn(msisdn);
           message.setKeyIdentifier(identifier);
-          message.setRequestOrigin(BillingConstant.EEA_SENDER_ID);
+          message.setRequestOrigin(BillingConstant.EEA_REQUESTOR_ID);
           request.setMessage(message);
         } else {
           log.error("NO Id found for retriveing Billing");
