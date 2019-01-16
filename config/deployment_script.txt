@@ -1,47 +1,54 @@
 FOR PCRF
 Log Profile:
 
-	/subsystem=logging/logging-profile=cne-web-adaptor:add
+	/profile=full-ha/subsystem=logging/logging-profile=cne-web-adaptor:add
 	
-	/subsystem=logging/logging-profile=cne-web-adaptor/console-handler=CONSOLE:add(formatter="%d{HH:mm:ss,SSS} %-5p [%c.%M:%L] (%t) %s%E%n")
+	/profile=full-ha/subsystem=logging/logging-profile=cne-web-adaptor/console-handler=CONSOLE:add(formatter="%d{HH:mm:ss,SSS} %-5p [%c.%M:%L] (%t) %s%E%n")
 	
-	/subsystem=logging/logging-profile=cne-web-adaptor/periodic-rotating-file-handler=ericsson_billing:add(autoflush="true", formatter="%d{HH:mm:ss,SSS} %-5p [%c.%M:%L] (%t) %s%E%n", file={"relative-to"=>"jboss.server.log.dir","path"=>"ericsson_billing.log"}, suffix=".yyyy-MM-dd", append=true)
+	/profile=full-ha/subsystem=logging/logging-profile=cne-web-adaptor/periodic-rotating-file-handler=pcrf_billing:add(autoflush="true", formatter="%d{HH:mm:ss,SSS} %-5p [%c.%M:%L] (%t) %s%E%n", file={"relative-to"=>"jboss.server.log.dir","path"=>"cne-web-adaptor.log"}, suffix=".yyyy-MM-dd", append=true)
 	
-	/subsystem=logging/logging-profile=cne-web-adaptor/logger=com.ericsson.eea:add(use-parent-handlers=false, handlers=["ericsson_billing", "CONSOLE"], level=INFO)
+	/profile=full-ha/subsystem=logging/logging-profile=cne-web-adaptor/logger=com.ericsson.eea:add(use-parent-handlers=false, handlers=["pcrf_billing", "CONSOLE"], level=INFO)
 	
-	/subsystem=logging/logging-profile=cne-web-adaptor/root-logger=ROOT:add(handlers=["ericsson_billing", "CONSOLE"], level=INFO)
+	/profile=full-ha/subsystem=logging/logging-profile=cne-web-adaptor/root-logger=ROOT:add(handlers=["ericsson_billing", "CONSOLE"], level=INFO)
  
  
  Extra:	
  To change Log level in runtime 
- 	/subsystem=logging/logging-profile=cne-web-adaptor/logger=com.ericsson.eea:write-attribute(name="level", value="INFO")
+ 	/profile=full-ha/subsystem=logging/logging-profile=cne-web-adaptor/logger=com.ericsson.eea:write-attribute(name="level", value="INFO")
  
+----------------------------------------------------------------
+Deployment:
+reload --host=host0-master
+/host=master:reload
+/server-groups=main-server-group:reload-servers
+
+undeploy pcrfweb-1.0.war --server-groups=main-server-group
+
+deploy  C:\Project_Software\jboss-eap-6.4\pcrfweb-1.0.war  --name=pcrfweb-1.0.war --server-groups=main-server-group
+----------------------------------------------------------------
  OUTPUT::
  
-		<logging-profile name="cne-web-adaptor">
-            <console-handler name="CONSOLE"/>
-            <periodic-rotating-file-handler name="ericsson_billing" autoflush="true">
+        <logging-profile name="cne-web-adaptor">
+            <console-handler name="CONSOLE">
                 <formatter>
-                    <pattern-formatter pattern="%d{dd-MM-yyyy HH:mm:ss,SSS}|%-5p|%m%n"/>
+                    <pattern-formatter pattern="%d{HH:mm:ss,SSS} %-5p [%c.%M:%L] (%t) %s%E%n"/>
                 </formatter>
-                <file relative-to="jboss.server.log.dir" path="ericsson_billing.log"/>
+            </console-handler>
+            <periodic-rotating-file-handler name="pcrf_billing" autoflush="true">
+                <formatter>
+                    <pattern-formatter pattern="%d{HH:mm:ss,SSS} %-5p [%c.%M:%L] (%t) %s%E%n"/>
+                </formatter>
+                <file relative-to="jboss.server.log.dir" path="cne-web-adaptor.log"/>
                 <suffix value=".yyyy-MM-dd"/>
                 <append value="true"/>
             </periodic-rotating-file-handler>
             <logger category="com.ericsson.eea" use-parent-handlers="false">
                 <level name="INFO"/>
                 <handlers>
-                    <handler name="ericsson_billing"/>
+                    <handler name="pcrf_billing"/>
                     <handler name="CONSOLE"/>
                 </handlers>
             </logger>
-            <root-logger>
-                <level name="INFO"/>
-                <handlers>
-                    <handler name="ericsson_billing"/>
-                    <handler name="CONSOLE"/>
-                </handlers>
-            </root-logger>
         </logging-profile>
         
 ---------------	For Certificates for Testing	---------------------------
