@@ -9,7 +9,7 @@ Log Profile:
 	
 	/profile=full-ha/subsystem=logging/logging-profile=cne-web-adaptor/logger=com.ericsson.eea:add(use-parent-handlers=false, handlers=["pcrf_billing", "CONSOLE"], level=INFO)
 	
-	/profile=full-ha/subsystem=logging/logging-profile=cne-web-adaptor/root-logger=ROOT:add(handlers=["ericsson_billing", "CONSOLE"], level=INFO)
+	/profile=full-ha/subsystem=logging/logging-profile=cne-web-adaptor/root-logger=ROOT:add(handlers=["pcrf_billing", "CONSOLE"], level=INFO)
  
  
  Extra:	
