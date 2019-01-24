@@ -28,28 +28,35 @@ deploy  C:\Project_Software\jboss-eap-6.4\pcrfweb-1.0.war  --name=pcrfweb-1.0.wa
 ----------------------------------------------------------------
  OUTPUT::
  
-        <logging-profile name="cne-web-adaptor">
-            <console-handler name="CONSOLE">
-                <formatter>
-                    <pattern-formatter pattern="%d{HH:mm:ss,SSS} %-5p [%c.%M:%L] (%t) %s%E%n"/>
-                </formatter>
-            </console-handler>
-            <periodic-rotating-file-handler name="pcrf_billing" autoflush="true">
-                <formatter>
-                    <pattern-formatter pattern="%d{HH:mm:ss,SSS} %-5p [%c.%M:%L] (%t) %s%E%n"/>
-                </formatter>
-                <file relative-to="jboss.server.log.dir" path="cne-web-adaptor.log"/>
-                <suffix value=".yyyy-MM-dd"/>
-                <append value="true"/>
-            </periodic-rotating-file-handler>
-            <logger category="com.ericsson.eea" use-parent-handlers="false">
-                <level name="INFO"/>
-                <handlers>
-                    <handler name="pcrf_billing"/>
-                    <handler name="CONSOLE"/>
-                </handlers>
-            </logger>
-        </logging-profile>
+<logging-profile name="cne-web-adaptor">
+    <console-handler name="CONSOLE">
+        <formatter>
+            <pattern-formatter pattern="%d{HH:mm:ss,SSS} %-5p [%c.%M:%L] (%t) %s%E%n"/>
+        </formatter>
+    </console-handler>
+    <periodic-rotating-file-handler name="pcrf_billing" autoflush="true">
+        <formatter>
+            <pattern-formatter pattern="%d{HH:mm:ss,SSS} %-5p [%c.%M:%L] (%t) %s%E%n"/>
+        </formatter>
+        <file relative-to="jboss.server.log.dir" path="cne-web-adaptor.log"/>
+        <suffix value=".yyyy-MM-dd"/>
+        <append value="true"/>
+    </periodic-rotating-file-handler>
+    <logger category="com.ericsson.eea" use-parent-handlers="false">
+        <level name="INFO"/>
+        <handlers>
+            <handler name="pcrf_billing"/>
+            <handler name="CONSOLE"/>
+        </handlers>
+    </logger>
+    <root-logger>
+        <level name="INFO"/>
+        <handlers>
+            <handler name="pcrf_billing"/>
+            <handler name="CONSOLE"/>
+        </handlers>
+    </root-logger>
+</logging-profile>
         
 ---------------	For Certificates for Testing	---------------------------
 

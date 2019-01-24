@@ -4,10 +4,7 @@ import static com.ericsson.eea.billing.util.BillingConstant.BYTE_TO_MB;
 import static com.ericsson.eea.billing.util.BillingConstant.CUST_TYPE_NEXUS;
 import static com.ericsson.eea.billing.util.BillingConstant.UNLIMITED_PASS_TYPE;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
@@ -66,10 +63,8 @@ public class BillingUtils {
         return properties;
       }
       properties = new Properties();
-      String dir = System.getenv("config_dir");
-      log.info("Config Location: "+ dir);
-      InputStream in = new FileInputStream(dir + File.separator+ "pcrf_config.properties");
-      properties.load(in);
+      properties
+          .load(BillingUtils.class.getClassLoader().getResourceAsStream("pcrf_config.properties"));
       log.info("PCRF web-service URL:: " + properties.getProperty(PCRF_BILLING_WS_URL));
       log.info("Config File loaded successfully");
     } catch (IOException ex) {

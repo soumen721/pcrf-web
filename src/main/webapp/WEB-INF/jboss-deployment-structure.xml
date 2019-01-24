@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jboss-deployment-structure>
+	<deployment>
+		<dependencies>
+			<module name="javax.xml.ws.api" />
+			<module name="javax.annotation.api" />
+			<module name="javax.jws.api" />
+			<module name="org.apache.cxf" />
+			<module name="org.apache.cxf.impl" />
+		</dependencies>
+	</deployment>
+</jboss-deployment-structure>

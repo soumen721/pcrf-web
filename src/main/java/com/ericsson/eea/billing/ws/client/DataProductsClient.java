@@ -1,14 +1,13 @@
 package com.ericsson.eea.billing.ws.client;
 
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
-import java.net.URL;
+import java.util.Arrays;
 import java.util.UUID;
+import org.apache.cxf.frontend.ClientFactoryBean;
+import org.apache.cxf.jaxws.JaxWsProxyFactoryBean;
 import org.jboss.logging.Logger;
 import com.ee.cne.ws.dataproduct.generated.BusinessFault;
 import com.ee.cne.ws.dataproduct.generated.DataProduct;
 import com.ee.cne.ws.dataproduct.generated.DataProductBasicRequest.KeyIdentifier;
-import com.ee.cne.ws.dataproduct.generated.DataProductService;
 import com.ee.cne.ws.dataproduct.generated.EIMessageContext2;
 import com.ee.cne.ws.dataproduct.generated.GetCurrentAndAvailableDataProductsRequest;
 import com.ee.cne.ws.dataproduct.generated.GetCurrentAndAvailableDataProductsRequest.Message;
@@ -45,48 +44,45 @@ public class DataProductsClient {
 
     GetCurrentAndAvailableDataProductsResponse response = null;
     try {
-      response = null; // DummyDataGenerator.populateResponseData();
-      if (response == null) {
-        URL wsdlURL =
-            new URL(BillingUtils.getProperties().getProperty(BillingUtils.PCRF_BILLING_WS_URL));
-        log.info("BIlling WebService URL :: " + wsdlURL.toURI().toString());
+      String pcrflURL = BillingUtils.getProperties().getProperty(BillingUtils.PCRF_BILLING_WS_URL);
+      log.info("BIlling WebService URL :: " + pcrflURL);
 
-        GetCurrentAndAvailableDataProductsRequest request =
-            new ObjectFactory().createGetCurrentAndAvailableDataProductsRequest();
+      GetCurrentAndAvailableDataProductsRequest request =
+          new ObjectFactory().createGetCurrentAndAvailableDataProductsRequest();
 
-        if (filter != null && filter.getId() != null) {
-          EIMessageContext2 messageContext = new EIMessageContext2();
-          messageContext.setSender(BillingConstant.EEA_SENDER_ID);
-          messageContext.setCorrelationId(UUID.randomUUID().toString());
-          request.setEiMessageContext2(messageContext);
+      if (filter != null && filter.getId() != null) {
+        EIMessageContext2 messageContext = new EIMessageContext2();
+        messageContext.setSender(BillingConstant.EEA_SENDER_ID);
+        messageContext.setCorrelationId(UUID.randomUUID().toString());
+        request.setEiMessageContext2(messageContext);
 
-          String msisdn = null;
-          if (SubscriberIdType.msisdn == filter.getId().getIdType()) {
-            msisdn = filter.getId().getId();
-          } else {
-            log.error("No MSISDN subscriberType found");
-            throw new SubscriberBillingRetrievalFailedException();
-          }
-
-          Message message = new Message();
-          KeyIdentifier identifier = new KeyIdentifier();
-          identifier.setMsisdn(msisdn);
-          message.setKeyIdentifier(identifier);
-          message.setRequestOrigin(BillingConstant.EEA_REQUESTOR_ID);
-          request.setMessage(message);
+        String msisdn = null;
+        if (SubscriberIdType.msisdn == filter.getId().getIdType()) {
+          msisdn = filter.getId().getId();
         } else {
-          log.error("NO Id found for retriveing Billing");
+          log.error("No MSISDN subscriberType found");
           throw new SubscriberBillingRetrievalFailedException();
         }
 
-        DataProductService dataService = new DataProductServiceImpl(wsdlURL);
-        DataProduct port = dataService.getDataProduct10();
-        response = port.getCurrentAndAvailableDataProducts(request);
+        Message message = new Message();
+        KeyIdentifier identifier = new KeyIdentifier();
+        identifier.setMsisdn(msisdn);
+        message.setKeyIdentifier(identifier);
+        message.setRequestOrigin(BillingConstant.EEA_REQUESTOR_ID);
+        request.setMessage(message);
+      } else {
+        log.error("NO Id found for retriveing Billing");
+        throw new SubscriberBillingRetrievalFailedException();
       }
 
-    } catch (MalformedURLException | URISyntaxException e) {
-      log.error("In getDataProductsWebServiceResponse Exception Occured :: " + e);
-      throw new SubscriberBillingRetrievalFailedException();
+      JaxWsProxyFactoryBean proxyFactory = new JaxWsProxyFactoryBean();
+      proxyFactory.setHandlers(Arrays.asList(new BillingWSInterceptor()));
+      ClientFactoryBean clientBean = proxyFactory.getClientFactoryBean();
+      clientBean.setAddress(pcrflURL);
+      clientBean.setServiceClass(DataProduct.class);
+      DataProduct client = (DataProduct) proxyFactory.create();
+      response = client.getCurrentAndAvailableDataProducts(request);
+
     } catch (BusinessFault e) {
 
       log.error("Business Exception Occured :: " + e.getFaultInfo().getFaultDescription());
