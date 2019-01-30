@@ -19,7 +19,7 @@ public class BillingServlet extends HttpServlet {
   private static final long serialVersionUID = 1L;
 
   @EJB(
-      mappedName = "java:module/SubscriberBillingInfoImpl!com.ericsson.eea.billing.service.SubscriberBillingRemote")
+      mappedName = "java:jboss/pcrfService")
   SubscriberBillingRemote bean;
 
   public BillingServlet() {

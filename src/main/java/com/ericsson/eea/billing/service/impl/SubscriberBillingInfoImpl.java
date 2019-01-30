@@ -1,12 +1,10 @@
 package com.ericsson.eea.billing.service.impl;
 
 import java.util.Collections;
-
+import javax.ejb.EJB;
 import javax.ejb.Remote;
 import javax.ejb.Stateless;
-
 import org.jboss.logging.Logger;
-
 import com.ee.cne.ws.dataproduct.generated.GetCurrentAndAvailableDataProductsResponse;
 import com.ericsson.eea.billing.model.MessageEnvelope;
 import com.ericsson.eea.billing.model.SubscriberBillingInfo;
@@ -27,6 +25,7 @@ import com.ericsson.eea.billing.ws.client.DataProductsClient;
  */
 @Stateless
 @Remote(SubscriberBillingRemote.class)
+@EJB(name = "java:jboss/pcrfService", beanInterface = SubscriberBillingRemote.class)  
 public class SubscriberBillingInfoImpl implements SubscriberBillingRemote {
 	private static final Logger log = Logger.getLogger(SubscriberBillingInfoImpl.class);
 
