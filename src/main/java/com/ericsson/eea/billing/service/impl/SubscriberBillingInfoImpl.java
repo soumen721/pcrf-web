@@ -25,7 +25,7 @@ import com.ericsson.eea.billing.ws.client.DataProductsClient;
  */
 @Stateless
 @Remote(SubscriberBillingRemote.class)
-@EJB(name = "java:jboss/pcrfService", beanInterface = SubscriberBillingRemote.class)  
+@EJB(name = "java:jboss/eea.billing.service.jndi", beanInterface = SubscriberBillingRemote.class)  
 public class SubscriberBillingInfoImpl implements SubscriberBillingRemote {
 	private static final Logger log = Logger.getLogger(SubscriberBillingInfoImpl.class);
 
