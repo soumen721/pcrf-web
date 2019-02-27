@@ -40,7 +40,11 @@ public class SubscriberBillingInfoImpl implements SubscriberBillingRemote {
 	public MessageEnvelope<SubscriberBillingInfo> getBillingCycleInfo(SubscriberFilter filter)
 			throws SubscriberBillingInfoNotAvailableException, SubscriberBillingRetrievalFailedException {
 
-		log.info("EJB execution started for MSISDN[" + filter.getId() != null ? filter.getId().getId() : null + "]");
+		log.info("EJB execution started for Type [" + filter.getId() != null ? filter.getId().getIdType()
+				: null + "]\tID [" + filter.getId() != null ? filter.getId().getId()
+						: null + "] & Date Range Start Date [" + filter.getStartTimeEpoch() + "]\t End Date ["
+								+ filter.getEndTimeEpoch() + "]");
+
 		GetCurrentAndAvailableDataProductsResponse response = DataProductsClient
 				.getDataProductsWebServiceResponse(filter);
 
