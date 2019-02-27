@@ -25,17 +25,22 @@ import com.ericsson.eea.billing.ws.client.DataProductsClient;
  */
 @Stateless
 @Remote(SubscriberBillingRemote.class)
-@EJB(name = "java:jboss/eea.billing.service.jndi", beanInterface = SubscriberBillingRemote.class)  
+@EJB(name = "java:jboss/eea.billing.service.jndi", beanInterface = SubscriberBillingRemote.class)
 public class SubscriberBillingInfoImpl implements SubscriberBillingRemote {
 	private static final Logger log = Logger.getLogger(SubscriberBillingInfoImpl.class);
 
-	/* (non-Javadoc)
-	 * @see com.ericsson.eea.billing.service.SubscriberBillingRemote#getBillingCycleInfo(com.ericsson.eea.billing.model.SubscriberFilter)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.ericsson.eea.billing.service.SubscriberBillingRemote#getBillingCycleInfo(
+	 * com.ericsson.eea.billing.model.SubscriberFilter)
 	 */
 	@Override
 	public MessageEnvelope<SubscriberBillingInfo> getBillingCycleInfo(SubscriberFilter filter)
 			throws SubscriberBillingInfoNotAvailableException, SubscriberBillingRetrievalFailedException {
 
+		log.info("EJB execution started for MSISDN[" + filter.getId() != null ? filter.getId().getId() : null + "]");
 		GetCurrentAndAvailableDataProductsResponse response = DataProductsClient
 				.getDataProductsWebServiceResponse(filter);
 
